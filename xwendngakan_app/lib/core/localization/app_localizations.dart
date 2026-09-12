@@ -2665,11 +2665,11 @@ class AppLocalizations {
   String get allFilter => _t(
       {'ku': 'هەموو', 'kbd': 'هەمی', 'ar': 'الكل', 'en': 'All', 'tr': 'Tümü'});
   String get topRatedInstitutions => _t({
-        'ku': 'بەرزترین هەڵسەنگاندنەکان',
-        'kbd': 'بلندترین هەلسەنگاندن',
-        'ar': 'الأعلى تقييماً',
-        'en': 'Top Rated',
-        'tr': 'En Yüksek Puanlılar'
+        'ku': 'باشترین دامەزراوەکان',
+        'kbd': 'باشترین دامەزراوە',
+        'ar': 'أفضل المؤسسات',
+        'en': 'Best Institutions',
+        'tr': 'En İyi Kurumlar'
       });
   String get bestInstitutions => _t({
         'ku': 'دامەزراوەکان',

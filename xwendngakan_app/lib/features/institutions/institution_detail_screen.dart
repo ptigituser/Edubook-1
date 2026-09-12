@@ -842,7 +842,15 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
           distribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
         );
     final userReview = _reviewsData?.userReview;
-    final reviews = _reviewsData?.reviews ?? [];
+    final rawReviews = _reviewsData?.reviews ?? [];
+    final reviews = List<ReviewModel>.from(rawReviews);
+    if (userReview != null) {
+      reviews.sort((a, b) {
+        if (a.id == userReview.id) return -1;
+        if (b.id == userReview.id) return 1;
+        return 0;
+      });
+    }
     final accentColor = AppColors.typeColor(inst.type);
 
     return Column(
@@ -850,11 +858,13 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
       children: [
         // ── Rating Breakdown Summary Card ──
         _buildRatingSummaryCard(summary, isDark, l),
-        const SizedBox(height: 20),
 
-        // ── User's Own Review (if exists) or "Write Review" button ──
-        _buildUserReviewActionSection(inst, userReview, isDark, l, accentColor),
-        const SizedBox(height: 28),
+        // ── "Write Review" button (only shown if user hasn't reviewed yet) ──
+        if (userReview == null) ...[
+          const SizedBox(height: 18),
+          _buildWriteReviewButton(inst, l),
+        ],
+        const SizedBox(height: 24),
 
         // ── Reviews List Header ──
         Row(
@@ -906,7 +916,8 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
             itemBuilder: (context, index) {
               final rev = reviews[index];
               final isMyReview = userReview?.id == rev.id;
-              return _buildReviewCard(rev, isMyReview, isDark, accentColor, l);
+              return _buildReviewCard(
+                  inst, rev, isMyReview, isDark, accentColor, l);
             },
           ),
       ],
@@ -967,7 +978,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$total ${l.reviews}',
+                  '$total ${total == 1 ? l.review : l.reviews}',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -1052,93 +1063,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     );
   }
 
-  Widget _buildUserReviewActionSection(
-    InstitutionModel inst,
-    ReviewModel? userReview,
-    bool isDark,
-    AppLocalizations l,
-    Color accentColor,
-  ) {
-    if (userReview != null) {
-      // User has already submitted a review
-      return Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: isDark
-              ? Colors.amber.withValues(alpha: 0.08)
-              : const Color(0xFFFFFBEA),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFFFFD54F).withValues(alpha: 0.5),
-            width: 1.2,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.verified_rounded,
-                    color: Color(0xFFFFB300), size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  l.yourRating,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Rabar',
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  color: AppColors.primary,
-                  tooltip: l.editReview,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () =>
-                      _showReviewBottomSheet(inst, existing: userReview),
-                ),
-                const SizedBox(width: 14),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, size: 18),
-                  color: Colors.redAccent,
-                  tooltip: l.deleteReview,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () => _confirmDeleteReview(userReview.id),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            RatingBarIndicator(
-              rating: userReview.rating.toDouble(),
-              itemBuilder: (_, __) => const Icon(
-                Icons.star_rounded,
-                color: Color(0xFFFFB300),
-              ),
-              itemCount: 5,
-              itemSize: 18.0,
-            ),
-            if (userReview.comment != null &&
-                userReview.comment!.trim().isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Text(
-                userReview.comment!,
-                style: TextStyle(
-                  fontSize: 13.5,
-                  height: 1.6,
-                  fontFamily: 'Rabar',
-                  color: isDark ? Colors.white70 : AppColors.textDark,
-                ),
-              ),
-            ],
-          ],
-        ),
-      );
-    }
-
-    // User hasn't reviewed yet -> "Write a Review" button
+  Widget _buildWriteReviewButton(InstitutionModel inst, AppLocalizations l) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1182,8 +1107,8 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     );
   }
 
-  Widget _buildReviewCard(ReviewModel rev, bool isMyReview, bool isDark,
-      Color accentColor, AppLocalizations l) {
+  Widget _buildReviewCard(InstitutionModel inst, ReviewModel rev,
+      bool isMyReview, bool isDark, Color accentColor, AppLocalizations l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1191,10 +1116,11 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isMyReview
-              ? const Color(0xFFFFD54F).withValues(alpha: 0.6)
+              ? const Color(0xFFFFD54F).withValues(alpha: 0.7)
               : (isDark
                   ? Colors.white.withValues(alpha: 0.05)
                   : Colors.black.withValues(alpha: 0.03)),
+          width: isMyReview ? 1.2 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
@@ -1255,15 +1181,20 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
+                                horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFB300)
                                   .withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: const Color(0xFFFFB300)
+                                    .withValues(alpha: 0.3),
+                                width: 0.8,
+                              ),
                             ),
-                            child: const Text(
-                              'تۆ',
-                              style: TextStyle(
+                            child: Text(
+                              l.yourRating,
+                              style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFFFFB300),
@@ -1302,6 +1233,31 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
                   ],
                 ),
               ),
+              if (isMyReview) ...[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      color: AppColors.primary,
+                      tooltip: l.editReview,
+                      padding: const EdgeInsets.all(4),
+                      constraints: const BoxConstraints(),
+                      onPressed: () =>
+                          _showReviewBottomSheet(inst, existing: rev),
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                      color: Colors.redAccent,
+                      tooltip: l.deleteReview,
+                      padding: const EdgeInsets.all(4),
+                      constraints: const BoxConstraints(),
+                      onPressed: () => _confirmDeleteReview(rev.id),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
           if (rev.comment != null && rev.comment!.trim().isNotEmpty) ...[

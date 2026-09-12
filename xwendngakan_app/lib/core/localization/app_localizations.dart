@@ -890,6 +890,13 @@ class AppLocalizations {
         'en': 'Rating',
         'tr': 'Değerlendirme'
       });
+  String get review => _t({
+        'ku': 'هەڵسەنگاندن',
+        'kbd': 'هەلسەنگاندن',
+        'ar': 'تقييم',
+        'en': 'Review',
+        'tr': 'İnceleme'
+      });
   String get reviews => _t({
         'ku': 'هەڵسەنگاندنەکان',
         'kbd': 'هەلسەنگاندن',

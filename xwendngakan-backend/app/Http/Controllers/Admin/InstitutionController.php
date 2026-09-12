@@ -12,7 +12,9 @@ class InstitutionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Institution::query();
+        $query = Institution::query()
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews');
 
         if ($search = $request->search) {
             $query->where(fn($q) => $q->where('nku','like',"%$search%")

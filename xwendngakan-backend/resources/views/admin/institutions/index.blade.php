@@ -248,6 +248,7 @@
                     <th>شار</th>
                     <th>تەلەفۆن</th>
                     <th>سەردانیکەران</th>
+                    <th>هەڵسەنگاندن</th>
                     <th>دۆخ</th>
                     <th style="text-align:left;">کردارەکان</th>
                 </tr>
@@ -276,6 +277,16 @@
                         <td dir="ltr" style="text-align:right;">{{ $inst->phone ?? '-' }}</td>
                         <td>
                             <span class="badge badge-gray">👁 {{ number_format($inst->views ?? 0) }}</span>
+                        </td>
+                        <td>
+                            @if($inst->reviews_count > 0)
+                                <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
+                                    ⭐ {{ number_format($inst->reviews_avg_rating, 1) }}
+                                    <small style="opacity: 0.8">({{ $inst->reviews_count }})</small>
+                                </span>
+                            @else
+                                <span class="td-muted" style="font-size: .8rem;">—</span>
+                            @endif
                         </td>
                         <td>
                             @if($inst->approved)
@@ -361,6 +372,9 @@
                         @endif
                         @if($inst->city)
                             <span class="badge badge-gray">📍 {{ $inst->city }}</span>
+                        @endif
+                        @if($inst->reviews_count > 0)
+                            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">⭐ {{ number_format($inst->reviews_avg_rating, 1) }} ({{ $inst->reviews_count }})</span>
                         @endif
                         @if($inst->approved)
                             <span class="badge badge-success">✓ پەسەندکراو</span>

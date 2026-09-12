@@ -228,6 +228,232 @@
 .nt-sub   { font-size: .78rem; opacity: .7; margin-top: 2px; }
 
 /* ════════════════════════════════════════════════
+   STATS GRID & RATING STYLES
+════════════════════════════════════════════════ */
+.db-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+.db-stat-box {
+  background: rgba(12, 18, 32, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 176, 66, 0.12);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  position: relative;
+  overflow: hidden;
+  transition: all .3s var(--ease);
+}
+.db-stat-box:hover {
+  transform: translateY(-3px);
+  border-color: rgba(226, 176, 66, 0.3);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+.db-stat-icon-wrap {
+  width: 50px; height: 50px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.db-stat-icon-wrap.gold {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+.db-stat-icon-wrap.green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.db-stat-icon-wrap.amber {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+.db-stat-icon-wrap.blue {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+.db-stat-title {
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--txt2);
+  margin-bottom: 4px;
+}
+.db-stat-val {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--txt);
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.db-stat-sub {
+  font-size: .75rem;
+  color: var(--txt3);
+  font-weight: 600;
+}
+.db-stat-hint {
+  font-size: .72rem;
+  color: var(--gold-lt);
+  margin-top: 3px;
+  font-weight: 600;
+}
+
+/* ════════ REVIEWS SECTION STYLES ════════ */
+.review-overview-card {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 2rem;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 176, 66, 0.16);
+  border-radius: var(--radius);
+  margin-bottom: 2rem;
+}
+@media (max-width: 768px) {
+  .review-overview-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+}
+.review-score-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(226, 176, 66, 0.05);
+  border: 1px solid rgba(226, 176, 66, 0.18);
+  border-radius: 16px;
+}
+.review-big-score {
+  font-size: 3.4rem;
+  font-weight: 900;
+  color: #fbbf24;
+  line-height: 1;
+  text-shadow: 0 4px 18px rgba(251, 191, 36, 0.3);
+}
+.review-stars-row {
+  display: flex;
+  gap: 3px;
+  color: #fbbf24;
+  font-size: 1.3rem;
+  margin: 8px 0;
+}
+.review-score-count {
+  font-size: .82rem;
+  color: var(--txt2);
+  font-weight: 600;
+}
+.rating-dist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rating-dist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: .84rem;
+  color: var(--txt2);
+}
+.rating-dist-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.rating-dist-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #b88728, #fbbf24);
+  border-radius: 6px;
+  transition: width .5s ease;
+}
+.rating-dist-num {
+  min-width: 50px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--txt);
+  font-size: .78rem;
+  direction: ltr;
+}
+
+/* Individual Review Cards */
+.review-item-card {
+  background: rgba(12, 18, 32, 0.45);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 1.35rem 1.5rem;
+  margin-bottom: 1.1rem;
+  transition: all .25s var(--ease);
+}
+.review-item-card:hover {
+  border-color: rgba(226, 176, 66, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.review-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .85rem;
+}
+.review-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.review-user-avatar {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: var(--grad);
+  color: #060a12;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  overflow: hidden;
+}
+.review-user-avatar img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.review-user-name {
+  font-weight: 700;
+  color: var(--txt);
+  font-size: .92rem;
+}
+.review-date {
+  font-size: .74rem;
+  color: var(--txt3);
+}
+.review-stars {
+  color: #fbbf24;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+.review-comment {
+  font-size: .88rem;
+  line-height: 1.6;
+  color: var(--txt2);
+  background: rgba(255, 255, 255, 0.02);
+  padding: .85rem 1.1rem;
+  border-radius: 10px;
+  border-right: 3px solid rgba(226, 176, 66, 0.5);
+}
+
+/* ════════════════════════════════════════════════
    CARDS – Glassmorphism
 ════════════════════════════════════════════════ */
 .db-card {
@@ -848,6 +1074,13 @@
           <span class="db-nav-badge">{{ $posts->count() }}</span>
         @endif
       </button>
+      <button class="db-nav-btn" onclick="showTab('reviews', this)" data-tab="reviews">
+        <span class="db-nav-icon">⭐</span>
+        هەڵسەنگاندنەکان
+        @if($reviewsCount > 0)
+          <span class="db-nav-badge" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">{{ $avgRating }} ★</span>
+        @endif
+      </button>
       <button class="db-nav-btn" onclick="showTab('settings', this)">
         <span class="db-nav-icon">⚙️</span>
         ڕێکخستنەکان
@@ -893,6 +1126,45 @@
             <span>دامەزراوەکەت پەسەندکراوە — دەتوانیت پۆست بکەیت</span>
           </div>
         @endif
+
+        {{-- ── Quick Stats Grid ── --}}
+        <div class="db-stats-grid">
+          <div class="db-stat-box" onclick="showTab('reviews', document.querySelector('[data-tab=reviews]'))" style="cursor:pointer;" title="بینینی هەڵسەنگاندنەکان">
+            <div class="db-stat-icon-wrap gold">⭐</div>
+            <div>
+              <div class="db-stat-title">تێکڕای هەڵسەنگاندن</div>
+              <div class="db-stat-val">
+                {{ $avgRating > 0 ? number_format($avgRating, 1) : '۰' }}
+                <span class="db-stat-sub">/ 5</span>
+              </div>
+              <div class="db-stat-hint">{{ $reviewsCount }} هەڵسەنگاندن لە ئەپدا &larr;</div>
+            </div>
+          </div>
+
+          <div class="db-stat-box">
+            <div class="db-stat-icon-wrap {{ $institution->approved ? 'green' : 'amber' }}">
+              {{ $institution->approved ? '✓' : '⏳' }}
+            </div>
+            <div>
+              <div class="db-stat-title">دۆخی دامەزراوە</div>
+              <div class="db-stat-val" style="font-size: 1.15rem; color: {{ $institution->approved ? '#34d399' : '#fbbf24' }};">
+                {{ $institution->approved ? 'پەسەندکراو' : 'چاوەڕوانی پەسەندە' }}
+              </div>
+              <div class="db-stat-hint">{{ $institution->approved ? 'لە ئەپڵیکەیشن دیارە' : 'تەنها بۆ ئەدمین دیارە' }}</div>
+            </div>
+          </div>
+
+          <div class="db-stat-box">
+            <div class="db-stat-icon-wrap blue">👁️</div>
+            <div>
+              <div class="db-stat-title">کۆی سەردان / بینین</div>
+              <div class="db-stat-val">
+                {{ number_format($institution->views ?? 0) }}
+              </div>
+              <div class="db-stat-hint">سەردانی بەکارهێنەران لە ئەپدا</div>
+            </div>
+          </div>
+        </div>
       @endif
 
       <form id="form-inst" method="POST" action="{{ route('portal.institution.save') }}" enctype="multipart/form-data" onsubmit="handleAjaxSubmit(event, 'btn-save-inst')">
@@ -1401,6 +1673,101 @@
       @endif
     </div>
 
+    {{-- ══ TAB: REVIEWS ══ --}}
+    <div class="db-tab" id="tab-reviews">
+      <div class="pg-head">
+        <div class="pg-title">هەڵسەنگاندن<span>ەکانی بەکارهێنەران</span></div>
+        <p class="pg-sub">ڕا، بۆچوون و ئەستێرەی بەکارهێنەرانی ئەپڵیکەیشن بۆ دامەزراوەکەت</p>
+      </div>
+
+      @if($institution)
+        {{-- Overview Card with Big Score and Breakdown --}}
+        <div class="review-overview-card">
+          <div class="review-score-box">
+            <div class="review-big-score">{{ $avgRating > 0 ? number_format($avgRating, 1) : '۰.۰' }}</div>
+            <div class="review-stars-row">
+              @for($i = 1; $i <= 5; $i++)
+                <span>{{ $i <= round($avgRating) ? '★' : '☆' }}</span>
+              @endfor
+            </div>
+            <div class="review-score-count">
+              لە کۆی {{ number_format($reviewsCount) }} هەڵسەنگاندن لە ئەپدا
+            </div>
+          </div>
+
+          <div class="rating-dist-list">
+            @foreach([5, 4, 3, 2, 1] as $star)
+              @php
+                $count = $ratingDist[$star] ?? 0;
+                $pct = $reviewsCount > 0 ? round(($count / $reviewsCount) * 100) : 0;
+              @endphp
+              <div class="rating-dist-item">
+                <span style="width: 60px; font-weight: 700;">{{ $star }} ئەستێرە</span>
+                <div class="rating-dist-bar">
+                  <div class="rating-dist-fill" style="width: {{ $pct }}%;"></div>
+                </div>
+                <span class="rating-dist-num">{{ $count }} ({{ $pct }}%)</span>
+              </div>
+            @endforeach
+          </div>
+        </div>
+
+        {{-- Reviews List --}}
+        <div class="db-card-head" style="margin-top: 1.5rem; margin-bottom: 1.25rem;">
+          <div class="db-card-title">💬 بۆچوونی بەکارهێنەران ({{ $reviews->count() }})</div>
+        </div>
+
+        @forelse($reviews as $rev)
+          <div class="review-item-card">
+            <div class="review-item-head">
+              <div class="review-user-info">
+                <div class="review-user-avatar">
+                  @if(!empty($rev->user_avatar))
+                    <img src="{{ $rev->user_avatar }}" alt="{{ $rev->user_name }}">
+                  @else
+                    {{ mb_substr($rev->user_name ?? 'ب', 0, 1) }}
+                  @endif
+                </div>
+                <div>
+                  <div class="review-user-name">{{ $rev->user_name ?? 'بەکارهێنەر' }}</div>
+                  <div class="review-date">{{ $rev->created_at ? $rev->created_at->diffForHumans() : '' }}</div>
+                </div>
+              </div>
+              <div class="review-stars" title="{{ $rev->rating }} ئەستێرە">
+                @for($s = 1; $s <= 5; $s++)
+                  <span>{{ $s <= $rev->rating ? '★' : '☆' }}</span>
+                @endfor
+              </div>
+            </div>
+
+            @if(!empty($rev->comment))
+              <div class="review-comment">
+                “{{ $rev->comment }}”
+              </div>
+            @else
+              <div style="font-size: .8rem; color: var(--txt3); font-style: italic; padding: .5rem 0;">
+                (تەنها هەڵسەنگاندنی ئەستێرەی داناوە بێ بۆچوونی نوسراو)
+              </div>
+            @endif
+          </div>
+        @empty
+          <div class="db-card" style="text-align: center; padding: 3.5rem 1.5rem;">
+            <div style="font-size: 3.2rem; margin-bottom: 1rem; opacity: 0.6;">⭐</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--txt); margin-bottom: .5rem;">هێشتا هیچ هەڵسەنگاندنێک تۆمار نەکراوە</div>
+            <p style="color: var(--txt2); font-size: .88rem; max-width: 480px; margin: 0 auto; line-height: 1.6;">
+              کاتێک قوتابیان و بەکارهێنەران لەڕێگەی ئەپڵیکەیشنی مۆبایلەوە ئەستێرە و بۆچوونی خۆیان دەنووسن، دەستبەجێ لێرەدا نیشان دەدرێت.
+            </p>
+          </div>
+        @endforelse
+
+      @else
+        <div class="db-card" style="text-align:center; padding: 3rem 1rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">🏫</div>
+          <p style="color: var(--txt2); font-weight: 600;">تکایە سەرەتا زانیارییەکانی دامەزراوەکەت تۆمار بکە.</p>
+        </div>
+      @endif
+    </div>
+
     {{-- ══ TAB: SETTINGS ══ --}}
     <div class="db-tab" id="tab-settings">
       <div class="pg-head">
@@ -1493,6 +1860,9 @@
     </button>
     <button class="db-mob-btn" id="mob-posts" onclick="showTab('posts',null);syncMobile('posts')">
       <span class="mob-icon">📰</span>پۆستەکانم
+    </button>
+    <button class="db-mob-btn" id="mob-reviews" onclick="showTab('reviews',null);syncMobile('reviews')">
+      <span class="mob-icon">⭐</span>هەڵسەنگاندن
     </button>
     <button class="db-mob-btn" id="mob-new-post" onclick="showTab('new-post',null);syncMobile('new-post')">
       <span class="mob-icon">✏️</span>پۆستی نوێ
@@ -1725,7 +2095,13 @@ function showTab(name, sideBtn) {
     document.querySelectorAll('.db-nav-btn').forEach(b => b.classList.remove('is-active'));
     const tab = document.getElementById('tab-' + name);
     if(tab) tab.classList.add('is-active');
-    if (sideBtn) sideBtn.classList.add('is-active');
+    if (sideBtn) {
+        sideBtn.classList.add('is-active');
+    } else {
+        const btn = document.querySelector(`.db-nav-btn[data-tab="${name}"]`) || document.querySelector(`[onclick*="'${name}'"]`);
+        if (btn) btn.classList.add('is-active');
+    }
+    syncMobile(name);
     localStorage.setItem('db_active_tab', name);
 }
 function syncMobile(name) {

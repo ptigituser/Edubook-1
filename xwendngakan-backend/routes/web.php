@@ -230,7 +230,21 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
                 'has_colleges'    => (bool) $t->has_colleges,
                 'has_departments' => (bool) $t->has_departments,
             ])->toArray();
-            return view('portal.dashboard', compact('institution', 'posts', 'types', 'typeFlags'));
+
+            $reviews = $institution
+                ? $institution->reviews()->latest()->get()
+                : collect();
+            $reviewsCount = $reviews->count();
+            $avgRating = $reviewsCount > 0 ? round($reviews->avg('rating'), 1) : 0.0;
+            $ratingDist = [
+                5 => $reviews->where('rating', 5)->count(),
+                4 => $reviews->where('rating', 4)->count(),
+                3 => $reviews->where('rating', 3)->count(),
+                2 => $reviews->where('rating', 2)->count(),
+                1 => $reviews->where('rating', 1)->count(),
+            ];
+
+            return view('portal.dashboard', compact('institution', 'posts', 'types', 'typeFlags', 'reviews', 'reviewsCount', 'avgRating', 'ratingDist'));
         })->name('dashboard');
 
         Route::post('/institution/save', function (Request $request) {

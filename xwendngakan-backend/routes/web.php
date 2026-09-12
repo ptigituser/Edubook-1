@@ -5,6 +5,8 @@ use App\Models\InstitutionType;
 use App\Models\Institution;
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Conversation;
+use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Admin\AdminAuthController;
@@ -244,7 +246,14 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
                 1 => $reviews->where('rating', 1)->count(),
             ];
 
-            return view('portal.dashboard', compact('institution', 'posts', 'types', 'typeFlags', 'reviews', 'reviewsCount', 'avgRating', 'ratingDist'));
+            $conversations = $institution
+                ? $institution->conversations()->with('user')->latest('last_message_at')->get()
+                : collect();
+            $unreadChatsCount = $institution
+                ? $conversations->sum('institution_unread_count')
+                : 0;
+
+            return view('portal.dashboard', compact('institution', 'posts', 'types', 'typeFlags', 'reviews', 'reviewsCount', 'avgRating', 'ratingDist', 'conversations', 'unreadChatsCount'));
         })->name('dashboard');
 
         Route::post('/institution/save', function (Request $request) {
@@ -515,5 +524,83 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
             $post->delete();
             return back()->with('success', 'پۆستەکە سڕایەوە.');
         })->name('posts.delete');
+
+        // ---- Portal Chat Endpoints ----
+        Route::get('/chats', function () {
+            $user = auth()->user();
+            $institution = Institution::where('user_id', $user->id)->orderByDesc('approved')->first();
+            if (!$institution) return response()->json(['conversations' => [], 'unread' => 0]);
+
+            $conversations = $institution->conversations()->with('user')->latest('last_message_at')->get();
+            $unread = $conversations->sum('institution_unread_count');
+
+            return response()->json([
+                'success' => true,
+                'conversations' => $conversations,
+                'unread' => $unread,
+            ]);
+        })->name('chats.index');
+
+        Route::get('/chats/{id}/messages', function ($id) {
+            $user = auth()->user();
+            $institution = Institution::where('user_id', $user->id)->orderByDesc('approved')->first();
+            if (!$institution) abort(403);
+
+            $conversation = Conversation::where('id', $id)
+                ->where('institution_id', $institution->id)
+                ->with('user')
+                ->firstOrFail();
+
+            // Mark unread messages from user as read
+            Message::where('conversation_id', $conversation->id)
+                ->where('sender_type', 'user')
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            $conversation->update(['institution_unread_count' => 0]);
+
+            $messages = $conversation->messages()->get();
+
+            return response()->json([
+                'success' => true,
+                'conversation' => $conversation,
+                'messages' => $messages,
+            ]);
+        })->name('chats.messages');
+
+        Route::post('/chats/{id}/reply', function (Request $request, $id) {
+            $user = auth()->user();
+            $institution = Institution::where('user_id', $user->id)->orderByDesc('approved')->first();
+            if (!$institution) abort(403);
+
+            $conversation = Conversation::where('id', $id)
+                ->where('institution_id', $institution->id)
+                ->firstOrFail();
+
+            $request->validate([
+                'message' => 'required|string|max:3000',
+            ]);
+
+            $text = trim($request->input('message'));
+
+            $msg = Message::create([
+                'conversation_id' => $conversation->id,
+                'sender_type'     => 'institution',
+                'sender_id'       => $user->id,
+                'message'         => $text,
+                'is_read'         => false,
+            ]);
+
+            $conversation->update([
+                'last_message'       => $text,
+                'last_message_at'    => now(),
+                'user_unread_count'  => $conversation->user_unread_count + 1,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+            ]);
+        })->name('chats.reply');
     });
 });

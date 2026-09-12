@@ -199,7 +199,7 @@ class InstitutionPromoDialog extends StatelessWidget {
 
                   // Close button (✕)
                   InkWell(
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () => _dismiss(context),
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
                       width: 28,
@@ -346,7 +346,7 @@ class InstitutionPromoDialog extends StatelessWidget {
               // "Later" button
               Center(
                 child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => _dismiss(context),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                     minimumSize: Size.zero,

@@ -242,35 +242,29 @@ class _SplashScreenState extends State<SplashScreen>
                           child: AnimatedBuilder(
                             animation: _glowController,
                             builder: (_, child) => Container(
-                              width: 110,
-                              height: 110,
+                              width: 108,
+                              height: 108,
                               decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(32),
-                                border: Border.all(
-                                  color: const Color(0xFFC49A3C).withValues(alpha: 
-                                      0.35 + (_glowAnim.value - 0.4) * 0.25),
-                                  width: 1.5,
-                                ),
+                                borderRadius: BorderRadius.circular(24),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFFC49A3C).withValues(alpha: 
-                                        0.18 + (_glowAnim.value - 0.4) * 0.18),
-                                    blurRadius: 28 + (_glowAnim.value - 0.4) * 28,
-                                    spreadRadius: (_glowAnim.value - 0.4) * 6,
+                                    color: const Color(0xFF1D4ED8).withValues(alpha: 0.25),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 8),
                                   ),
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.07),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 6),
+                                    color: const Color(0xFFC49A3C).withValues(alpha: 
+                                        0.22 + (_glowAnim.value - 0.4) * 0.22),
+                                    blurRadius: 28 + (_glowAnim.value - 0.4) * 20,
+                                    spreadRadius: (_glowAnim.value - 0.4) * 4,
                                   ),
                                 ],
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(24),
                                 child: Image.asset(
                                   'assets/images/app_logo.png',
-                                  fit: BoxFit.contain,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),

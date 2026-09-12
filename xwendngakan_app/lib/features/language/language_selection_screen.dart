@@ -89,34 +89,23 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                 children: [
                   // Logo
                   Container(
-                    width: 88,
-                    height: 88,
+                    width: 84,
+                    height: 84,
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkCard : Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        width: 1.5,
-                      ),
+                      borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.18),
-                          blurRadius: 24,
-                          spreadRadius: 2,
+                          color: const Color(0xFF1D4ED8).withValues(alpha: 0.2),
+                          blurRadius: 20,
                           offset: const Offset(0, 6),
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.07),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
                       child: Image.asset(
                         'assets/images/app_logo.png',
-                        fit: BoxFit.contain,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),

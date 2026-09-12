@@ -19,6 +19,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/institutions_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../shared/widgets/common_widgets.dart';
+import 'institution_chat_screen.dart';
 
 class InstitutionDetailScreen extends StatefulWidget {
   final String id;
@@ -160,6 +161,21 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
 
     return Scaffold(
         backgroundColor: isDark ? AppColors.darkBg : const Color(0xFFFBFBFE),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _openChat(inst, l),
+          backgroundColor: AppColors.primary,
+          elevation: 4,
+          icon: const Icon(Icons.forum_rounded, color: Colors.white, size: 20),
+          label: const Text(
+            'چات لەگەڵ دامەزراوە',
+            style: TextStyle(
+              fontFamily: 'Rabar',
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+              color: Colors.white,
+            ),
+          ),
+        ),
         body: RefreshIndicator(
           onRefresh: _refreshAll,
           child: CustomScrollView(
@@ -443,6 +459,54 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     );
   }
 
+  void _openChat(InstitutionModel inst, AppLocalizations l) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    if (!auth.isAuthenticated) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text(
+            'چات لەگەڵ دامەزراوە',
+            style: TextStyle(fontFamily: 'Rabar', fontWeight: FontWeight.w900),
+          ),
+          content: const Text(
+            'تکایە سەرەتا بچۆ ژوورەوە بۆ ئەوەی بتوانیت نامە بنێریت بۆ دامەزراوەکە.',
+            style: TextStyle(fontFamily: 'Rabar', fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l.cancel, style: const TextStyle(fontFamily: 'Rabar')),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                context.push('/login');
+              },
+              child: Text(l.login,
+                  style: const TextStyle(
+                      fontFamily: 'Rabar', fontWeight: FontWeight.w900)),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => InstitutionChatScreen(institution: inst),
+      ),
+    );
+  }
+
   Widget _buildLinksAndActions(
       InstitutionModel inst, AppLocalizations l, bool isDark) {
     final items = <Widget>[];
@@ -451,6 +515,9 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
       items.add(_buildActionItem(
           icon: icon, label: label, color: color, onTap: onTap));
     }
+
+    add(Icons.forum_rounded, 'چات', const Color(0xFFF59E0B),
+        () => _openChat(inst, l));
 
     if (inst.phone != null && inst.phone!.isNotEmpty) {
       add(Icons.phone_in_talk_rounded, l.contact, const Color(0xFF10B981),

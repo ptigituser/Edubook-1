@@ -1107,5 +1107,61 @@ class ApiService {
       return ApiResult.failure(_connectionMessage);
     }
   }
+
+  // ==================
+  // INSTITUTION CHAT
+  // ==================
+
+  Future<ApiResult<Map<String, dynamic>>> getInstitutionChat(int institutionId) async {
+    try {
+      final headers = await _authHeaders();
+      final res = await http
+          .get(
+            Uri.parse('$_base/institutions/$institutionId/chat'),
+            headers: headers,
+          )
+          .timeout(AppConstants.receiveTimeout);
+
+      final json = _safeJson(res);
+      if (res.statusCode == 200 && json != null && json['success'] == true) {
+        final data = json['data'] as Map<String, dynamic>? ?? {};
+        return ApiResult.success(data);
+      }
+      return ApiResult.failure(
+          json?['message'] ?? _serverMessage(res.statusCode),
+          statusCode: res.statusCode);
+    } catch (e) {
+      return ApiResult.failure(_connectionMessage);
+    }
+  }
+
+  Future<ApiResult<Map<String, dynamic>>> sendInstitutionMessage(
+    int institutionId,
+    String message,
+  ) async {
+    try {
+      final headers = await _authHeaders();
+      final res = await http
+          .post(
+            Uri.parse('$_base/institutions/$institutionId/chat'),
+            headers: headers,
+            body: jsonEncode({'message': message.trim()}),
+          )
+          .timeout(AppConstants.connectTimeout);
+
+      final json = _safeJson(res);
+      if ((res.statusCode == 200 || res.statusCode == 201) &&
+          json != null &&
+          json['success'] == true) {
+        final data = json['data'] as Map<String, dynamic>? ?? {};
+        return ApiResult.success(data, statusCode: res.statusCode);
+      }
+      return ApiResult.failure(
+          json?['message'] ?? _serverMessage(res.statusCode),
+          statusCode: res.statusCode);
+    } catch (e) {
+      return ApiResult.failure(_connectionMessage);
+    }
+  }
 }
 

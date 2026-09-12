@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 14)),
+              const SliverToBoxAdapter(child: SizedBox(height: 10)),
 
               // Ministries Row (Top Row)
               SliverToBoxAdapter(
@@ -181,10 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 14)),
-
               // Sub Categories Row (Bottom Row)
-              if (_selectedParentFilter != 'all')
+              if (_selectedParentFilter != 'all') ...[
+                const SliverToBoxAdapter(child: SizedBox(height: 8)),
                 SliverToBoxAdapter(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -201,8 +200,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
+              ],
 
-              const SliverToBoxAdapter(child: SizedBox(height: 28)),
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
               // Institutions Section Header
               SliverToBoxAdapter(
@@ -252,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(width: 3),
                             const Icon(
-                              Icons.arrow_back_ios_new_rounded,
+                              Icons.arrow_forward_ios_rounded,
                               size: 12,
                               color: AppColors.primary,
                             ),

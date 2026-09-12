@@ -379,16 +379,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      const SliverToBoxAdapter(child: SizedBox(height: 14)),
+      const SliverToBoxAdapter(child: SizedBox(height: 12)),
       SliverToBoxAdapter(
         child: SizedBox(
-          height: 165,
+          height: 125,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: topRated.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 14),
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
               final inst = topRated[index];
               return _TopRatedCard(
@@ -401,7 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      const SliverToBoxAdapter(child: SizedBox(height: 28)),
+      const SliverToBoxAdapter(child: SizedBox(height: 20)),
     ];
   }
 
@@ -1346,23 +1346,23 @@ class _TopRatedCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 250,
+        width: 200,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: const Color(0xFFFFD54F).withValues(alpha: 0.5),
-            width: 1.2,
+            width: 1,
           ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
-              blurRadius: 14,
-              offset: const Offset(0, 5),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(21),
+          borderRadius: BorderRadius.circular(17),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -1374,7 +1374,7 @@ class _TopRatedCard extends StatelessWidget {
                   errorWidget: (_, __, ___) => Container(
                     color: typeColor.withValues(alpha: 0.3),
                     child: Center(
-                      child: Text(emoji, style: const TextStyle(fontSize: 40)),
+                      child: Text(emoji, style: const TextStyle(fontSize: 34)),
                     ),
                   ),
                 )
@@ -1382,7 +1382,7 @@ class _TopRatedCard extends StatelessWidget {
                 Container(
                   color: typeColor.withValues(alpha: 0.3),
                   child: Center(
-                    child: Text(emoji, style: const TextStyle(fontSize: 40)),
+                    child: Text(emoji, style: const TextStyle(fontSize: 34)),
                   ),
                 ),
 
@@ -1405,27 +1405,27 @@ class _TopRatedCard extends StatelessWidget {
 
               // Top Row: Rating Badge & Type
               Positioned(
-                top: 10,
-                left: 10,
-                right: 10,
+                top: 8,
+                left: 8,
+                right: 8,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Rating Badge (⭐ 5.0 باشترین)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                          horizontal: 6, vertical: 2.5),
                       decoration: BoxDecoration(
                         color: const Color(0xFFD97706).withValues(alpha: 0.95),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: const Color(0xFFFFD54F),
-                          width: 1,
+                          width: 0.8,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 6,
+                            color: Colors.black.withValues(alpha: 0.25),
+                            blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
                         ],
@@ -1435,14 +1435,14 @@ class _TopRatedCard extends StatelessWidget {
                         children: [
                           const Icon(
                             Icons.star_rounded,
-                            size: 14,
+                            size: 12,
                             color: Color(0xFFFFD54F),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 3),
                           Text(
                             '${institution.ratingAvg.toStringAsFixed(1)} $bestLabel',
                             style: const TextStyle(
-                              fontSize: 10.5,
+                              fontSize: 9.5,
                               fontWeight: FontWeight.w900,
                               color: Colors.white,
                               fontFamily: 'Rabar',
@@ -1456,15 +1456,15 @@ class _TopRatedCard extends StatelessWidget {
                     // Type Chip
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3.5),
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: typeColor.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         '$emoji $typeLabel',
                         style: const TextStyle(
-                          fontSize: 9.5,
+                          fontSize: 8.5,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
                           fontFamily: 'Rabar',
@@ -1477,9 +1477,9 @@ class _TopRatedCard extends StatelessWidget {
 
               // Bottom Details
               Positioned(
-                bottom: 12,
-                left: 12,
-                right: 12,
+                bottom: 8,
+                left: 10,
+                right: 10,
                 child: Directionality(
                   textDirection: TextDirection.rtl,
                   child: Column(
@@ -1491,13 +1491,13 @@ class _TopRatedCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 12.5,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
                           fontFamily: 'Rabar',
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Row(
                         children: [
                           // 5 Stars
@@ -1508,16 +1508,16 @@ class _TopRatedCard extends StatelessWidget {
                                 starIdx < institution.ratingAvg.round()
                                     ? Icons.star_rounded
                                     : Icons.star_outline_rounded,
-                                size: 13,
+                                size: 11,
                                 color: const Color(0xFFFFB300),
                               );
                             }),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 4),
                           Text(
                             '(${institution.reviewsCount})',
                             style: const TextStyle(
-                              fontSize: 10.5,
+                              fontSize: 9.5,
                               color: Colors.white70,
                               fontWeight: FontWeight.w700,
                               fontFamily: 'Rabar',
@@ -1528,14 +1528,14 @@ class _TopRatedCard extends StatelessWidget {
                             const Spacer(),
                             const Icon(
                               Icons.location_on_rounded,
-                              size: 11,
+                              size: 10,
                               color: Colors.white60,
                             ),
                             const SizedBox(width: 2),
                             Text(
                               institution.city!,
                               style: const TextStyle(
-                                fontSize: 10.5,
+                                fontSize: 9.5,
                                 color: Colors.white70,
                                 fontFamily: 'Rabar',
                               ),

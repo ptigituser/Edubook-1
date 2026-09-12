@@ -1901,7 +1901,6 @@
             </div>
           </div>
         </div>
-        </div>
 
         <div style="display:flex;align-items:center;gap:1rem;margin-top:.5rem;padding-top:1.5rem;border-top:1px solid var(--border)">
           <button type="submit" id="btn-save-inst" class="btn-primary" style="padding:14px 42px;font-size:.95rem">

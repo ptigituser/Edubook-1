@@ -63,7 +63,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  static bool _hasCheckedPopupsThisSession = false;
+
   Future<void> _checkAutoPopups() async {
+    if (_hasCheckedPopupsThisSession) return;
+    _hasCheckedPopupsThisSession = true;
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final launchCount = (prefs.getInt('app_launch_count') ?? 0) + 1;
@@ -71,8 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (!mounted) return;
 
-      // 1. Check & show institution promotional popup (showing now as requested)
-      final promoShown = await InstitutionPromoDialog.checkAndShow(context, forceNow: true);
+      // 1. Check & potentially show institution promotional popup (strictly once every 7 days)
+      final promoShown = await InstitutionPromoDialog.checkAndShow(context);
       if (promoShown) return; // Do not show multiple dialogs in one session
 
       if (!mounted) return;

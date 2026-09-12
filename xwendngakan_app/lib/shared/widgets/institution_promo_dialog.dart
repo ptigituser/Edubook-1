@@ -16,24 +16,26 @@ class InstitutionPromoDialog extends StatelessWidget {
     );
   }
 
-  /// Checks the weekly interval (once every 7 days) and displays if eligible.
-  static Future<bool> checkAndShow(BuildContext context, {bool forceNow = false}) async {
+  /// Checks the weekly interval (strictly once every 7 days) and displays if eligible.
+  static Future<bool> checkAndShow(BuildContext context) async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      if (!forceNow) {
-        // 1. Permanent dismissal check
-        final neverShow = prefs.getBool('institution_promo_never_show') ?? false;
-        if (neverShow) return false;
+      // 1. Permanent dismissal check
+      final neverShow = prefs.getBool('institution_promo_never_show') ?? false;
+      if (neverShow) return false;
 
-        // 2. Weekly frequency check: once every 7 days
-        final lastShown = prefs.getInt('institution_promo_last_shown');
-        if (lastShown != null) {
-          final daysSince = DateTime.now()
-              .difference(DateTime.fromMillisecondsSinceEpoch(lastShown))
-              .inDays;
-          if (daysSince < 7) return false;
-        }
+      // 2. Minimum app open threshold (don't show on very first app open)
+      final launchCount = prefs.getInt('app_launch_count') ?? 0;
+      if (launchCount < 2) return false;
+
+      // 3. Weekly frequency check: once every 7 days (168 hours)
+      final lastShown = prefs.getInt('institution_promo_last_shown');
+      if (lastShown != null) {
+        final hoursSince = DateTime.now()
+            .difference(DateTime.fromMillisecondsSinceEpoch(lastShown))
+            .inHours;
+        if (hoursSince < 168) return false;
       }
 
       // Smooth brief delay after home loads
@@ -54,6 +56,19 @@ class InstitutionPromoDialog extends StatelessWidget {
     } catch (e) {
       debugPrint('Institution promo check error: $e');
       return false;
+    }
+  }
+
+  Future<void> _dismiss(BuildContext context) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(
+        'institution_promo_last_shown',
+        DateTime.now().millisecondsSinceEpoch,
+      );
+    } catch (_) {}
+    if (context.mounted) {
+      Navigator.of(context).pop();
     }
   }
 

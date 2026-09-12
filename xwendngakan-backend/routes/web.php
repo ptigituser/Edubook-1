@@ -146,11 +146,7 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
 
     Route::get('/login', function () {
         if (auth()->check()) {
-            // ئەگەر ئەدمین بوو بیبەرە بۆ پاناڵی ئەدمین
-            if (auth()->user()->is_admin) {
-                return redirect('/admin');
-            }
-            if (auth()->user()->is_approved) {
+            if (auth()->user()->is_approved || auth()->user()->is_admin) {
                 return redirect()->route('portal.dashboard');
             }
             return redirect()->route('portal.waiting');
@@ -165,11 +161,8 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
         ]);
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            // ئەگەر ئەدمین بوو بیبەرە بۆ پاناڵی ئەدمین
             if (Auth::user()->is_admin) {
-                // هاوکات لە گارڈی ئەدمینەوە لۆگین بکە تاکو دووجار لۆگین پێویست نەبێت
                 Auth::guard('admin')->login(Auth::user(), $request->boolean('remember'));
-                return redirect('/admin');
             }
             return redirect()->route('portal.dashboard');
         }
@@ -202,9 +195,7 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
 
     Route::get('/waiting-approval', function () {
         if (!auth()->check()) return redirect()->route('portal.login');
-        // ئەگەر ئەدمین بوو بیبەرە بۆ پاناڵی ئەدمین
-        if (auth()->user()->is_admin) return redirect('/admin');
-        if (auth()->user()->is_approved) return redirect()->route('portal.dashboard');
+        if (auth()->user()->is_approved || auth()->user()->is_admin) return redirect()->route('portal.dashboard');
         return view('portal.auth.waiting');
     })->name('waiting');
 
@@ -217,13 +208,16 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
     })->name('logout');
 
     // ---- Protected ----
-    Route::middleware(['auth', 'approved', 'redirect_admin'])->group(function () {
+    Route::middleware(['auth', 'approved'])->group(function () {
 
         Route::get('/dashboard', function () {
             $user = auth()->user();
             $institution = Institution::where('user_id', $user->id)
                 ->orderByDesc('approved')
                 ->first();
+            if (!$institution && $user->is_admin) {
+                $institution = Institution::where('approved', 1)->first() ?? Institution::first();
+            }
             $posts = $institution
                 ? Post::where('institution_id', $institution->id)->latest()->paginate(10)
                 : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);

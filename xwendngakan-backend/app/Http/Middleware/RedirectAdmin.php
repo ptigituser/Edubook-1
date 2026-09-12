@@ -16,10 +16,7 @@ class RedirectAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->is_admin) {
-            return redirect('/admin');
-        }
-
+        // رێگە بدە بە ئەدمینیش کە پۆڕتاڵی دامەزراوەکان بەکاربهێنێت
         return $next($request);
     }
 }

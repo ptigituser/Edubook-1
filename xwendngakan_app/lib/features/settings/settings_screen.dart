@@ -70,11 +70,6 @@ class SettingsScreen extends StatelessWidget {
               color: const Color(0xFFF59E0B),
               onTap: () => AppFeedbackDialog.show(context),
             ),
-            _SettingTile(
-              icon: Icons.system_update_rounded,
-              label: l.checkForUpdates,
-              onTap: () => _manualCheckForUpdate(context, l),
-            ),
 
             const SizedBox(height: 20),
             // About

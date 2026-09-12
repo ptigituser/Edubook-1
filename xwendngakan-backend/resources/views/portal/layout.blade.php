@@ -154,7 +154,10 @@
         </a>
         <div class="nav-links">
             @auth
-                @if(auth()->user()->is_approved)
+                @if(auth()->user()->is_admin)
+                <a href="/admin" class="btn btn-ghost" style="color:var(--gold-lt); border-color:var(--gold); font-weight:800;">👑 پاناڵی ئەدمین</a>
+                @endif
+                @if(auth()->user()->is_approved || auth()->user()->is_admin)
                 <a href="{{ route('portal.dashboard') }}" class="btn btn-ghost">داشبۆرد</a>
                 @endif
                 <form method="POST" action="{{ route('portal.logout') }}" style="display:inline">

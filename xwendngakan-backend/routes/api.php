@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\UserRequestController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\JobVacancyController;
 use App\Models\InstitutionType;
 use Illuminate\Support\Facades\Route;
 
@@ -86,6 +87,12 @@ Route::get('/teachers', [TeacherController::class, 'index']);
 Route::post('/teachers', [TeacherController::class, 'store']);
 Route::get('/teachers/{id}', [TeacherController::class, 'show']);
 Route::get('/teacher-stats', [TeacherController::class, 'stats']);
+
+// Job Vacancies Routes (public)
+Route::get('/jobs', [JobVacancyController::class, 'index']);
+Route::get('/jobs/stats', [JobVacancyController::class, 'stats']);
+Route::get('/jobs/{id}', [JobVacancyController::class, 'show'])->whereNumber('id');
+Route::post('/jobs', [JobVacancyController::class, 'store']);
 
 
 // Institution types

@@ -11,6 +11,10 @@ class AppConstants {
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 30);
 
+  // === STORE URLS ===
+  static const String playStoreUrl = 'https://play.google.com/store/apps/details?id=com.khwenden.ibrahim';
+  static const String appStoreUrl = 'https://apps.apple.com/iq/app/edubook-iq/id6783074135';
+
   // === STORAGE KEYS ===
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';

@@ -29,7 +29,7 @@ class AppVersionController extends Controller
                 'version' => '1.1.0',
                 'build_number' => 27,
                 'force_update' => false,
-                'store_url' => 'https://apps.apple.com',
+                'store_url' => 'https://apps.apple.com/iq/app/edubook-iq/id6783074135',
                 'release_notes' => 'نوێکردنەوە و چاکسازی لە ئەپڵیکەیشن.',
             ]);
         }

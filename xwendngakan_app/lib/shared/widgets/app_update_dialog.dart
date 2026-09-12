@@ -32,39 +32,52 @@ class AppUpdateDialog extends StatelessWidget {
 
   Future<void> _openStore(BuildContext context, String? customUrl) async {
     final l = AppLocalizations.of(context);
-    String targetUrl = customUrl?.trim() ?? '';
-
-    if (targetUrl.isEmpty) {
-      if (Platform.isAndroid) {
-        targetUrl = 'https://play.google.com/store/apps/details?id=com.khwenden.ibrahim';
-      } else if (Platform.isIOS) {
-        targetUrl = 'https://apps.apple.com';
-      }
-    }
 
     try {
-      final uri = Uri.parse(targetUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (Platform.isAndroid) {
-          final marketUri = Uri.parse('market://details?id=com.khwenden.ibrahim');
-          if (await canLaunchUrl(marketUri)) {
-            await launchUrl(marketUri, mode: LaunchMode.externalApplication);
-            return;
-          }
+      if (Platform.isAndroid) {
+        // 1. Direct native Google Play app intent
+        final marketUri = Uri.parse('market://details?id=com.khwenden.ibrahim');
+        if (await canLaunchUrl(marketUri)) {
+          await launchUrl(marketUri, mode: LaunchMode.externalApplication);
+          return;
         }
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l.updateOpenStoreFailed, style: const TextStyle(fontFamily: 'Rabar')),
-              backgroundColor: AppColors.error,
-            ),
-          );
+        // 2. Browser fallback for Google Play
+        final webUrl = (customUrl != null && customUrl.contains('play.google.com'))
+            ? customUrl
+            : 'https://play.google.com/store/apps/details?id=com.khwenden.ibrahim';
+        final webUri = Uri.parse(webUrl);
+        if (await canLaunchUrl(webUri)) {
+          await launchUrl(webUri, mode: LaunchMode.externalApplication);
+          return;
+        }
+      } else if (Platform.isIOS) {
+        // 1. Direct native App Store intent
+        final appStoreUri = Uri.parse('itms-apps://itunes.apple.com/app/id6783074135');
+        if (await canLaunchUrl(appStoreUri)) {
+          await launchUrl(appStoreUri, mode: LaunchMode.externalApplication);
+          return;
+        }
+        // 2. Direct web link to EduBook - IQ on App Store
+        String iosUrl = (customUrl != null && customUrl.contains('apps.apple.com/'))
+            ? customUrl
+            : 'https://apps.apple.com/iq/app/edubook-iq/id6783074135';
+        final uri = Uri.parse(iosUrl);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          return;
         }
       }
     } catch (e) {
       debugPrint('Error launching store URL: $e');
+    }
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l.updateOpenStoreFailed, style: const TextStyle(fontFamily: 'Rabar')),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 

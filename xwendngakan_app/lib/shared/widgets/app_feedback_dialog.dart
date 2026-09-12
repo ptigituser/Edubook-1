@@ -81,17 +81,24 @@ class _AppFeedbackDialogState extends State<AppFeedbackDialog> {
 
   Future<void> _openStore() async {
     try {
-      final url = Platform.isIOS
-          ? 'https://apps.apple.com'
-          : 'https://play.google.com/store/apps/details?id=com.khwenden.ibrahim';
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else if (Platform.isAndroid) {
+      if (Platform.isAndroid) {
         final marketUri = Uri.parse('market://details?id=com.khwenden.ibrahim');
         if (await canLaunchUrl(marketUri)) {
           await launchUrl(marketUri, mode: LaunchMode.externalApplication);
+          return;
         }
+        final webUri = Uri.parse('https://play.google.com/store/apps/details?id=com.khwenden.ibrahim');
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+        return;
+      } else if (Platform.isIOS) {
+        // Direct App Store intent or web URL
+        final appStoreUri = Uri.parse('itms-apps://itunes.apple.com/app/id6783074135');
+        if (await canLaunchUrl(appStoreUri)) {
+          await launchUrl(appStoreUri, mode: LaunchMode.externalApplication);
+          return;
+        }
+        final webUri = Uri.parse('https://apps.apple.com/iq/app/edubook-iq/id6783074135');
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
       debugPrint('Error launching store: $e');

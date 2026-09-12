@@ -91,14 +91,8 @@ class _AppFeedbackDialogState extends State<AppFeedbackDialog> {
         await launchUrl(webUri, mode: LaunchMode.externalApplication);
         return;
       } else if (Platform.isIOS) {
-        // Direct App Store intent or web URL
-        final appStoreUri = Uri.parse('itms-apps://itunes.apple.com/app/id6783074135');
-        if (await canLaunchUrl(appStoreUri)) {
-          await launchUrl(appStoreUri, mode: LaunchMode.externalApplication);
-          return;
-        }
-        final webUri = Uri.parse('https://apps.apple.com/iq/app/edubook-iq/id6783074135');
-        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+        final uri = Uri.parse('https://apps.apple.com/iq/app/edubook-iq/id6783074135');
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
       debugPrint('Error launching store: $e');

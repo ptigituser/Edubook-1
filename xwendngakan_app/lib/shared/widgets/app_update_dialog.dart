@@ -51,21 +51,12 @@ class AppUpdateDialog extends StatelessWidget {
           return;
         }
       } else if (Platform.isIOS) {
-        // 1. Direct native App Store intent
-        final appStoreUri = Uri.parse('itms-apps://itunes.apple.com/app/id6783074135');
-        if (await canLaunchUrl(appStoreUri)) {
-          await launchUrl(appStoreUri, mode: LaunchMode.externalApplication);
-          return;
-        }
-        // 2. Direct web link to EduBook - IQ on App Store
         String iosUrl = (customUrl != null && customUrl.contains('apps.apple.com/'))
             ? customUrl
             : 'https://apps.apple.com/iq/app/edubook-iq/id6783074135';
         final uri = Uri.parse(iosUrl);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-          return;
-        }
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        return;
       }
     } catch (e) {
       debugPrint('Error launching store URL: $e');

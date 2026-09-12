@@ -1442,7 +1442,6 @@ class _AdsCarouselState extends State<AdsCarousel> {
   /// Shown until the API returns banners. Bundled 1344×480 images (2.8:1) so
   /// they fill the carousel without cropping.
   static const _bundledBanners = [
-    'assets/images/banners/banner1_institutions.png',
     'assets/images/banners/banner2_teachers.png',
     'assets/images/banners/banner3_cv.png',
   ];
@@ -1452,7 +1451,7 @@ class _AdsCarouselState extends State<AdsCarousel> {
     _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (!mounted || !_pageController.hasClients) return;
       final prov = Provider.of<InstitutionsProvider>(context, listen: false);
-      final count = prov.banners.isNotEmpty ? prov.banners.length : 3;
+      final count = prov.banners.isNotEmpty ? prov.banners.length : _bundledBanners.length;
       int next = _currentPage + 1;
       if (next >= count) {
         next = 0;

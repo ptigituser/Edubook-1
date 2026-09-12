@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/localization/app_localizations.dart';
-import '../../shared/widgets/app_feedback_dialog.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -54,45 +53,45 @@ class ProfileScreen extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 80),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 90),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _SectionLabel(label: l.myAccount),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 5),
                   _SettingsGroup(isDark: isDark, children: [
                     _NavTile(
                       icon: Icons.bookmark_rounded,
-                      iconBg: const Color(0xFF4A90D9),
+                      iconBg: const Color(0xFF3B82F6),
                       label: l.saved,
                       onTap: () => context.push('/saved'),
                     ),
                     _Divider(isDark: isDark),
                     _NavTile(
                       icon: Icons.notifications_rounded,
-                      iconBg: const Color(0xFFE05C8A),
+                      iconBg: const Color(0xFFEF4444),
                       label: l.notifications,
                       onTap: () => context.push('/notifications'),
                     ),
                     _Divider(isDark: isDark),
                     _NavTile(
                       icon: Icons.map_rounded,
-                      iconBg: const Color(0xFFEC4899),
+                      iconBg: const Color(0xFF10B981),
                       label: l.map,
                       onTap: () => context.push('/map'),
                     ),
                   ]),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 14),
                   _SectionLabel(label: l.settings),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 5),
                   _SettingsGroup(isDark: isDark, children: [
                     _SwitchTile(
                       icon: isDark
                           ? Icons.light_mode_rounded
                           : Icons.dark_mode_rounded,
                       iconBg: isDark
-                          ? const Color(0xFF7F77DD)
-                          : const Color(0xFF534AB7),
+                          ? const Color(0xFF818CF8)
+                          : const Color(0xFF6366F1),
                       label: l.darkMode,
                       value: isDark,
                       onChanged: (_) => theme.toggle(),
@@ -100,7 +99,7 @@ class ProfileScreen extends StatelessWidget {
                     _Divider(isDark: isDark),
                     _NavTile(
                       icon: Icons.language_rounded,
-                      iconBg: const Color(0xFF1D9E75),
+                      iconBg: const Color(0xFF0EA5E9),
                       label: l.language,
                       subtitle: l.localizedLangName(locale.locale.languageCode),
                       onTap: () => _showLanguagePicker(context, locale, l),
@@ -114,25 +113,17 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     _Divider(isDark: isDark),
                     _NavTile(
-                      icon: Icons.star_rounded,
-                      iconBg: const Color(0xFFF59E0B),
-                      label: l.howDoYouLikeApp,
-                      subtitle: l.feedbackPrompt,
-                      onTap: () => AppFeedbackDialog.show(context),
-                    ),
-                    _Divider(isDark: isDark),
-                    _NavTile(
                       icon: Icons.privacy_tip_rounded,
-                      iconBg: const Color(0xFFFF6B35),
+                      iconBg: const Color(0xFFF97316),
                       label: l.privacyPolicy,
                       onTap: () => context.push('/privacy-policy'),
                     ),
                   ]),
-                  const SizedBox(height: 56),
-                  _LogoutTile(isDark: isDark, l: l, auth: auth),
                   const SizedBox(height: 16),
+                  _LogoutTile(isDark: isDark, l: l, auth: auth),
+                  const SizedBox(height: 8),
                   _DeleteAccountTile(l: l),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 14),
                   FutureBuilder<PackageInfo>(
                     future: PackageInfo.fromPlatform(),
                     builder: (context, snapshot) {
@@ -201,12 +192,12 @@ class _ProfileHero extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 12),
       decoration: const BoxDecoration(
         gradient: AppColors.primaryGradient,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(36),
-          bottomRight: Radius.circular(36),
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
         ),
       ),
       child: Stack(
@@ -215,8 +206,8 @@ class _ProfileHero extends StatelessWidget {
             top: -40,
             right: -30,
             child: Container(
-              width: 140,
-              height: 140,
+              width: 130,
+              height: 130,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.08),
@@ -224,11 +215,11 @@ class _ProfileHero extends StatelessWidget {
             ),
           ),
           Positioned(
-            bottom: -50,
-            left: -40,
+            bottom: -40,
+            left: -30,
             child: Container(
-              width: 160,
-              height: 160,
+              width: 130,
+              height: 130,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.06),
@@ -238,31 +229,31 @@ class _ProfileHero extends StatelessWidget {
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
               child: SizedBox(
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    _Avatar(initials: initials, size: 68, isDark: isDark),
-                    const SizedBox(height: 12),
+                    _Avatar(initials: initials, size: 48, isDark: isDark),
+                    const SizedBox(height: 6),
                     if (auth.isAuthenticated) ...[
                       Text(
                         auth.user?.name ?? '',
                         style: const TextStyle(
-                          fontSize: 18.5,
+                          fontSize: 16,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
                           fontFamily: 'Rabar',
                           letterSpacing: -0.3,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 1),
                       Text(
                         auth.user?.email ?? '',
                         style: TextStyle(
-                          fontSize: 11.5,
-                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 11,
+                          color: Colors.white.withValues(alpha: 0.75),
                           fontFamily: 'Rabar',
                           fontWeight: FontWeight.w600,
                         ),
@@ -271,26 +262,26 @@ class _ProfileHero extends StatelessWidget {
                       Text(
                         l.guest,
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
                           fontFamily: 'Rabar',
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () => context.push('/login'),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 8),
+                              horizontal: 20, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -299,7 +290,7 @@ class _ProfileHero extends StatelessWidget {
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w800,
-                              fontSize: 13,
+                              fontSize: 12.5,
                               fontFamily: 'Rabar',
                             ),
                           ),
@@ -331,12 +322,12 @@ class _Avatar extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        border: Border.all(color: const Color(0xFFF59E0B), width: 3),
+        border: Border.all(color: const Color(0xFFF59E0B), width: 2.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 6),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -345,15 +336,15 @@ class _Avatar extends StatelessWidget {
               child: Text(
                 initials!,
                 style: TextStyle(
-                  fontSize: size * 0.34,
+                  fontSize: size * 0.38,
                   color: const Color(0xFFF59E0B),
                   fontWeight: FontWeight.w900,
                   fontFamily: 'Rabar',
                 ),
               ),
             )
-          : const Icon(Icons.person_rounded,
-              size: 32, color: Color(0xFFF59E0B)),
+          : Icon(Icons.person_rounded,
+              size: size * 0.52, color: const Color(0xFFF59E0B)),
     );
   }
 }
@@ -365,18 +356,21 @@ class _SectionLabel extends StatelessWidget {
   const _SectionLabel({required this.label});
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(left: 4),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: Colors.grey.shade500,
-            fontFamily: 'Rabar',
-          ),
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 6, bottom: 4),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+          fontFamily: 'Rabar',
         ),
-      );
+      ),
+    );
+  }
 }
 
 class _SettingsGroup extends StatelessWidget {
@@ -388,16 +382,18 @@ class _SettingsGroup extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E293B) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+            color: isDark
+                ? const Color(0xFF334155).withValues(alpha: 0.6)
+                : const Color(0xFFE2E8F0),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.025),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -411,11 +407,13 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(left: 64),
+        padding: const EdgeInsetsDirectional.only(start: 64, end: 16),
         child: Divider(
-          height: 0.5,
-          thickness: 0.5,
-          color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
+          height: 1,
+          thickness: 0.6,
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.05),
         ),
       );
 }
@@ -427,11 +425,11 @@ class _IconBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: 36,
-        height: 36,
+        width: 32,
+        height: 32,
         decoration:
-            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
-        child: Icon(icon, color: Colors.white, size: 19),
+            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(9)),
+        child: Icon(icon, color: Colors.white, size: 17),
       );
 }
 
@@ -455,13 +453,13 @@ class _NavTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           child: Row(
             children: [
               _IconBadge(icon: icon, bg: iconBg),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -469,18 +467,18 @@ class _NavTile extends StatelessWidget {
                     Text(
                       label,
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 14.5,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Rabar',
                         color: isDark ? Colors.white : const Color(0xFF1E293B),
                       ),
                     ),
                     if (subtitle != null) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 1),
                       Text(
                         subtitle!,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11.5,
                           color: AppColors.primary,
                           fontFamily: 'Rabar',
                           fontWeight: FontWeight.w600,
@@ -491,7 +489,7 @@ class _NavTile extends StatelessWidget {
                 ),
               ),
               Icon(Icons.chevron_right_rounded,
-                  size: 20, color: isDark ? Colors.white30 : Colors.black26),
+                  size: 19, color: isDark ? Colors.white30 : Colors.black26),
             ],
           ),
         ),
@@ -517,16 +515,16 @@ class _SwitchTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       child: Row(
         children: [
           _IconBadge(icon: icon, bg: iconBg),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 14.5,
                 fontWeight: FontWeight.w700,
                 fontFamily: 'Rabar',
                 color: isDark ? Colors.white : const Color(0xFF1E293B),
@@ -534,7 +532,7 @@ class _SwitchTile extends StatelessWidget {
             ),
           ),
           Transform.scale(
-              scale: 0.85,
+              scale: 0.8,
               child: Switch.adaptive(value: value, onChanged: onChanged)),
         ],
       ),
@@ -583,28 +581,25 @@ class _LogoutTile extends StatelessWidget {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15),
+        padding: const EdgeInsets.symmetric(vertical: 11),
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [
-            const Color(0xFFFF4757).withValues(alpha: isDark ? 0.2 : 0.1),
-            const Color(0xFFFF6B81).withValues(alpha: isDark ? 0.12 : 0.06),
-          ]),
-          borderRadius: BorderRadius.circular(18),
+          color: const Color(0xFFFF4757).withValues(alpha: isDark ? 0.14 : 0.08),
+          borderRadius: BorderRadius.circular(15),
           border: Border.all(
-              color: const Color(0xFFFF4757).withValues(alpha: 0.35)),
+              color: const Color(0xFFFF4757).withValues(alpha: 0.28)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.exit_to_app_rounded,
-                color: Color(0xFFFF4757), size: 20),
-            const SizedBox(width: 10),
+                color: Color(0xFFFF4757), size: 19),
+            const SizedBox(width: 8),
             Text(
               l.logout,
               style: const TextStyle(
                 color: Color(0xFFFF4757),
                 fontWeight: FontWeight.w800,
-                fontSize: 15,
+                fontSize: 14.5,
                 fontFamily: 'Rabar',
               ),
             ),
@@ -660,15 +655,10 @@ class _DeleteAccountTile extends StatelessWidget {
 
     if (!context.mounted) return;
     // The loader was pushed onto the root navigator, so dismiss it there —
-    // the nearest navigator here is the ShellRoute's nested one.
-    Navigator.of(context, rootNavigator: true).pop(); // dismiss loader
+    Navigator.of(context, rootNavigator: true).pop();
 
     final messenger = ScaffoldMessenger.of(context);
     if (ok) {
-      messenger.showSnackBar(SnackBar(
-        content: Text(l.deleteAccountSuccess,
-            style: const TextStyle(fontFamily: 'Rabar')),
-      ));
       context.go('/home');
     } else {
       messenger.showSnackBar(SnackBar(
@@ -682,17 +672,27 @@ class _DeleteAccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: TextButton.icon(
-        onPressed: () => _confirmDelete(context),
-        icon: const Icon(Icons.delete_forever_rounded,
-            color: AppColors.error, size: 20),
-        label: Text(
-          l.deleteAccount,
-          style: const TextStyle(
-            color: AppColors.error,
-            fontWeight: FontWeight.w700,
-            fontSize: 14,
-            fontFamily: 'Rabar',
+      child: InkWell(
+        onTap: () => _confirmDelete(context),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.delete_forever_rounded,
+                  color: AppColors.error, size: 17),
+              const SizedBox(width: 6),
+              Text(
+                l.deleteAccount,
+                style: const TextStyle(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  fontFamily: 'Rabar',
+                ),
+              ),
+            ],
           ),
         ),
       ),

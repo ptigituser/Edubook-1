@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/localization/app_localizations.dart';
-import '../../shared/widgets/app_feedback_dialog.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -55,18 +54,6 @@ class SettingsScreen extends StatelessWidget {
               label: l.selectLanguage,
               subtitle: l.localizedLangName(locale.locale.languageCode),
               onTap: () => context.push('/language-select?from=settings'),
-            ),
-
-            const SizedBox(height: 20),
-            // Feedback & Rating
-            _SectionLabel(label: '⭐ ${l.rateApp}'),
-            const SizedBox(height: 10),
-            _SettingTile(
-              icon: Icons.star_rounded,
-              label: l.howDoYouLikeApp,
-              subtitle: l.feedbackPrompt,
-              color: const Color(0xFFF59E0B),
-              onTap: () => AppFeedbackDialog.show(context),
             ),
 
             const SizedBox(height: 20),

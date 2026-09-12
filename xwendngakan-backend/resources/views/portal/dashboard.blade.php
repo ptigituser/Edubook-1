@@ -164,7 +164,8 @@
 .db-main {
   flex: 1;
   padding: 2.5rem 3rem 5rem;
-  max-width: 980px;
+  width: 100%;
+  max-width: 100%;
   overflow-y: auto;
 }
 
@@ -800,6 +801,14 @@
    FORM FIELDS – Modern Glass Style
 ════════════════════════════════════════════════ */
 .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+.f-row-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.1rem; }
+.f-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+@media (max-width: 1180px) {
+  .f-row-4 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 640px) {
+  .f-row-4, .f-row-2 { grid-template-columns: 1fr !important; }
+}
 .f-group { margin-bottom: 1rem; }
 
 .f-label {
@@ -2227,7 +2236,7 @@
           </div>
 
           {{-- ڕیزی ١: ناونیشان و پۆلێن و وانە و قۆناغ --}}
-          <div class="f-row" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+          <div class="f-row f-row-4" style="margin-bottom: 0.5rem;">
             <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label" style="display:flex; justify-content:space-between; align-items:center;">
                 <span>ناونیشانی کار <span class="f-req">*</span></span>
@@ -2285,7 +2294,7 @@
           </div>
 
           {{-- ڕیزی ٢: جۆری دەوام، ڕەگەز، ئەزموون، مووچە --}}
-          <div class="f-row" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+          <div class="f-row f-row-4" style="margin-bottom: 0.5rem;">
             <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">جۆری دەوام <span class="f-req">*</span></label>
               <select class="f-select" name="employment_type" id="job-emp-type" required>
@@ -2316,7 +2325,7 @@
           </div>
 
           {{-- ڕیزی ٣: وەسف و مەرجەکان (تەنیشت یەک بە دوو ستوون) --}}
-          <div class="f-row" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
+          <div class="f-row f-row-2" style="margin-bottom: 0.5rem;">
             <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">وەسفی کار و ئەرکەکان <span class="f-req">*</span></label>
               <textarea class="f-textarea" name="description" id="job-desc" required placeholder="وەسفی کارەکە بنووسە، ئەرکەکان، کاتەکانی وانەوتنەوە و بەرپرسیاریەتییەکان..." style="min-height: 80px; height: 80px; resize: vertical;"></textarea>
@@ -2328,7 +2337,7 @@
           </div>
 
           {{-- ڕیزی ٤: شار و پەیوەندی --}}
-          <div class="f-row" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+          <div class="f-row f-row-4" style="margin-bottom: 0.5rem;">
             <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">شار <span class="f-req">*</span></label>
               <input type="text" name="city" id="job-city" class="f-input" list="cities_list" placeholder="شار هەڵبژێرە..." value="{{ old('city', $institution?->city ?? 'هەولێر') }}" required>

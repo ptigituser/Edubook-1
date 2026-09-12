@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\AppDataController;
 use App\Http\Controllers\Api\UserRequestController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\ChatController;
 use App\Models\InstitutionType;
 use Illuminate\Support\Facades\Route;
 
@@ -133,6 +134,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Reviews
     Route::post('/institutions/{id}/reviews', [ReviewController::class, 'store']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+
+    // Chat with Institution
+    Route::get('/institutions/{id}/chat', [ChatController::class, 'getMessages']);
+    Route::post('/institutions/{id}/chat', [ChatController::class, 'sendMessage']);
+    Route::get('/my-chats', [ChatController::class, 'myConversations']);
 
     // Posts CRUD
     Route::post('/institutions/{institutionId}/posts', [PostController::class, 'store']);

@@ -77,4 +77,12 @@ class Institution extends Model
     {
         return $this->hasMany(Review::class)->latest();
     }
+
+    /**
+     * Get chat conversations for this institution.
+     */
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class)->latest('last_message_at');
+    }
 }

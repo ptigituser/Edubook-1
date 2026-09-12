@@ -472,7 +472,7 @@ class _InstitutionChatScreenState extends State<InstitutionChatScreen> {
             ),
 
             // Image Preview Bar if an image is selected
-            if (_selectedImage != null) _buildSelectedImagePreview(isDark),
+            if (_selectedImage != null) _buildSelectedImagePreview(isDark, l),
 
             // Input bar
             _buildInputBar(isDark, l),
@@ -541,7 +541,7 @@ class _InstitutionChatScreenState extends State<InstitutionChatScreen> {
     );
   }
 
-  Widget _buildSelectedImagePreview(bool isDark) {
+  Widget _buildSelectedImagePreview(bool isDark, AppLocalizations l) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -558,8 +558,8 @@ class _InstitutionChatScreenState extends State<InstitutionChatScreen> {
             borderRadius: BorderRadius.circular(10),
             child: Image.file(
               _selectedImage!,
-              width: 56,
-              height: 56,
+              width: 54,
+              height: 54,
               fit: BoxFit.cover,
             ),
           ),
@@ -569,22 +569,21 @@ class _InstitutionChatScreenState extends State<InstitutionChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'وێنە ئامادەیە بۆ ناردن',
-                  style: TextStyle(
+                Text(
+                  l.photo,
+                  style: const TextStyle(
                     fontFamily: 'Rabar',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
-                  _selectedImage!.path.split('/').last,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  'ئامادەیە بۆ ناردن',
                   style: TextStyle(
                     fontFamily: 'Rabar',
-                    fontSize: 11,
-                    color: isDark ? Colors.white54 : AppColors.textMuted,
+                    fontSize: 12,
+                    color: isDark ? Colors.white60 : AppColors.textMuted,
                   ),
                 ),
               ],

@@ -1366,6 +1366,13 @@
         نامەکان
         <span id="nav-unread-badge" class="db-nav-badge" style="{{ $unreadChatsCount > 0 ? '' : 'display:none;' }} background: #ef4444; color: #fff;">{{ $unreadChatsCount }}</span>
       </button>
+      <button class="db-nav-btn" onclick="showTab('jobs', this)" data-tab="jobs">
+        <span class="db-nav-icon">💼</span>
+        هەلی کارەکان
+        @if(isset($jobsCount) && $jobsCount > 0)
+          <span class="db-nav-badge" style="background: rgba(2, 132, 199, 0.2); color: #38bdf8;">{{ $jobsCount }}</span>
+        @endif
+      </button>
       <button class="db-nav-btn" onclick="showTab('settings', this)">
         <span class="db-nav-icon">⚙️</span>
         ڕێکخستنەکان
@@ -2151,6 +2158,146 @@
           <p style="color: var(--txt2); font-weight: 600;">تکایە سەرەتا زانیارییەکانی دامەزراوەکەت تۆمار بکە.</p>
         </div>
       @endif
+    </div>
+
+    {{-- ══ TAB: JOBS ══ --}}
+    <div class="db-tab" id="tab-jobs">
+      <div class="pg-head" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <div class="pg-title">هەلی کار<span>ەکان</span></div>
+          <p class="pg-sub">ڕاگەیاندنی پێداویستی مامۆستا و ستاف لە ئەپەکەدا بە فەرمی لەلایەن دامەزراوەکەتەوە</p>
+        </div>
+        <button type="button" class="btn btn-gold" onclick="toggleJobForm()" id="btn-toggle-job-form">
+          <span>➕</span> بڵاوکردنەوەی هەلی کاری نوێ
+        </button>
+      </div>
+
+      {{-- New Job Form --}}
+      <div id="job-form-card" class="db-card" style="display:none; margin-bottom: 2rem; border-color: var(--gold);">
+        <div style="font-size:1.15rem; font-weight:800; margin-bottom:1.25rem; color:var(--gold); display:flex; align-items:center; gap:.5rem;">
+          <span>📝</span> فۆڕمی بڵاوکردنەوەی هەلی کار
+        </div>
+        <form id="portal-job-form" onsubmit="submitPortalJob(event)">
+          <div class="fg-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:1rem;">
+            <div class="fg">
+              <label class="lbl">ناونیشانی کار (پێویستە) *</label>
+              <input type="text" class="inp" name="title" required placeholder="بۆ نموونە: مامۆستای بیرکاری بۆ پۆلی 12">
+            </div>
+            <div class="fg">
+              <label class="lbl">پۆلێن *</label>
+              <select class="inp" name="category" required>
+                <option value="teacher">👨‍🏫 مامۆستا</option>
+                <option value="admin">💼 کارگێڕی و ژمێریاری</option>
+                <option value="support">🤝 چاودێری و خزمەتگوزاری</option>
+                <option value="other">تر</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="lbl">وانە / پسپۆڕی</label>
+              <input type="text" class="inp" name="subject" placeholder="وەک: ئینگلیزی، کیمیا، باخچە">
+            </div>
+            <div class="fg">
+              <label class="lbl">قۆناغی خوێندن</label>
+              <input type="text" class="inp" name="education_level" placeholder="وەک: باخچە، بنەڕەتی، ئامادەیی، زانکۆ">
+            </div>
+            <div class="fg">
+              <label class="lbl">جۆری دەوام *</label>
+              <select class="inp" name="employment_type" required>
+                <option value="full_time">تەواوکات (بەیانیان)</option>
+                <option value="part_time">نیوەکات (ئێواران)</option>
+                <option value="temporary">کاتی / وانەبێژ</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="lbl">مووچە (ئارەزوومەندانە)</label>
+              <input type="text" class="inp" name="salary_range" placeholder="وەک: 700,000 - 900,000 د.ع">
+            </div>
+            <div class="fg">
+              <label class="lbl">ڕەگەز</label>
+              <select class="inp" name="gender">
+                <option value="any">گرنگ نییە (نێر یان مێ)</option>
+                <option value="female">تەنها مێ</option>
+                <option value="male">تەنها نێر</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="lbl">ئەزموونی پێویست</label>
+              <input type="text" class="inp" name="experience_years" placeholder="وەک: 2 ساڵ بەسەرەوە">
+            </div>
+          </div>
+
+          <div class="fg" style="margin-bottom:1rem;">
+            <label class="lbl">وەسفی کار و ئەرکەکان (پێویستە) *</label>
+            <textarea class="inp" name="description" rows="3" required placeholder="وەسفی کارەکە بە کورتی بنووسە..."></textarea>
+          </div>
+
+          <div class="fg" style="margin-bottom:1rem;">
+            <label class="lbl">مەرجەکانی وەرگرتن (ئارەزوومەندانە)</label>
+            <textarea class="inp" name="requirements" rows="2" placeholder="مەرجەکان، بڕوانامەی پێویست، زمان، ئەزموون..."></textarea>
+          </div>
+
+          <div class="fg-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+            <div class="fg">
+              <label class="lbl">ژمارەی پەیوەندی / مۆبایل *</label>
+              <input type="text" class="inp" name="contact_phone" required placeholder="0750 000 0000" value="{{ $institution->phone ?? '' }}">
+            </div>
+            <div class="fg">
+              <label class="lbl">ژمارەی واتسئەپ</label>
+              <input type="text" class="inp" name="contact_whatsapp" placeholder="0750 000 0000" value="{{ $institution->wa ?? '' }}">
+            </div>
+            <div class="fg">
+              <label class="lbl">ئیمەیڵ</label>
+              <input type="email" class="inp" name="contact_email" placeholder="hr@school.krd" value="{{ $institution->email ?? '' }}">
+            </div>
+          </div>
+
+          <div style="display:flex; gap:1rem; justify-content:flex-end;">
+            <button type="button" class="btn" style="background:var(--bg3); color:var(--txt2);" onclick="toggleJobForm()">پەشیمانبوونەوە</button>
+            <button type="submit" class="btn btn-gold" id="btn-save-job">بڵاوکردنەوەی هەلی کار</button>
+          </div>
+        </form>
+      </div>
+
+      {{-- Published Jobs List --}}
+      <div class="db-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+          <div style="font-size:1.05rem; font-weight:800; color:var(--txt);">
+            لیستی هەلی کارە ڕاگەیەندراوەکانی دامەزراوەکەت (<span id="portal-jobs-count">{{ isset($jobs) ? $jobs->count() : 0 }}</span>)
+          </div>
+        </div>
+
+        <div id="portal-jobs-list">
+          @if(isset($jobs) && $jobs->count())
+            @foreach($jobs as $job)
+              <div class="job-portal-card" id="job-row-{{ $job->id }}" style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:1.25rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <div>
+                  <div style="font-size:1.1rem; font-weight:900; color:var(--txt); margin-bottom:.35rem;">{{ $job->title }}</div>
+                  <div style="display:flex; gap:.6rem; flex-wrap:wrap; font-size:.85rem; color:var(--txt2);">
+                    <span style="color:var(--gold);">📍 {{ $job->city }}</span>
+                    <span>⏰ {{ $job->employment_type == 'full_time' ? 'تەواوکات' : ($job->employment_type == 'part_time' ? 'نیوەکات' : 'کاتی') }}</span>
+                    @if($job->salary_range)
+                      <span style="color:#10b981;">💰 {{ $job->salary_range }}</span>
+                    @endif
+                    <span>📞 {{ $job->contact_phone }}</span>
+                    <span>👁️ {{ $job->views_count }} بینین</span>
+                  </div>
+                </div>
+                <div>
+                  <button type="button" class="btn" style="background:rgba(239, 68, 68, 0.15); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3); padding:.45rem .85rem; font-size:.85rem; border-radius:10px;" onclick="deletePortalJob({{ $job->id }})">
+                    🗑️ سڕینەوە
+                  </button>
+                </div>
+              </div>
+            @endforeach
+          @else
+            <div id="portal-jobs-empty" style="text-align:center; padding:3rem 1rem; color:var(--txt2);">
+              <div style="font-size:3rem; margin-bottom:.75rem;">💼</div>
+              <div style="font-weight:700; font-size:1.05rem;">تا ئێستا هیچ هەلی کارێکت بڵاونەکردووەتەوە</div>
+              <p style="font-size:.9rem; margin-top:.35rem; color:var(--txt3);">لەرێگەی دوگمەی سەرەوە دەتوانیت پێداویستی مامۆستا و کارمەند بۆ دامەزراوەکەت ڕابگەیەنیت.</p>
+            </div>
+          @endif
+        </div>
+      </div>
     </div>
 
     {{-- ══ TAB: SETTINGS ══ --}}
@@ -3208,7 +3355,81 @@ setInterval(() => {
             });
         }
     })
-    .catch(() => {});
-}, 3500);
+// ── Jobs Management ──
+function toggleJobForm() {
+    const card = document.getElementById('job-form-card');
+    const btn = document.getElementById('btn-toggle-job-form');
+    if (!card || !btn) return;
+    if (card.style.display === 'none' || card.style.display === '') {
+        card.style.display = 'block';
+        btn.innerHTML = '<span>❌</span> داخستنی فۆڕم';
+    } else {
+        card.style.display = 'none';
+        btn.innerHTML = '<span>➕</span> بڵاوکردنەوەی هەلی کاری نوێ';
+    }
+}
+
+async function submitPortalJob(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-save-job');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'چاوەڕوانبە...';
+    }
+
+    const form = document.getElementById('portal-job-form');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const res = await fetch('{{ route('portal.jobs.store') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (json.success && json.job) {
+            form.reset();
+            window.location.reload();
+        } else {
+            alert(json.message || 'هەڵەیەک ڕوویدا لە بڵاوکردنەوەی هەلی کارەکە');
+        }
+    } catch (err) {
+        alert('کێشەیەک لە پەیوەندی هەیە');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'بڵاوکردنەوەی هەلی کار';
+        }
+    }
+}
+
+async function deletePortalJob(id) {
+    if (!confirm('دڵنیایت لە سڕینەوەی ئەم هەلی کارە؟')) return;
+    try {
+        const res = await fetch(`/portal/jobs/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+        });
+        const json = await res.json();
+        if (json.success) {
+            const row = document.getElementById('job-row-' + id);
+            if (row) row.remove();
+            const countEl = document.getElementById('portal-jobs-count');
+            if (countEl) countEl.textContent = Math.max(0, parseInt(countEl.textContent || '1') - 1);
+        } else {
+            alert('هەڵە لە سڕینەوەی هەلی کار');
+        }
+    } catch (err) {
+        alert('کێشەیەک لە پەیوەندی هەیە');
+    }
+}
 </script>
 @endsection

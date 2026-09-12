@@ -254,7 +254,12 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
                 ? $conversations->sum('institution_unread_count')
                 : 0;
 
-            return view('portal.dashboard', compact('institution', 'posts', 'types', 'typeFlags', 'reviews', 'reviewsCount', 'avgRating', 'ratingDist', 'conversations', 'unreadChatsCount'));
+            $jobs = $institution
+                ? JobVacancy::where('institution_id', $institution->id)->orderByDesc('id')->get()
+                : collect();
+            $jobsCount = $jobs->count();
+
+            return view('portal.dashboard', compact('institution', 'posts', 'types', 'typeFlags', 'reviews', 'reviewsCount', 'avgRating', 'ratingDist', 'conversations', 'unreadChatsCount', 'jobs', 'jobsCount'));
         })->name('dashboard');
 
         Route::post('/institution/save', function (Request $request) {

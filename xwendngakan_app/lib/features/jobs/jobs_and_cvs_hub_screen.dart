@@ -55,27 +55,6 @@ class _JobsAndCvsHubScreenState extends State<JobsAndCvsHubScreen>
             fontWeight: FontWeight.w900,
           ),
         ),
-        actions: [
-          IconButton(
-            tooltip: l.postJob,
-            icon: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.add_rounded, color: AppColors.primary, size: 22),
-            ),
-            onPressed: () {
-              if (_tabController.index == 0) {
-                context.push('/jobs/create');
-              } else {
-                context.push('/cv-form');
-              }
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
@@ -205,22 +184,6 @@ class _JobVacanciesTabState extends State<_JobVacanciesTab> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'post_job_fab',
-        onPressed: () => context.push('/jobs/create'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        icon: const Icon(Icons.add_rounded, size: 20),
-        label: Text(
-          l.postJob,
-          style: const TextStyle(
-            fontFamily: 'Rabar',
-            fontSize: 13.5,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ),
       body: RefreshIndicator(
         onRefresh: () async => prov.fetchJobs(refresh: true),
         color: AppColors.primary,
@@ -418,25 +381,11 @@ class _JobVacanciesTabState extends State<_JobVacanciesTab> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'دەتوانیت یەکەم کەس بیت کە هەلی کار بڵاو دەکاتەوە',
+                          'لەم کاتەدا هیچ هەلی کارێکی نوێ لەلایەن دامەزراوەکانەوە ڕانەگەیەندراوە',
                           style: TextStyle(
                             fontFamily: 'Rabar',
                             fontSize: 12.5,
                             color: isDark ? Colors.white54 : AppColors.textMuted,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        ElevatedButton.icon(
-                          onPressed: () => context.push('/jobs/create'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          ),
-                          icon: const Icon(Icons.add_rounded, size: 18),
-                          label: Text(
-                            l.postJob,
-                            style: const TextStyle(fontFamily: 'Rabar', fontWeight: FontWeight.w800),
                           ),
                         ),
                       ],

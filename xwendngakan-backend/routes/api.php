@@ -36,8 +36,13 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/verify-reset-code', [AuthController::class, 'verifyResetCode']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
+use App\Http\Controllers\Api\AppFeedbackController;
+
 // App version check (public)
 Route::post('/check-update', [AppVersionController::class, 'check']);
+
+// App feedback & rating (public / optional auth)
+Route::post('/app-feedback', [AppFeedbackController::class, 'store']);
 
 // Public News
 Route::get('/news', [NewsController::class, 'index']);

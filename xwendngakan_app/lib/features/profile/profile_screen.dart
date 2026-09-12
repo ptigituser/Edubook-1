@@ -5,9 +5,13 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../data/services/api_service.dart';
+import '../../shared/widgets/app_update_dialog.dart';
+import '../../shared/widgets/app_feedback_dialog.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -112,6 +116,21 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     _Divider(isDark: isDark),
                     _NavTile(
+                      icon: Icons.star_rounded,
+                      iconBg: const Color(0xFFF59E0B),
+                      label: l.howDoYouLikeApp,
+                      subtitle: l.feedbackPrompt,
+                      onTap: () => AppFeedbackDialog.show(context),
+                    ),
+                    _Divider(isDark: isDark),
+                    _NavTile(
+                      icon: Icons.system_update_rounded,
+                      iconBg: const Color(0xFF0284C7),
+                      label: l.checkForUpdates,
+                      onTap: () => _manualCheckForUpdate(context, l),
+                    ),
+                    _Divider(isDark: isDark),
+                    _NavTile(
                       icon: Icons.privacy_tip_rounded,
                       iconBg: const Color(0xFFFF6B35),
                       label: l.privacyPolicy,
@@ -123,15 +142,24 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   _DeleteAccountTile(l: l),
                   const SizedBox(height: 24),
-                  Center(
-                    child: Text(
-                      'v1.0.0  •  ${l.appName}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? Colors.white24 : Colors.black26,
-                        fontFamily: 'Rabar',
-                      ),
-                    ),
+                  FutureBuilder<PackageInfo>(
+                    future: PackageInfo.fromPlatform(),
+                    builder: (context, snapshot) {
+                      final info = snapshot.data;
+                      final verStr = info != null
+                          ? 'v${info.version} (${info.buildNumber})'
+                          : 'v1.1.0';
+                      return Center(
+                        child: Text(
+                          '$verStr  •  ${l.appName}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.white24 : Colors.black26,
+                            fontFamily: 'Rabar',
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -140,6 +168,51 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _manualCheckForUpdate(
+      BuildContext context, AppLocalizations l) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final platform = Theme.of(context).platform == TargetPlatform.iOS ? 'ios' : 'android';
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l.checkingForUpdates,
+            style: const TextStyle(fontFamily: 'Rabar')),
+        duration: const Duration(milliseconds: 1500),
+      ),
+    );
+
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final buildNumber = int.tryParse(info.buildNumber) ?? 0;
+
+      final res = await ApiService().checkUpdate(platform, buildNumber);
+
+      if (!context.mounted) return;
+
+      if (res.success && res.data != null) {
+        final data = res.data!;
+        if (data['update_available'] == true || data['force_update'] == true) {
+          AppUpdateDialog.show(context,
+              updateData: data, force: data['force_update'] == true);
+          return;
+        }
+      }
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l.appUpToDate,
+              style: const TextStyle(
+                  fontFamily: 'Rabar', fontWeight: FontWeight.bold)),
+          backgroundColor: const Color(0xFF10B981),
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Manual update check error: $e');
+    }
   }
 
   void _showLanguagePicker(

@@ -3465,6 +3465,201 @@ class AppLocalizations {
         return 'سڵاو، دەربارەی هەلی کاری ($jobTitle) لە ($institutionName) لە ڕێگەی ئەپی Edubook پەیوەندیتان پێوە دەکەم.';
     }
   }
+
+  // =====================
+  // FORCE UPDATE & APP RATING & FEEDBACK
+  // =====================
+  String get forceUpdateDesc => _t({
+        'ku': 'وەشانێکی زۆر گرنگی ئەپەکە بەردەستە. بۆ سوودمەندبوون لە باشترکردنە نوێیەکان و بەردەوامبوون، تکایە ئەپەکە نوێ بکەرەوە.',
+        'kbd': 'وەشانەکا گرنگ یا ئەپێ بەردەستە. بۆ مفا وەرگرتن ژ باشترکرنێن نوێ و بەردەوامبوون، هیڤیە ئەپێ نوێ بکەیەڤە.',
+        'ar': 'يتوفر تحديث مهم للتطبيق. للاستفادة من التحسينات والميزات الجديدة ومتابعة الاستخدام، يرجى تحديث التطبيق الآن.',
+        'en': 'A critical update is available. To enjoy the latest features and continue using the app, please update now.',
+        'tr': 'Kritik bir güncelleme mevcut. En yeni özellikleri kullanmak ve devam etmek için lütfen uygulamayı şimdi güncelleyin.'
+      });
+  String get updateNow => _t({
+        'ku': 'نوێکردنەوەی ئێستا',
+        'kbd': 'نوێکرن نوکە',
+        'ar': 'تحديث الآن',
+        'en': 'Update Now',
+        'tr': 'Şimdi Güncelle'
+      });
+  String get whatsNew => _t({
+        'ku': 'چی نوێیە لەم وەشانەدا؟',
+        'kbd': 'چ تشتێ نوێ هەیە؟',
+        'ar': 'ما الجديد في هذا الإصدار؟',
+        'en': "What's New in this version?",
+        'tr': 'Bu sürümde neler yeni?'
+      });
+  String get currentVersion => _t({
+        'ku': 'وەشانی ئێستا',
+        'kbd': 'وەشانا نوکە',
+        'ar': 'الإصدار الحالي',
+        'en': 'Current Version',
+        'tr': 'Mevcut Sürüm'
+      });
+  String get latestVersion => _t({
+        'ku': 'نوێترین وەشان',
+        'kbd': 'دوماهیک وەشان',
+        'ar': 'أحدث إصدار',
+        'en': 'Latest Version',
+        'tr': 'En Son Sürüm'
+      });
+  String get checkForUpdates => _t({
+        'ku': 'پشکنین بۆ ئەپدەیت',
+        'kbd': 'پشکنین بۆ نوێکرنێ',
+        'ar': 'التحقق من وجود تحديثات',
+        'en': 'Check for Updates',
+        'tr': 'Güncellemeleri Kontrol Et'
+      });
+  String get checkingForUpdates => _t({
+        'ku': 'پشکنین بۆ نوێکردنەوە دەکرێت...',
+        'kbd': 'پشکنین بۆ نوێکرنێ دهێتە کرن...',
+        'ar': 'جارٍ التحقق من وجود تحديث...',
+        'en': 'Checking for updates...',
+        'tr': 'Güncellemeler denetleniyor...'
+      });
+  String get appUpToDate => _t({
+        'ku': 'ئەپەکەت نوێیە و دوایین وەشان بەکاردەهێنیت ✨',
+        'kbd': 'ئەپێ تە نوێیە و تە دوماهیک وەشان یا هەی ✨',
+        'ar': 'أنت تستخدم أحدث إصدار من التطبيق ✨',
+        'en': 'You are using the latest version of the app ✨',
+        'tr': 'Uygulamanın en güncel sürümünü kullanıyorsunuz ✨'
+      });
+  String get updateOpenStoreFailed => _t({
+        'ku': 'نەتوانرا بەستەری فرۆشگا بکرێتەوە',
+        'kbd': 'نەهاتە ڤەکرن بەستەرێ مارکێتێ',
+        'ar': 'تعذر فتح متجر التطبيقات',
+        'en': 'Could not open store link',
+        'tr': 'Mağaza bağlantısı açılamadı'
+      });
+
+  // App Rating & Feedback
+  String get rateApp => _t({
+        'ku': 'ڕەیتینگی ئەپ',
+        'kbd': 'دەنگدان ب ئەپێ',
+        'ar': 'تقييم التطبيق',
+        'en': 'Rate the App',
+        'tr': 'Uygulamayı Değerlendir'
+      });
+  String get rateAppSubtitle => _t({
+        'ku': 'دەنگ و ڕات بۆ ئێمە زۆر گرنگە',
+        'kbd': 'دەنگ و بوچوونا تە یا گرنگە بۆ مە',
+        'ar': 'رأيك يهمنا ويساعدنا على التطور',
+        'en': 'Your feedback helps us improve',
+        'tr': 'Görüşleriniz gelişmemize yardımcı olur'
+      });
+  String get howDoYouLikeApp => _t({
+        'ku': 'ئایا ئەپەکە پێت چۆنە؟',
+        'kbd': 'ئەرێ ئەپ چەوایە ل دەف تە؟',
+        'ar': 'ما رأيك في التطبيق؟',
+        'en': 'How do you like the app?',
+        'tr': 'Uygulamayı nasıl buldunuz?'
+      });
+  String get feedbackPrompt => _t({
+        'ku': 'چ سەرنج و تێبینیت هەیە بۆمان بنووسە',
+        'kbd': 'چ تێبینی و پێشنیار تە هەبن بۆ مە بنڤیسە',
+        'ar': 'ما هي ملاحظاتك واقتراحاتك؟ اكتبها لنا',
+        'en': 'What comments and feedback do you have for us? Write it down',
+        'tr': 'Bize ne gibi görüş ve önerileriniz var? Yazın'
+      });
+  String get feedbackPlaceholder => _t({
+        'ku': 'سەرنج، پێشنیاز یان ڕەخنەکەت لێرە بنووسە...',
+        'kbd': 'سەرنج، پێشنیار یان رەخنەیا خوە ل ڤێرە بنڤیسە...',
+        'ar': 'اكتب رأيك، اقتراحك أو ملاحظاتك هنا...',
+        'en': 'Write your thoughts, suggestions, or comments here...',
+        'tr': 'Görüş, öneri veya düşüncelerinizi buraya yazın...'
+      });
+  String get rateStoreBtn => _t({
+        'ku': 'ڕەیتینگ لە گووگڵ پلەی / ئەپ ستۆر',
+        'kbd': 'دەنگدان ل گووگل پلەی / ئەپ ستۆر',
+        'ar': 'التقييم في متجر التطبيقات',
+        'en': 'Rate on Google Play / App Store',
+        'tr': 'Mağazada Puan Ver'
+      });
+  String get sendFeedback => _t({
+        'ku': 'ناردنی تێبینی',
+        'kbd': 'هنارتنا تێبینیێ',
+        'ar': 'إرسال الملاحظات',
+        'en': 'Send Feedback',
+        'tr': 'Geri Bildirim Gönder'
+      });
+  String get feedbackSentSuccess => _t({
+        'ku': 'سوپاس بۆ سەرنج و تێبینییەکانت! دەنگت زۆر بەنرخە بۆمان ❤️',
+        'kbd': 'سوپاس بۆ تێبینیێن تە! دەنگێ تە یێ ب بها یە بۆ مە ❤️',
+        'ar': 'شكراً جزيلاً لملاحظاتك القيمة! رأيك يهمنا دائماً ❤️',
+        'en': 'Thank you for your valuable feedback! We truly appreciate it ❤️',
+        'tr': 'Değerli geri bildiriminiz için teşekkürler! Görüşünüz bizim için çok önemli ❤️'
+      });
+  String get pleaseSelectRating => _t({
+        'ku': 'تکایە سەرەتا ئەستێرەیەک دیاری بکە',
+        'kbd': 'هیڤیە ل دەسپێکێ ستێرەکێ دیار بکە',
+        'ar': 'يرجى تحديد تقييم بالنجوم أولاً',
+        'en': 'Please select a star rating first',
+        'tr': 'Lütfen önce bir yıldız puanı seçin'
+      });
+  String get rate5Star => _t({
+        'ku': 'نایابە! زۆر دڵخۆشین 😍',
+        'kbd': 'نایابە! گەلەک دلخۆشین 😍',
+        'ar': 'ممتاز جداً! سعداء بذلك 😍',
+        'en': 'Excellent! We are delighted 😍',
+        'tr': 'Harika! Çok mutluyuz 😍'
+      });
+  String get rate4Star => _t({
+        'ku': 'زۆر باشە! سوپاس بۆ تۆ 😊',
+        'kbd': 'گەلەک باشە! سوپاس بۆ تە 😊',
+        'ar': 'جيد جداً! شكراً لك 😊',
+        'en': 'Very good! Thank you 😊',
+        'tr': 'Çok iyi! Teşekkürler 😊'
+      });
+  String get rate3Star => _t({
+        'ku': 'باشە! دەتوانین باشتر بین 🙂',
+        'kbd': 'باشە! دکارین چێتر بین 🙂',
+        'ar': 'جيد! وسنكون أفضل بالتأكيد 🙂',
+        'en': 'Good! We can do even better 🙂',
+        'tr': 'İyi! Daha da iyi olabiliriz 🙂'
+      });
+  String get rate2Star => _t({
+        'ku': 'پێویستی بە باشترکردنە 😐',
+        'kbd': 'پێدڤی ب باشترکرنێ یە 😐',
+        'ar': 'يحتاج إلى تحسين 😐',
+        'en': 'Needs improvement 😐',
+        'tr': 'Geliştirilmesi gerekiyor 😐'
+      });
+  String get rate1Star => _t({
+        'ku': 'بەدڵم نییە 😞',
+        'kbd': 'ب دلێ من نینە 😞',
+        'ar': 'لم يعجبني 😞',
+        'en': 'Not satisfied 😞',
+        'tr': 'Memnun kalmadım 😞'
+      });
+  String get feedbackSuggestion => _t({
+        'ku': '💡 پێشنیاز',
+        'kbd': '💡 پێشنیار',
+        'ar': '💡 اقتراح',
+        'en': '💡 Suggestion',
+        'tr': '💡 Öneri'
+      });
+  String get feedbackBug => _t({
+        'ku': '⚠️ کێشە لە ئەپ',
+        'kbd': '⚠️ ئاریشە ل ئەپێ',
+        'ar': '⚠️ مشكلة تقنية',
+        'en': '⚠️ Issue / Bug',
+        'tr': '⚠️ Hata / Sorun'
+      });
+  String get feedbackGeneral => _t({
+        'ku': '💬 سەرنجی گشتی',
+        'kbd': '💬 سەرنجا گشتی',
+        'ar': '💬 ملاحظة عامة',
+        'en': '💬 General Feedback',
+        'tr': '💬 Genel Görüş'
+      });
+  String get feedbackPraise => _t({
+        'ku': '❤️ دەستخۆشی',
+        'kbd': '❤️ دەستخۆشی',
+        'ar': '❤️ شكر وتقدير',
+        'en': '❤️ Appreciation',
+        'tr': '❤️ Teşekkür'
+      });
 }
 
 class _AppLocalizationsDelegate

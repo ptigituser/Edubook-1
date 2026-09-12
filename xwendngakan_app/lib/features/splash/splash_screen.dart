@@ -5,10 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/auth_provider.dart';
 import 'dart:math' as math;
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../data/services/api_service.dart';
+import '../../shared/widgets/app_update_dialog.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -103,10 +103,14 @@ class _SplashScreenState extends State<SplashScreen>
       if (updateRes.success && updateRes.data != null) {
         final data = updateRes.data!;
         if (data['force_update'] == true) {
-          _showUpdateDialog(data, force: true);
+          if (mounted) {
+            AppUpdateDialog.show(context, updateData: data, force: true);
+          }
           return;
         } else if (data['update_available'] == true) {
-          await _showUpdateDialog(data, force: false);
+          if (mounted) {
+            await AppUpdateDialog.show(context, updateData: data, force: false);
+          }
         }
       }
     } catch (e) {
@@ -151,36 +155,6 @@ class _SplashScreenState extends State<SplashScreen>
       // teachers). Login is only required for account-based features.
       context.go('/home');
     }
-  }
-
-  Future<void> _showUpdateDialog(Map<String, dynamic> data, {required bool force}) async {
-    final l = AppLocalizations.of(context);
-    return showDialog(
-      context: context,
-      barrierDismissible: !force,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(force ? l.forceUpdateTitle : l.updateAvailable),
-        content: Text(data['release_notes'] ?? l.updateDesc),
-        actions: [
-          if (!force)
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(l.later),
-            ),
-          ElevatedButton(
-            onPressed: () {
-              // Launch store URL
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: Text(l.update, style: const TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
   }
 
 

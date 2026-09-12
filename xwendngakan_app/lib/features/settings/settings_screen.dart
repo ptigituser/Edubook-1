@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../data/services/api_service.dart';
+import '../../shared/widgets/app_update_dialog.dart';
+import '../../shared/widgets/app_feedback_dialog.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -57,6 +60,23 @@ class SettingsScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 20),
+            // Feedback & Rating
+            _SectionLabel(label: '⭐ ${l.rateApp}'),
+            const SizedBox(height: 10),
+            _SettingTile(
+              icon: Icons.star_rounded,
+              label: l.howDoYouLikeApp,
+              subtitle: l.feedbackPrompt,
+              color: const Color(0xFFF59E0B),
+              onTap: () => AppFeedbackDialog.show(context),
+            ),
+            _SettingTile(
+              icon: Icons.system_update_rounded,
+              label: l.checkForUpdates,
+              onTap: () => _manualCheckForUpdate(context, l),
+            ),
+
+            const SizedBox(height: 20),
             // About
             _SectionLabel(label: 'ℹ️ ${l.about}'),
             const SizedBox(height: 10),
@@ -71,13 +91,14 @@ class SettingsScreen extends StatelessWidget {
                   subtitle: info == null
                       ? null
                       : 'v${info.version} (${info.buildNumber})',
+                  onTap: () => _manualCheckForUpdate(context, l),
                 );
               },
             ),
             _SettingTile(
               icon: Icons.privacy_tip_outlined,
               label: l.privacyPolicy,
-              onTap: () {},
+              onTap: () => context.push('/privacy-policy'),
             ),
             _SettingTile(
               icon: Icons.help_outline_rounded,
@@ -102,6 +123,45 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _manualCheckForUpdate(BuildContext context, AppLocalizations l) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final platform = Theme.of(context).platform == TargetPlatform.iOS ? 'ios' : 'android';
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l.checkingForUpdates, style: const TextStyle(fontFamily: 'Rabar')),
+        duration: const Duration(milliseconds: 1500),
+      ),
+    );
+
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final buildNumber = int.tryParse(info.buildNumber) ?? 0;
+
+      final res = await ApiService().checkUpdate(platform, buildNumber);
+
+      if (!context.mounted) return;
+
+      if (res.success && res.data != null) {
+        final data = res.data!;
+        if (data['update_available'] == true || data['force_update'] == true) {
+          AppUpdateDialog.show(context, updateData: data, force: data['force_update'] == true);
+          return;
+        }
+      }
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l.appUpToDate, style: const TextStyle(fontFamily: 'Rabar', fontWeight: FontWeight.bold)),
+          backgroundColor: const Color(0xFF10B981),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Manual update check error: $e');
+    }
   }
 
   Future<void> _confirmDeleteAccount(BuildContext context, AppLocalizations l) async {

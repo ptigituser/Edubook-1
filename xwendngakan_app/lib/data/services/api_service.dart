@@ -1023,6 +1023,51 @@ class ApiService {
   }
 
   // ==================
+  // APP FEEDBACK & RATING
+  // ==================
+
+  Future<ApiResult<bool>> submitAppFeedback({
+    required int rating,
+    String? feedbackType,
+    String? comment,
+    String? platform,
+    String? appVersion,
+    String? deviceInfo,
+    String? userName,
+    String? userPhone,
+  }) async {
+    try {
+      final headers = await _authHeaders();
+      final res = await http
+          .post(
+            Uri.parse('$_base/app-feedback'),
+            headers: headers,
+            body: jsonEncode({
+              'rating': rating,
+              'feedback_type': feedbackType ?? 'general',
+              'comment': comment,
+              'platform': platform,
+              'app_version': appVersion,
+              'device_info': deviceInfo,
+              'user_name': userName,
+              'user_phone': userPhone,
+            }),
+          )
+          .timeout(AppConstants.connectTimeout);
+
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        if (data['success'] == true) {
+          return ApiResult.success(true);
+        }
+      }
+      return ApiResult.failure(data['message'] ?? 'Failed to submit feedback');
+    } catch (e) {
+      return ApiResult.failure('$e');
+    }
+  }
+
+  // ==================
   // REVIEWS & RATINGS
   // ==================
 

@@ -130,6 +130,14 @@ Route::prefix('admin')->name('admin.')->middleware('no-cache')->group(function (
         // Notifications
         Route::get('/notifications',  [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/broadcast', [NotificationController::class, 'broadcast'])->name('notifications.broadcast');
+
+        // App Feedback & Ratings
+        Route::get('/feedbacks',            [\App\Http\Controllers\Admin\AppFeedbackController::class, 'index'])->name('feedbacks.index');
+        Route::delete('/feedbacks/{id}',    [\App\Http\Controllers\Admin\AppFeedbackController::class, 'destroy'])->name('feedbacks.destroy');
+
+        // App Versions & Force Update
+        Route::get('/app-versions',         [\App\Http\Controllers\Admin\AppVersionController::class, 'index'])->name('app-versions.index');
+        Route::put('/app-versions/{id}',    [\App\Http\Controllers\Admin\AppVersionController::class, 'update'])->name('app-versions.update');
     });
 });
 

@@ -17,8 +17,10 @@ import '../../providers/theme_provider.dart';
 import '../../data/models/institution_type_model.dart';
 import '../../data/models/institution_model.dart';
 import '../../data/models/banner_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../shared/widgets/cards.dart';
 import '../../shared/widgets/common_widgets.dart';
+import '../../shared/widgets/app_feedback_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -50,6 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Dynamic filters will be populated from provider
 
+  bool _showFeedbackCard = true;
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +61,33 @@ class _HomeScreenState extends State<HomeScreen> {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       Provider.of<NotificationsProvider>(context, listen: false)
           .loadUnread(auth);
+      _checkAutoPopupFeedback();
     });
+  }
+
+  Future<void> _checkAutoPopupFeedback() async {
+    await Future.delayed(const Duration(milliseconds: 2000));
+    if (!mounted) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final submitted = prefs.getBool('app_feedback_submitted') ?? false;
+      if (submitted) {
+        if (mounted) setState(() => _showFeedbackCard = false);
+        return;
+      }
+
+      final lastPrompt = prefs.getInt('app_feedback_last_popup_time') ?? 0;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      // If never prompted, or at least 24 hours have passed since last popup
+      if (now - lastPrompt > 24 * 60 * 60 * 1000) {
+        await prefs.setInt('app_feedback_last_popup_time', now);
+        if (mounted) {
+          AppFeedbackDialog.show(context);
+        }
+      }
+    } catch (e) {
+      debugPrint('Feedback popup check error: $e');
+    }
   }
 
   @override
@@ -101,6 +131,13 @@ class _HomeScreenState extends State<HomeScreen> {
             // Ads Carousel
             SliverToBoxAdapter(
               child: AdsCarousel(isDark: isDark),
+            ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 14)),
+
+            // Interactive Feedback & Rating Card directly on Home Screen!
+            SliverToBoxAdapter(
+              child: _buildFeedbackBanner(context, isDark, l),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 14)),
@@ -483,6 +520,158 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeedbackBanner(
+    BuildContext context,
+    bool isDark,
+    AppLocalizations l,
+  ) {
+    if (!_showFeedbackCard) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [
+                    const Color(0xFF1E293B),
+                    const Color(0xFF1E1B4B),
+                  ]
+                : [
+                    const Color(0xFFFFFBEB),
+                    const Color(0xFFFEF3C7),
+                  ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.35 : 0.45),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.12 : 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFF59E0B), Color(0xFFFBBF24)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.star_rounded, color: Colors.white, size: 26),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.howDoYouLikeApp,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          fontFamily: 'Rabar',
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        l.feedbackPrompt,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF64748B),
+                          fontFamily: 'Rabar',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close_rounded, size: 18, color: isDark ? Colors.white38 : Colors.black38),
+                  onPressed: () {
+                    setState(() => _showFeedbackCard = false);
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            // 5 Interactive stars on the home card!
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: List.generate(5, (index) {
+                    final starNum = index + 1;
+                    return GestureDetector(
+                      onTap: () {
+                        AppFeedbackDialog.show(context, initialRating: starNum);
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 3),
+                        child: Icon(
+                          Icons.star_rounded,
+                          color: Color(0xFFF59E0B),
+                          size: 28,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                ElevatedButton(
+                  onPressed: () => AppFeedbackDialog.show(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF59E0B),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Text(
+                    l.sendFeedback,
+                    style: const TextStyle(
+                      fontFamily: 'Rabar',
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

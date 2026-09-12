@@ -642,6 +642,7 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
                 'subject'          => 'nullable|string|max:100',
                 'education_level'  => 'nullable|string|max:100',
                 'employment_type'  => 'required|string|max:50',
+                'city'             => 'nullable|string|max:100',
                 'salary_range'     => 'nullable|string|max:100',
                 'gender'           => 'nullable|string|max:20',
                 'experience_years' => 'nullable|string|max:50',
@@ -655,11 +656,55 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
             $validated['institution_id']   = $institution->id;
             $validated['institution_name'] = $institution->nku ?? $institution->name ?? 'دامەزراوە';
             $validated['institution_logo'] = $institution->logo;
-            $validated['city']             = $institution->city ?? 'هەولێر';
+            $validated['city']             = !empty($validated['city']) ? $validated['city'] : ($institution->city ?? 'هەولێر');
 
             $job = JobVacancy::create($validated);
             return response()->json(['success' => true, 'job' => $job]);
         })->name('jobs.store');
+
+        Route::put('/jobs/{id}', function (Request $request, $id) {
+            $user = auth()->user();
+            $institution = Institution::where('user_id', $user->id)->orderByDesc('approved')->first();
+            if (!$institution) abort(403);
+
+            $job = JobVacancy::where('id', $id)->where('institution_id', $institution->id)->firstOrFail();
+
+            $validated = $request->validate([
+                'title'            => 'required|string|max:255',
+                'category'         => 'required|string',
+                'subject'          => 'nullable|string|max:100',
+                'education_level'  => 'nullable|string|max:100',
+                'employment_type'  => 'required|string|max:50',
+                'city'             => 'nullable|string|max:100',
+                'salary_range'     => 'nullable|string|max:100',
+                'gender'           => 'nullable|string|max:20',
+                'experience_years' => 'nullable|string|max:50',
+                'description'      => 'required|string',
+                'requirements'     => 'nullable|string',
+                'contact_phone'    => 'required|string|max:50',
+                'contact_whatsapp' => 'nullable|string|max:50',
+                'contact_email'    => 'nullable|email|max:100',
+            ]);
+
+            if (empty($validated['city'])) {
+                $validated['city'] = $institution->city ?? 'هەولێر';
+            }
+
+            $job->update($validated);
+            return response()->json(['success' => true, 'job' => $job]);
+        })->name('jobs.update');
+
+        Route::patch('/jobs/{id}/toggle', function ($id) {
+            $user = auth()->user();
+            $institution = Institution::where('user_id', $user->id)->orderByDesc('approved')->first();
+            if (!$institution) abort(403);
+
+            $job = JobVacancy::where('id', $id)->where('institution_id', $institution->id)->firstOrFail();
+            $job->is_active = !$job->is_active;
+            $job->save();
+
+            return response()->json(['success' => true, 'is_active' => $job->is_active]);
+        })->name('jobs.toggle');
 
         Route::delete('/jobs/{id}', function ($id) {
             $user = auth()->user();

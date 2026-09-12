@@ -105,6 +105,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
+              // Top Rated Institutions Section (Only if rated institutions exist)
+              ..._buildTopRatedSection(context, prov, lang, isDark, l),
+
               // Categories / Filters Header
               SliverToBoxAdapter(
                 child: Padding(
@@ -303,6 +306,103 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
     );
+  }
+
+  List<Widget> _buildTopRatedSection(
+    BuildContext context,
+    InstitutionsProvider prov,
+    String lang,
+    bool isDark,
+    AppLocalizations l,
+  ) {
+    final topRated =
+        prov.institutions.where((i) => i.ratingAvg > 0).toList();
+    if (topRated.isEmpty) return [];
+
+    topRated.sort((a, b) {
+      if (b.ratingAvg != a.ratingAvg) {
+        return b.ratingAvg.compareTo(a.ratingAvg);
+      }
+      return b.reviewsCount.compareTo(a.reviewsCount);
+    });
+
+    return [
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFB300).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.star_rounded,
+                      color: Color(0xFFFFB300),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    l.topRatedInstitutions,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Rabar',
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFB300).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${topRated.length}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFFD97706),
+                    fontFamily: 'Rabar',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: 14)),
+      SliverToBoxAdapter(
+        child: SizedBox(
+          height: 165,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: topRated.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 14),
+            itemBuilder: (context, index) {
+              final inst = topRated[index];
+              return _TopRatedCard(
+                institution: inst,
+                lang: lang,
+                isDark: isDark,
+                onTap: () => context.push('/institutions/${inst.id}'),
+              );
+            },
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: 28)),
+    ];
   }
 
   Widget _buildHeader(BuildContext context, AppLocalizations l,
@@ -1193,6 +1293,264 @@ class _AdsCarouselState extends State<AdsCarousel> {
           errorWidget: (_, __, ___) => Container(color: AppColors.primaryLight),
         ),
       ],
+    );
+  }
+}
+
+/// =====================
+/// TOP RATED INSTITUTION CARD (Horizontal slider)
+/// =====================
+class _TopRatedCard extends StatelessWidget {
+  final InstitutionModel institution;
+  final String lang;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _TopRatedCard({
+    required this.institution,
+    required this.lang,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final typeColor = AppColors.typeColor(institution.type);
+    final prov = Provider.of<InstitutionsProvider>(context, listen: false);
+    final rawType = institution.type ?? '';
+
+    String typeLabel = rawType.replaceAll('_', ' ');
+    String emoji = '🏫';
+    try {
+      final typeModel =
+          prov.institutionTypes.firstWhere((t) => t.key == rawType);
+      typeLabel = lang == 'ku'
+          ? typeModel.name
+          : (lang == 'ar'
+              ? (typeModel.nameAr ?? typeModel.name)
+              : (typeModel.nameEn ?? typeModel.name));
+      if (typeModel.emoji != null && typeModel.emoji!.isNotEmpty) {
+        emoji = typeModel.emoji!;
+      }
+    } catch (_) {
+      typeLabel = AppConstants.institutionTypes[rawType]?[lang] ?? typeLabel;
+      emoji = AppConstants.institutionTypes[rawType]?['emoji'] ?? emoji;
+    }
+
+    final String bestLabel = (lang == 'ar')
+        ? 'الأفضل'
+        : (lang == 'en')
+            ? 'Top'
+            : 'باشترین';
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 250,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: const Color(0xFFFFD54F).withValues(alpha: 0.5),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(21),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Background Image
+              if (institution.imgUrl.isNotEmpty)
+                CachedNetworkImage(
+                  imageUrl: institution.imgUrl,
+                  fit: BoxFit.cover,
+                  errorWidget: (_, __, ___) => Container(
+                    color: typeColor.withValues(alpha: 0.3),
+                    child: Center(
+                      child: Text(emoji, style: const TextStyle(fontSize: 40)),
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  color: typeColor.withValues(alpha: 0.3),
+                  child: Center(
+                    child: Text(emoji, style: const TextStyle(fontSize: 40)),
+                  ),
+                ),
+
+              // Dark Gradient for legibility
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.35),
+                      Colors.black.withValues(alpha: 0.15),
+                      Colors.black.withValues(alpha: 0.85),
+                      Colors.black.withValues(alpha: 0.95),
+                    ],
+                    stops: const [0.0, 0.35, 0.7, 1.0],
+                  ),
+                ),
+              ),
+
+              // Top Row: Rating Badge & Type
+              Positioned(
+                top: 10,
+                left: 10,
+                right: 10,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Rating Badge (⭐ 5.0 باشترین)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD97706).withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFFFFD54F),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            size: 14,
+                            color: Color(0xFFFFD54F),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${institution.ratingAvg.toStringAsFixed(1)} $bestLabel',
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              fontFamily: 'Rabar',
+                              height: 1.1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Type Chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3.5),
+                      decoration: BoxDecoration(
+                        color: typeColor.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '$emoji $typeLabel',
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          fontFamily: 'Rabar',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Bottom Details
+              Positioned(
+                bottom: 12,
+                left: 12,
+                right: 12,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        institution.name(lang),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          fontFamily: 'Rabar',
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          // 5 Stars
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: List.generate(5, (starIdx) {
+                              return Icon(
+                                starIdx < institution.ratingAvg.round()
+                                    ? Icons.star_rounded
+                                    : Icons.star_outline_rounded,
+                                size: 13,
+                                color: const Color(0xFFFFB300),
+                              );
+                            }),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '(${institution.reviewsCount})',
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Rabar',
+                            ),
+                          ),
+                          if (institution.city != null &&
+                              institution.city!.isNotEmpty) ...[
+                            const Spacer(),
+                            const Icon(
+                              Icons.location_on_rounded,
+                              size: 11,
+                              color: Colors.white60,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              institution.city!,
+                              style: const TextStyle(
+                                fontSize: 10.5,
+                                color: Colors.white70,
+                                fontFamily: 'Rabar',
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

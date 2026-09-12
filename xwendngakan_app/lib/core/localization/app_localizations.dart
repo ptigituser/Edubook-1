@@ -2657,12 +2657,19 @@ class AppLocalizations {
       });
   String get allFilter => _t(
       {'ku': 'هەموو', 'kbd': 'هەمی', 'ar': 'الكل', 'en': 'All', 'tr': 'Tümü'});
+  String get topRatedInstitutions => _t({
+        'ku': 'بەرزترین هەڵسەنگاندنەکان',
+        'kbd': 'بلندترین هەلسەنگاندن',
+        'ar': 'الأعلى تقييماً',
+        'en': 'Top Rated',
+        'tr': 'En Yüksek Puanlılar'
+      });
   String get bestInstitutions => _t({
-        'ku': 'باشترین دامەزراوەکان',
-        'kbd': 'باشترین دەزگەهـ',
-        'ar': 'أفضل المؤسسات',
-        'en': 'Top Institutions',
-        'tr': 'En İyi Kurumlar'
+        'ku': 'دامەزراوەکان',
+        'kbd': 'دەزگەهـ',
+        'ar': 'المؤسسات',
+        'en': 'Institutions',
+        'tr': 'Kurumlar'
       });
   String get noInstitutionsFound => _t({
         'ku': 'هیچ دامەزراوەیەک نەدۆزرایەوە',

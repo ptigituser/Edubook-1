@@ -3096,6 +3096,73 @@ class AppLocalizations {
         'en': 'Average Rating',
         'tr': 'Ortalama Değerlendirme'
       });
+
+  // =====================
+  // CAREER & MAJOR QUIZ
+  // =====================
+  String get careerQuizTitle => _t({
+        'ku': 'چ بەشێک بۆ من گونجاوە؟',
+        'kbd': 'کیژ پشک بۆ من گونجایە؟',
+        'ar': 'ما التخصص الأنسب لي؟',
+        'en': 'Which Major Fits Me?',
+        'tr': 'Hangi Bölüm Bana Uygun?'
+      });
+  String get careerQuizSub => _t({
+        'ku': 'لە ٢ خولەکدا بەشی شیاوی زانکۆ و پەیمانگا بەپێی حەز و کەسایەتیت بدۆزەرەوە!',
+        'kbd': 'د ٢ خۆلەکان دا پشکا گونجای یا زانکۆ و پەیمانگەهێ دویڤ حەزا خوە ببینە!',
+        'ar': 'اكتشف التخصص الأنسب لك في الجامعات والمعاهد وفقاً لاهتماماتك وشخصيتك في دقيقتين!',
+        'en': 'Discover your ideal university or institute major based on your personality in 2 minutes!',
+        'tr': '2 dakikada ilgi ve kişiliğinize en uygun üniversite veya enstitü bölümünü keşfedin!'
+      });
+  String get startQuiz => _t({
+        'ku': 'دەستپێکردنی تاقیکردنەوە',
+        'kbd': 'دەستپێکرنا تاقیکرنێ',
+        'ar': 'ابدأ الاختبار',
+        'en': 'Start Quiz',
+        'tr': 'Teste Başla'
+      });
+  String get questionLabel => _t({
+        'ku': 'پرسیار',
+        'kbd': 'پرسیار',
+        'ar': 'سؤال',
+        'en': 'Question',
+        'tr': 'Soru'
+      });
+  String get quizResult => _t({
+        'ku': 'ئەنجامی شیکاری کەسایەتیت',
+        'kbd': 'ئەنجامێ کەسایەتیا تە',
+        'ar': 'نتيجة تحليل شخصيتك',
+        'en': 'Your Personality & Major Result',
+        'tr': 'Kişilik ve Bölüm Sonucunuz'
+      });
+  String get recommendedMajors => _t({
+        'ku': 'باشترین بەشە پێشنیارکراوەکان بۆ تۆ',
+        'kbd': 'باشترین پشکێن پێشنیارکری بۆ تە',
+        'ar': 'أفضل التخصصات المقترحة لك',
+        'en': 'Top Recommended Majors for You',
+        'tr': 'Sizin İçin En Çok Önerilen Bölümler'
+      });
+  String get shareMyResult => _t({
+        'ku': 'شەیرکردنی ئەنجامەکەم لە ستۆری',
+        'kbd': 'بەلاڤکرنا ئەنجامی د ستۆری دا',
+        'ar': 'مشاركة نتيجتي في الستوري',
+        'en': 'Share My Result to Story',
+        'tr': 'Sonucumu Hikayede Paylaş'
+      });
+  String get retakeQuiz => _t({
+        'ku': 'دووبارەکردنەوەی تاقیکردنەوە',
+        'kbd': 'دووبارەکرنا تاقیکرنێ',
+        'ar': 'إعادة الاختبار',
+        'en': 'Retake Quiz',
+        'tr': 'Testi Tekrarla'
+      });
+  String get exploreInstitutions => _t({
+        'ku': 'دۆزینەوەی زانکۆ و پەیمانگاکان',
+        'kbd': 'دیتنا زانکۆ و پەیمانگەهان',
+        'ar': 'استكشاف الجامعات والمعاهد',
+        'en': 'Explore Institutions',
+        'tr': 'Kurumları Keşfet'
+      });
 }
 
 class _AppLocalizationsDelegate

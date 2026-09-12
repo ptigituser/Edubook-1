@@ -15,7 +15,9 @@ class InstitutionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Institution::where('approved', true);
+        $query = Institution::where('approved', true)
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews');
 
         // Filter by type. `types` takes a comma-separated list so the app can
         // ask for a whole category group (e.g. everything that is neither

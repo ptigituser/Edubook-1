@@ -102,15 +102,19 @@ class InstitutionCard extends StatelessWidget {
               ),
             ),
 
-            // ── Top bar: Views & Favorite ──
+            // ── Top bar: Views, Rating & Favorite ──
             Positioned(
               top: 10,
               left: 10,
               right: 10,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _ViewsBadge(views: institution.views),
+                  if (institution.ratingAvg > 0) ...[
+                    const SizedBox(width: 5),
+                    _RatingBadge(rating: institution.ratingAvg, lang: lang),
+                  ],
+                  const Spacer(),
                   GestureDetector(
                     onTap: onFavorite,
                     child: Container(
@@ -316,6 +320,73 @@ class _ViewsBadge extends StatelessWidget {
               fontWeight: FontWeight.w800,
               color: Colors.white,
               fontFamily: 'Rabar',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Frosted "rating / باشترین" pill shown on the institution image.
+class _RatingBadge extends StatelessWidget {
+  final double rating;
+  final String lang;
+
+  const _RatingBadge({
+    required this.rating,
+    required this.lang,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isTop = rating >= 4.0;
+    final String bestLabel = (lang == 'ar')
+        ? 'الأفضل'
+        : (lang == 'en')
+            ? 'Top'
+            : 'باشترین';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
+      decoration: BoxDecoration(
+        color: isTop
+            ? const Color(0xFFD97706).withValues(alpha: 0.95)
+            : Colors.black.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isTop
+              ? const Color(0xFFFFD54F)
+              : Colors.white.withValues(alpha: 0.25),
+          width: 0.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.star_rounded,
+            size: 13,
+            color: Color(0xFFFFD54F),
+          ),
+          const SizedBox(width: 3),
+          Text(
+            isTop
+                ? '${rating.toStringAsFixed(1)} $bestLabel'
+                : rating.toStringAsFixed(1),
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              fontFamily: 'Rabar',
+              height: 1.1,
             ),
           ),
         ],

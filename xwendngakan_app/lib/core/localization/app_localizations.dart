@@ -2658,11 +2658,11 @@ class AppLocalizations {
   String get allFilter => _t(
       {'ku': 'هەموو', 'kbd': 'هەمی', 'ar': 'الكل', 'en': 'All', 'tr': 'Tümü'});
   String get bestInstitutions => _t({
-        'ku': 'دامەزراوەکان',
-        'kbd': 'دەزگەهـ',
-        'ar': 'المؤسسات',
-        'en': 'Institutions',
-        'tr': 'Kurumlar'
+        'ku': 'باشترین دامەزراوەکان',
+        'kbd': 'باشترین دەزگەهـ',
+        'ar': 'أفضل المؤسسات',
+        'en': 'Top Institutions',
+        'tr': 'En İyi Kurumlar'
       });
   String get noInstitutionsFound => _t({
         'ku': 'هیچ دامەزراوەیەک نەدۆزرایەوە',

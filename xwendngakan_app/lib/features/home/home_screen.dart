@@ -15,6 +15,7 @@ import '../../providers/locale_provider.dart';
 import '../../providers/notifications_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../data/models/institution_type_model.dart';
+import '../../data/models/institution_model.dart';
 import '../../data/models/banner_model.dart';
 import '../../shared/widgets/cards.dart';
 import '../../shared/widgets/common_widgets.dart';
@@ -258,30 +259,43 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 )
               else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.82,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (_, i) {
-                        final inst = prov.institutions[i];
-                        return InstitutionCard(
-                          institution: inst,
-                          lang: lang,
-                          isFavorite: prov.favorites.contains(inst.id),
-                          onFavorite: () => prov.toggleFavorite(inst.id),
-                          onTap: () => context.push('/institutions/${inst.id}'),
-                        );
-                      },
-                      childCount: prov.institutions.length,
-                    ),
-                  ),
+                Builder(
+                  builder: (context) {
+                    final displayList =
+                        List<InstitutionModel>.from(prov.institutions);
+                    displayList.sort((a, b) {
+                      if (b.ratingAvg != a.ratingAvg) {
+                        return b.ratingAvg.compareTo(a.ratingAvg);
+                      }
+                      return b.reviewsCount.compareTo(a.reviewsCount);
+                    });
+                    return SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      sliver: SliverGrid(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.82,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (_, i) {
+                            final inst = displayList[i];
+                            return InstitutionCard(
+                              institution: inst,
+                              lang: lang,
+                              isFavorite: prov.favorites.contains(inst.id),
+                              onFavorite: () => prov.toggleFavorite(inst.id),
+                              onTap: () =>
+                                  context.push('/institutions/${inst.id}'),
+                            );
+                          },
+                          childCount: displayList.length,
+                        ),
+                      ),
+                    );
+                  },
                 ),
 
               const SliverToBoxAdapter(child: SizedBox(height: 100)),

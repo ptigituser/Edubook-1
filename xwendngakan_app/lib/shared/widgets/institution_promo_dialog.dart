@@ -8,7 +8,7 @@ import '../../core/localization/app_localizations.dart';
 class InstitutionPromoDialog extends StatelessWidget {
   const InstitutionPromoDialog({super.key});
 
-  /// Shows the promo dialog unconditionally.
+  /// Shows the promo dialog directly (used for testing or direct clicks).
   static Future<void> show(BuildContext context) async {
     return showDialog<void>(
       context: context,
@@ -17,37 +17,31 @@ class InstitutionPromoDialog extends StatelessWidget {
     );
   }
 
-  /// Automatically checks interval and frequency rules, then shows if conditions match.
-  static Future<bool> checkAndShow(BuildContext context) async {
+  /// Checks the weekly interval (once every 7 days) and displays if eligible.
+  static Future<bool> checkAndShow(BuildContext context, {bool forceNow = false}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      // 1. Check if user explicitly dismissed permanently
-      final neverShow = prefs.getBool('institution_promo_never_show') ?? false;
-      if (neverShow) return false;
+      if (!forceNow) {
+        // 1. Permanent dismissal check
+        final neverShow = prefs.getBool('institution_promo_never_show') ?? false;
+        if (neverShow) return false;
 
-      // 2. Minimum app open threshold (don't overwhelm on the very 1st launch)
-      final launchCount = prefs.getInt('app_launch_count') ?? 0;
-      if (launchCount < 2) return false;
-
-      // 3. Frequency check: show at most once every 3 days (72 hours)
-      final lastShown = prefs.getInt('institution_promo_last_shown');
-      if (lastShown != null) {
-        final hoursSince = DateTime.now()
-            .difference(DateTime.fromMillisecondsSinceEpoch(lastShown))
-            .inHours;
-        if (hoursSince < 72) return false;
+        // 2. Weekly frequency check: once every 7 days
+        final lastShown = prefs.getInt('institution_promo_last_shown');
+        if (lastShown != null) {
+          final daysSince = DateTime.now()
+              .difference(DateTime.fromMillisecondsSinceEpoch(lastShown))
+              .inDays;
+          if (daysSince < 7) return false;
+        }
       }
 
-      // 4. Delay so the user comfortably sees the home screen first
-      await Future.delayed(const Duration(milliseconds: 2200));
+      // Smooth brief delay after home loads
+      await Future.delayed(const Duration(milliseconds: 1200));
       if (!context.mounted) return false;
 
-      // Double-check condition
-      final recheckNever = prefs.getBool('institution_promo_never_show') ?? false;
-      if (recheckNever) return false;
-
-      // Record this display
+      // Update last shown timestamp
       await prefs.setInt(
         'institution_promo_last_shown',
         DateTime.now().millisecondsSinceEpoch,
@@ -72,19 +66,11 @@ class InstitutionPromoDialog extends StatelessWidget {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(
         'institution_promo_last_shown',
-        DateTime.now().millisecondsSinceEpoch + const Duration(days: 7).inMilliseconds,
+        DateTime.now().millisecondsSinceEpoch,
       );
     } catch (e) {
       debugPrint('Error opening portal URL: $e');
     }
-    if (context.mounted) {
-      Navigator.of(context).pop();
-    }
-  }
-
-  Future<void> _neverShowAgain(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('institution_promo_never_show', true);
     if (context.mounted) {
       Navigator.of(context).pop();
     }
@@ -100,486 +86,332 @@ class InstitutionPromoDialog extends StatelessWidget {
     final isArabic = lang == 'ar';
 
     final badgeText = isKurdish
-        ? 'پۆڕتاڵی فەرمی دامەزراوەکان'
-        : (isArabic ? 'البوابة الرسمية للمؤسسات' : 'Official Portal');
+        ? 'پۆڕتاڵی فەرمی'
+        : (isArabic ? 'البوابة الرسمية' : 'Official Portal');
 
     final title = isKurdish
         ? 'خاوەنی ناوەندی پەروەردەییت؟'
         : (isArabic ? 'هل تمتلك مؤسسة تعليمية؟' : 'Own an Educational Institution?');
 
     final subtitle = isKurdish
-        ? 'قوتابخانە، پەیمانگا یان زانکۆکەت لە EduBook زیاد بکە و بە هەزاران قوتابی و فێرخوازی بناسێنە!'
+        ? 'دامەزراوەکەت لە پۆڕتاڵی EduBook تۆمار بکە و بە هەزاران قوتابی بناسێنە!'
         : (isArabic
-            ? 'سجّل مدرستك، معهدك أو جامعتك في EduBook وعرّف بها لآلاف الطلاب والباحثين!'
-            : 'Register your school, institute, or university on EduBook and connect with thousands of students!');
+            ? 'سجّل مؤسستك في EduBook وعرّف بها لآلاف الطلاب!'
+            : 'Register your institution on EduBook and connect with thousands of students!');
 
-    final feat1Title = isKurdish ? 'نەخشەی زیرەکی خوێندنگەکان' : (isArabic ? 'خريطة تفاعلية ذكية' : 'Smart Interactive Map');
-    final feat1Desc = isKurdish ? 'دەرکەوتن لەسەر نەخشەی گەڕان بۆ قوتابیان' : (isArabic ? 'ظهور موقعك بدقة للباحثين والطلاب' : 'Show your location directly to seekers');
-
-    final feat2Title = isKurdish ? 'بڵاوکردنەوەی پۆست و هەلی کار' : (isArabic ? 'نشر المنشورات وفرص العمل' : 'Publish Posts & Vacancies');
-    final feat2Desc = isKurdish ? 'ڕاگەیاندنی هەواڵ، چالاکی و داواکاری مامۆستایان' : (isArabic ? 'مشاركة الإعلانات والأنشطة والوظائف' : 'Share announcements, events & hiring');
-
-    final feat3Title = isKurdish ? 'پەیوەندی و چاتی ڕاستەوخۆ' : (isArabic ? 'محادثة وتواصل مباشر' : 'Direct Live Chat');
-    final feat3Desc = isKurdish ? 'وەڵامدانەوەی خێرای پرسیاری فێرخوازان' : (isArabic ? 'الإجابة الفورية على استفسارات الطلاب' : 'Fast direct responses to student inquiries');
+    final chip1 = isKurdish ? 'نەخشەی زیرەک' : (isArabic ? 'خريطة ذكية' : 'Smart Map');
+    final chip2 = isKurdish ? 'پۆست و هەلی کار' : (isArabic ? 'فرص وإعلانات' : 'Posts & Jobs');
+    final chip3 = isKurdish ? 'چاتی ڕاستەوخۆ' : (isArabic ? 'محادثة مباشرة' : 'Direct Chat');
 
     final ctaText = isKurdish
         ? 'تۆمارکردن لە پۆڕتاڵ'
         : (isArabic ? 'التسجيل في البوابة' : 'Register on Portal');
 
     final laterText = isKurdish ? 'دواتر' : (isArabic ? 'لاحقاً' : 'Later');
-    final neverShowText = isKurdish ? 'ئیتر پیشانم مەدە' : (isArabic ? 'عدم الإظهار مجدداً' : "Don't show again");
 
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20),
       child: Center(
-        child: SingleChildScrollView(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 375),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A) : Colors.white,
-              borderRadius: BorderRadius.circular(32),
-              border: Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.12)
-                    : const Color(0xFF3B82F6).withValues(alpha: 0.18),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF1E3A8A).withValues(alpha: isDark ? 0.45 : 0.22),
-                  blurRadius: 40,
-                  offset: const Offset(0, 16),
-                ),
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 330),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : const Color(0xFF2563EB).withValues(alpha: 0.18),
+              width: 1.2,
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // ══════════════════════════════════════════════════════════
-                  // 1. HERO BANNER WITH VIBRANT ART & FLOATING BADGES
-                  // ══════════════════════════════════════════════════════════
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // Gradient Header Box
-                      Container(
-                        width: double.infinity,
-                        height: 155,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: isDark
-                                ? [const Color(0xFF0A0F1D), const Color(0xFF1E293B), const Color(0xFF1D4ED8)]
-                                : [const Color(0xFF0F172A), const Color(0xFF1E3A8A), const Color(0xFF2563EB)],
-                            begin: Alignment.topRight,
-                            end: Alignment.bottomLeft,
-                          ),
-                        ),
-                        child: Stack(
-                          children: [
-                            // Ambient glowing light orbs
-                            Positioned(
-                              top: -40,
-                              right: -20,
-                              child: Container(
-                                width: 140,
-                                height: 140,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: const Color(0xFF60A5FA).withValues(alpha: 0.28),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: -20,
-                              left: -20,
-                              child: Container(
-                                width: 120,
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: const Color(0xFFF59E0B).withValues(alpha: 0.22),
-                                ),
-                              ),
-                            ),
-
-                            // Subtle sparkle decorations
-                            Positioned(
-                              top: 28,
-                              left: 36,
-                              child: Icon(
-                                Icons.auto_awesome,
-                                color: const Color(0xFFFDE047).withValues(alpha: 0.75),
-                                size: 16,
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 45,
-                              right: 40,
-                              child: Icon(
-                                Icons.auto_awesome,
-                                color: Colors.white.withValues(alpha: 0.6),
-                                size: 13,
-                              ),
-                            ),
-
-                            // Top Bar inside header (Close button & Badge)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // Official Portal Pill Badge
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xFFF59E0B),
-                                          Color(0xFFD97706),
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(20),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(0xFFF59E0B).withValues(alpha: 0.4),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                      ],
-                                      border: Border.all(
-                                        color: Colors.white.withValues(alpha: 0.4),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(
-                                          Icons.verified_rounded,
-                                          color: Colors.white,
-                                          size: 13,
-                                        ),
-                                        const SizedBox(width: 5),
-                                        Text(
-                                          badgeText,
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w900,
-                                            color: Colors.white,
-                                            fontFamily: 'Rabar',
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  // Glassmorphic Close Button (✕)
-                                  ClipOval(
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                                      child: Material(
-                                        color: Colors.white.withValues(alpha: 0.2),
-                                        child: InkWell(
-                                          onTap: () => Navigator.of(context).pop(),
-                                          child: const SizedBox(
-                                            width: 32,
-                                            height: 32,
-                                            child: Icon(
-                                              Icons.close_rounded,
-                                              size: 19,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(26),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ══════════════════════════════════════════════════════════
+                // SLIM HERO BANNER WITH COMPACT OVERLAPPING BADGE
+                // ══════════════════════════════════════════════════════════
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // Gradient Background
+                    Container(
+                      width: double.infinity,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: isDark
+                              ? const [Color(0xFF0B132B), Color(0xFF1C2541), Color(0xFF1D4ED8)]
+                              : const [Color(0xFF0F172A), Color(0xFF1E3A8A), Color(0xFF2563EB)],
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
                         ),
                       ),
-
-                      // Overlapping Center 3D Institution Crest
-                      Positioned(
-                        bottom: -36,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Outer ambient glow ring
-                              Container(
-                                width: 88,
-                                height: 88,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: RadialGradient(
-                                    colors: [
-                                      const Color(0xFF60A5FA).withValues(alpha: 0.45),
-                                      Colors.transparent,
-                                    ],
-                                  ),
-                                ),
+                      child: Stack(
+                        children: [
+                          // Glowing ambient light
+                          Positioned(
+                            top: -25,
+                            right: -15,
+                            child: Container(
+                              width: 90,
+                              height: 90,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(0xFF60A5FA).withValues(alpha: 0.3),
                               ),
-                              // Card Icon Container
-                              Container(
-                                width: 72,
-                                height: 72,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(22),
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF1D4ED8).withValues(alpha: 0.5),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                  ],
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.account_balance_rounded,
-                                    color: Colors.white,
-                                    size: 36,
-                                  ),
-                                ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: -15,
+                            left: -15,
+                            child: Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
                               ),
-                              // Gold sparkle badge attached to icon
-                              Positioned(
-                                top: 2,
-                                right: 2,
-                                child: Container(
-                                  width: 22,
-                                  height: 22,
+                            ),
+                          ),
+                          // Top bar: Badge & Close
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Slim Gold Pill Badge
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
                                   decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
                                     gradient: const LinearGradient(
-                                      colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)],
+                                      colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
                                     ),
-                                    border: Border.all(color: Colors.white, width: 2),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFFF59E0B).withValues(alpha: 0.6),
-                                        blurRadius: 6,
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.verified_rounded, color: Colors.white, size: 11),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        badgeText,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                          fontFamily: 'Rabar',
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.add,
-                                      size: 13,
-                                      color: Colors.white,
+                                ),
+                                // Slim Close Button
+                                ClipOval(
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                                    child: Material(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      child: InkWell(
+                                        onTap: () => Navigator.of(context).pop(),
+                                        child: const SizedBox(
+                                          width: 26,
+                                          height: 26,
+                                          child: Icon(Icons.close_rounded, size: 16, color: Colors.white),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
 
-                  const SizedBox(height: 44),
-
-                  // ══════════════════════════════════════════════════════════
-                  // 2. MAIN BODY CONTENT
-                  // ══════════════════════════════════════════════════════════
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 22),
-                    child: Column(
-                      children: [
-                        // Headline
-                        Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18.5,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
-                            fontFamily: 'Rabar',
-                            height: 1.25,
-                            letterSpacing: -0.2,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Subtitle
-                        Text(
-                          subtitle,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
-                            fontFamily: 'Rabar',
-                            height: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-
-                        // ══════════════════════════════════════════════════════
-                        // 3. THREE SLEEK MICRO FEATURE CARDS
-                        // ══════════════════════════════════════════════════════
-                        _buildFeatureCard(
-                          icon: Icons.location_on_rounded,
-                          iconGradient: const [Color(0xFFEF4444), Color(0xFFDC2626)],
-                          title: feat1Title,
-                          desc: feat1Desc,
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 8),
-
-                        _buildFeatureCard(
-                          icon: Icons.campaign_rounded,
-                          iconGradient: const [Color(0xFFF59E0B), Color(0xFFD97706)],
-                          title: feat2Title,
-                          desc: feat2Desc,
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 8),
-
-                        _buildFeatureCard(
-                          icon: Icons.chat_bubble_outline_rounded,
-                          iconGradient: const [Color(0xFF10B981), Color(0xFF059669)],
-                          title: feat3Title,
-                          desc: feat3Desc,
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 20),
-
-                        // ══════════════════════════════════════════════════════
-                        // 4. CALL TO ACTION BUTTON (CTA)
-                        // ══════════════════════════════════════════════════════
-                        Container(
-                          width: double.infinity,
-                          height: 52,
+                    // Overlapping Slim 3D Crest
+                    Positioned(
+                      bottom: -26,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          width: 54,
+                          height: 54,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF2563EB),
-                                Color(0xFF1D4ED8),
-                                Color(0xFF1E3A8A),
-                              ],
+                              colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF2563EB).withValues(alpha: 0.42),
-                                blurRadius: 18,
-                                offset: const Offset(0, 8),
+                            border: Border.all(color: Colors.white, width: 2.5),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.account_balance_rounded,
+                              color: Colors.white,
+                              size: 26,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 32),
+
+                // ══════════════════════════════════════════════════════════
+                // BODY CONTENT (SLIM & CLEAN)
+                // ══════════════════════════════════════════════════════════
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Column(
+                    children: [
+                      // Title
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          fontFamily: 'Rabar',
+                          height: 1.25,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // Subtitle
+                      Text(
+                        subtitle,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          fontFamily: 'Rabar',
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      // ══════════════════════════════════════════════════════
+                      // SLIM HORIZONTAL FEATURE CHIPS
+                      // ══════════════════════════════════════════════════════
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildSlimChip(
+                              icon: Icons.location_on_rounded,
+                              iconColor: const Color(0xFFEF4444),
+                              label: chip1,
+                              isDark: isDark,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: _buildSlimChip(
+                              icon: Icons.campaign_rounded,
+                              iconColor: const Color(0xFFF59E0B),
+                              label: chip2,
+                              isDark: isDark,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: _buildSlimChip(
+                              icon: Icons.chat_rounded,
+                              iconColor: const Color(0xFF10B981),
+                              label: chip3,
+                              isDark: isDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // ══════════════════════════════════════════════════════
+                      // SLIM CTA BUTTON
+                      // ══════════════════════════════════════════════════════
+                      Container(
+                        width: double.infinity,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(13),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () => _openPortalRegister(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(13),
+                            ),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.rocket_launch_rounded,
+                                color: Color(0xFFFDE047),
+                                size: 16,
+                              ),
+                              const SizedBox(width: 7),
+                              Text(
+                                ctaText,
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  fontFamily: 'Rabar',
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              const Icon(
+                                Icons.arrow_forward_rounded,
+                                color: Colors.white,
+                                size: 16,
                               ),
                             ],
                           ),
-                          child: ElevatedButton(
-                            onPressed: () => _openPortalRegister(context),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              padding: EdgeInsets.zero,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.rocket_launch_rounded,
-                                  color: Color(0xFFFDE047),
-                                  size: 19,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  ctaText,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                    fontFamily: 'Rabar',
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                const Icon(
-                                  Icons.arrow_forward_rounded,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              ],
-                            ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // "Later" dismiss text button
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          laterText,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            fontFamily: 'Rabar',
                           ),
                         ),
-                        const SizedBox(height: 12),
-
-                        // ══════════════════════════════════════════════════════
-                        // 5. FOOTER (Later & Never Show Again)
-                        // ══════════════════════════════════════════════════════
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            TextButton(
-                              onPressed: () => _neverShowAgain(context),
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                neverShowText,
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                                  fontFamily: 'Rabar',
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                laterText,
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
-                                  fontFamily: 'Rabar',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 6),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -587,71 +419,37 @@ class InstitutionPromoDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureCard({
+  Widget _buildSlimChip({
     required IconData icon,
-    required List<Color> iconGradient,
-    required String title,
-    required String desc,
+    required Color iconColor,
+    required String label,
     required bool isDark,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 4),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.65) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFE2E8F0),
-          width: 1,
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFE2E8F0),
+          width: 0.8,
         ),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Gradient Icon Circle
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: iconGradient,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: iconGradient.first.withValues(alpha: 0.35),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Icon(icon, color: Colors.white, size: 18),
-          ),
-          const SizedBox(width: 12),
-          // Texts
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w800,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    fontFamily: 'Rabar',
-                  ),
-                ),
-                const SizedBox(height: 1),
-                Text(
-                  desc,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                    fontFamily: 'Rabar',
-                  ),
-                ),
-              ],
+          Icon(icon, color: iconColor, size: 16),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+              fontFamily: 'Rabar',
             ),
           ),
         ],

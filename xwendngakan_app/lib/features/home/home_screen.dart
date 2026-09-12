@@ -72,8 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (!mounted) return;
 
-      // 1. Check & potentially show institution promotional popup
-      final promoShown = await InstitutionPromoDialog.checkAndShow(context);
+      // 1. Check & show institution promotional popup (showing now as requested)
+      final promoShown = await InstitutionPromoDialog.checkAndShow(context, forceNow: true);
       if (promoShown) return; // Do not show multiple dialogs in one session
 
       if (!mounted) return;

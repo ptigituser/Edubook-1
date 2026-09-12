@@ -179,123 +179,220 @@ class _InstitutionsScreenState extends State<InstitutionsScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
+          final bottomInset = MediaQuery.of(context).padding.bottom;
           return Container(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+            height: MediaQuery.of(context).size.height * 0.85,
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 20,
+                  offset: const Offset(0, -5),
+                ),
+              ],
             ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l.advancedFilter,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontFamily: 'Rabar',
-                          ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setModalState(() {
-                          tempCity = '';
-                          tempType = '';
-                        });
-                      },
-                      child: Text(l.clear,
-                          style: const TextStyle(
-                              color: Colors.redAccent,
-                              fontFamily: 'Rabar')),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Text(l.cities,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Rabar')),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: AppConstants.iraqiCities.map((city) {
-                    final isSelected = tempCity == city;
-                    return GestureDetector(
-                      onTap: () => setModalState(() => tempCity = city),
-                      child: Chip(
-                        label: Text(AppConstants.localizedCityName(city, Localizations.localeOf(context).languageCode),
-                            style: TextStyle(
-                                color: isSelected ? Colors.white : null,
-                                fontSize: 12,
-                                fontFamily: 'Rabar')),
-                        backgroundColor: isSelected ? AppColors.primary : null,
-                        side: BorderSide(
-                            color: isSelected
-                                ? AppColors.primary
-                                : Colors.grey.withValues(alpha: 0.2)),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 24),
-                Text(l.institutionType,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Rabar')),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 40,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
+                // Header (Fixed)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 14, 24, 8),
+                  child: Column(
                     children: [
-                      ...prov.institutionTypes.map((type) {
-                        final isSelected = tempType == type.key;
-                        final lang = Localizations.localeOf(context).languageCode;
-                        final label = type.localizedName(lang);
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(label,
-                                style: TextStyle(
-                                    color: isSelected ? Colors.white : null,
-                                    fontSize: 12,
-                                    fontFamily: 'Rabar')),
-                            selected: isSelected,
-                            onSelected: (v) =>
-                                setModalState(() => tempType = v ? type.key : ''),
-                            selectedColor: AppColors.primary,
+                      Center(
+                        child: Container(
+                          width: 44,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.white24 : Colors.grey.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(2),
                           ),
-                        );
-                      }),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l.advancedFilter,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  fontFamily: 'Rabar',
+                                ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setModalState(() {
+                                tempCity = '';
+                                tempType = '';
+                              });
+                            },
+                            child: Text(
+                              l.clear,
+                              style: const TextStyle(
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Rabar',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
-                GradientButton(
-                  text: l.apply,
-                  onPressed: () {
-                    setState(() {
-                      _selectedCity = tempCity.isEmpty ? null : tempCity;
-                      _selectedType = tempType.isEmpty ? null : tempType;
-                    });
-                    prov.setFilter(type: tempType, city: tempCity);
-                    Navigator.pop(context);
-                  },
+                const Divider(height: 1),
+
+                // Scrollable Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l.cities,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Rabar',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: AppConstants.iraqiCities.map((city) {
+                            final isSelected = tempCity == city;
+                            return GestureDetector(
+                              onTap: () => setModalState(() => tempCity = isSelected ? '' : city),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 180),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : (isDark
+                                          ? AppColors.darkBg
+                                          : Colors.grey.withValues(alpha: 0.08)),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : (isDark
+                                            ? AppColors.darkBorder
+                                            : AppColors.lightBorder),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  AppConstants.localizedCityName(
+                                      city, Localizations.localeOf(context).languageCode),
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : (isDark ? Colors.white70 : AppColors.textDark),
+                                    fontSize: 12.5,
+                                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                    fontFamily: 'Rabar',
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          l.institutionType,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Rabar',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: prov.institutionTypes.map((type) {
+                            final isSelected = tempType == type.key;
+                            final lang = Localizations.localeOf(context).languageCode;
+                            final label = type.localizedName(lang);
+                            return GestureDetector(
+                              onTap: () => setModalState(() => tempType = isSelected ? '' : type.key),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 180),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : (isDark
+                                          ? AppColors.darkBg
+                                          : Colors.grey.withValues(alpha: 0.08)),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : (isDark
+                                            ? AppColors.darkBorder
+                                            : AppColors.lightBorder),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (type.emoji != null && type.emoji!.isNotEmpty) ...[
+                                      Text(type.emoji!, style: const TextStyle(fontSize: 13)),
+                                      const SizedBox(width: 5),
+                                    ],
+                                    Text(
+                                      label,
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? Colors.white
+                                            : (isDark ? Colors.white70 : AppColors.textDark),
+                                        fontSize: 12.5,
+                                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                        fontFamily: 'Rabar',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Footer (Fixed with Safe Area)
+                Container(
+                  padding: EdgeInsets.fromLTRB(24, 12, 24, bottomInset > 0 ? bottomInset + 8 : 20),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkCard : Colors.white,
+                    border: Border(
+                      top: BorderSide(
+                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: GradientButton(
+                    text: l.apply,
+                    onPressed: () {
+                      setState(() {
+                        _selectedCity = tempCity.isEmpty ? null : tempCity;
+                        _selectedType = tempType.isEmpty ? null : tempType;
+                      });
+                      prov.setFilter(type: tempType, city: tempCity);
+                      Navigator.pop(context);
+                    },
+                  ),
                 ),
               ],
             ),

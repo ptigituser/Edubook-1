@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _checkAutoPopupFeedback() async {
-    await Future.delayed(const Duration(milliseconds: 2000));
+    await Future.delayed(const Duration(milliseconds: 1200));
     if (!mounted) return;
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -76,14 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      final lastPrompt = prefs.getInt('app_feedback_last_popup_time') ?? 0;
-      final now = DateTime.now().millisecondsSinceEpoch;
-      // If never prompted, or at least 24 hours have passed since last popup
-      if (now - lastPrompt > 24 * 60 * 60 * 1000) {
-        await prefs.setInt('app_feedback_last_popup_time', now);
-        if (mounted) {
-          AppFeedbackDialog.show(context);
-        }
+      if (mounted) {
+        AppFeedbackDialog.show(context);
       }
     } catch (e) {
       debugPrint('Feedback popup check error: $e');
@@ -461,9 +455,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontFamily: 'Rabar',
                             fontSize: 14.5,
                             fontWeight: FontWeight.w900,
-                            color: isDark
-                                ? Colors.white
-                                : const Color(0xFF1E293B),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF1E293B),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -494,9 +487,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontFamily: 'Rabar',
                         fontSize: 11.5,
-                        color: isDark
-                            ? Colors.white70
-                            : AppColors.textMuted,
+                        color: isDark ? Colors.white70 : AppColors.textMuted,
                       ),
                     ),
                   ],
@@ -552,12 +543,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.35 : 0.45),
+            color:
+                const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.35 : 0.45),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.12 : 0.08),
+              color: const Color(0xFFF59E0B)
+                  .withValues(alpha: isDark ? 0.12 : 0.08),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -587,7 +580,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   child: const Center(
-                    child: Icon(Icons.star_rounded, color: Colors.white, size: 26),
+                    child:
+                        Icon(Icons.star_rounded, color: Colors.white, size: 26),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -600,7 +594,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                           fontFamily: 'Rabar',
                         ),
                       ),
@@ -609,7 +604,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         l.feedbackPrompt,
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF64748B),
+                          color: isDark
+                              ? const Color(0xFFCBD5E1)
+                              : const Color(0xFF64748B),
                           fontFamily: 'Rabar',
                         ),
                       ),
@@ -617,7 +614,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.close_rounded, size: 18, color: isDark ? Colors.white38 : Colors.black38),
+                  icon: Icon(Icons.close_rounded,
+                      size: 18,
+                      color: isDark ? Colors.white38 : Colors.black38),
                   onPressed: () {
                     setState(() => _showFeedbackCard = false);
                   },
@@ -655,7 +654,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     backgroundColor: const Color(0xFFF59E0B),
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),

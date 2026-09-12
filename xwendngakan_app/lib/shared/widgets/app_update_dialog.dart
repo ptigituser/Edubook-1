@@ -47,7 +47,6 @@ class AppUpdateDialog extends StatelessWidget {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        // Fallback for Android market intent
         if (Platform.isAndroid) {
           final marketUri = Uri.parse('market://details?id=com.khwenden.ibrahim');
           if (await canLaunchUrl(marketUri)) {
@@ -101,223 +100,157 @@ class AppUpdateDialog extends StatelessWidget {
       child: Dialog(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 420),
+          constraints: const BoxConstraints(maxWidth: 340),
+          padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E293B) : Colors.white,
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.25),
-                blurRadius: 30,
+                color: Colors.black.withValues(alpha: 0.22),
+                blurRadius: 28,
                 offset: const Offset(0, 10),
               ),
             ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header with gradient banner
+              // Top Icon Badge
               Container(
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+                width: 58,
+                height: 58,
                 decoration: BoxDecoration(
-                  gradient: force
-                      ? const LinearGradient(
-                          colors: [Color(0xFFDC2626), Color(0xFFEF4444), Color(0xFFF97316)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                      : const LinearGradient(
-                          colors: [AppColors.primary, Color(0xFF3B82F6), Color(0xFF6366F1)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(28),
-                    topRight: Radius.circular(28),
+                  gradient: LinearGradient(
+                    colors: force
+                        ? [const Color(0xFFEF4444), const Color(0xFFDC2626)]
+                        : [AppColors.primary, const Color(0xFF3B82F6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: (force ? const Color(0xFFEF4444) : AppColors.primary)
+                          .withValues(alpha: 0.35),
+                      blurRadius: 14,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.system_update_rounded,
+                    color: Colors.white,
+                    size: 28,
                   ),
                 ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          force ? Icons.system_update_rounded : Icons.rocket_launch_rounded,
-                          color: Colors.white,
-                          size: 38,
-                        ),
-                      ),
+              ),
+              const SizedBox(height: 16),
+
+              // Title
+              Text(
+                force ? l.forceUpdateTitle : l.updateAvailable,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  fontFamily: 'Rabar',
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(height: 6),
+
+              // Version Pill
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                decoration: BoxDecoration(
+                  color: (force ? const Color(0xFFEF4444) : AppColors.primary)
+                      .withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'v$latestVersion',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: force ? const Color(0xFFEF4444) : AppColors.primary,
+                    fontFamily: 'Rabar',
+                    height: 1.2,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Description or Release Note (Concise & Compact)
+              Text(
+                releaseNotes.isNotEmpty ? releaseNotes : (force ? l.forceUpdateDesc : l.updateDesc),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  fontFamily: 'Rabar',
+                  height: 1.5,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 20),
+
+              // Update Button
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () => _openStore(context, storeUrl),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: force ? const Color(0xFFDC2626) : AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    const SizedBox(height: 14),
-                    Text(
-                      force ? l.forceUpdateTitle : l.updateAvailable,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        fontFamily: 'Rabar',
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.22),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'v$latestVersion • ${force ? l.forceUpdateTitle : l.updateAvailable}',
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.download_rounded, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        l.updateNow,
                         style: const TextStyle(
-                          fontSize: 12,
                           color: Colors.white,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
                           fontFamily: 'Rabar',
                           height: 1.2,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Content Area
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        force ? l.forceUpdateDesc : l.updateDesc,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
-                          fontFamily: 'Rabar',
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Release Notes Container
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.auto_awesome_rounded,
-                                  size: 16,
-                                  color: force ? const Color(0xFFEF4444) : AppColors.primary,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  l.whatsNew,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w800,
-                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                    fontFamily: 'Rabar',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              releaseNotes,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                fontFamily: 'Rabar',
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ),
 
-              // Buttons
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: () => _openStore(context, storeUrl),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: force ? const Color(0xFFDC2626) : AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 2,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.download_rounded, color: Colors.white, size: 22),
-                            const SizedBox(width: 8),
-                            Text(
-                              l.updateNow,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                fontFamily: 'Rabar',
-                                height: 1.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+              // Optional Dismiss button if not force
+              if (!force) ...[
+                const SizedBox(height: 4),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    l.later,
+                    style: TextStyle(
+                      color: isDark ? Colors.white54 : Colors.grey.shade600,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Rabar',
+                      height: 1.2,
                     ),
-                    if (!force) ...[
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        child: TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Text(
-                            l.later,
-                            style: TextStyle(
-                              color: isDark ? Colors.white54 : Colors.grey.shade600,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              fontFamily: 'Rabar',
-                              height: 1.2,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

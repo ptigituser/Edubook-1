@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -98,7 +99,9 @@ class _SplashScreenState extends State<SplashScreen>
       final platform = Theme.of(context).platform == TargetPlatform.iOS ? 'ios' : 'android';
       final buildNumber = int.tryParse(info.buildNumber) ?? 0;
 
-      final updateRes = await ApiService().checkUpdate(platform, buildNumber);
+      // In debug mode / simulator testing, check with buildNumber - 1 so the live update triggers automatically on launch!
+      final checkBuild = kDebugMode ? (buildNumber > 1 ? buildNumber - 1 : 0) : buildNumber;
+      final updateRes = await ApiService().checkUpdate(platform, checkBuild);
       
       if (updateRes.success && updateRes.data != null) {
         final data = updateRes.data!;

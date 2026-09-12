@@ -3470,11 +3470,11 @@ class AppLocalizations {
   // FORCE UPDATE & APP RATING & FEEDBACK
   // =====================
   String get forceUpdateDesc => _t({
-        'ku': 'وەشانێکی زۆر گرنگی ئەپەکە بەردەستە. بۆ سوودمەندبوون لە باشترکردنە نوێیەکان و بەردەوامبوون، تکایە ئەپەکە نوێ بکەرەوە.',
-        'kbd': 'وەشانەکا گرنگ یا ئەپێ بەردەستە. بۆ مفا وەرگرتن ژ باشترکرنێن نوێ و بەردەوامبوون، هیڤیە ئەپێ نوێ بکەیەڤە.',
-        'ar': 'يتوفر تحديث مهم للتطبيق. للاستفادة من التحسينات والميزات الجديدة ومتابعة الاستخدام، يرجى تحديث التطبيق الآن.',
-        'en': 'A critical update is available. To enjoy the latest features and continue using the app, please update now.',
-        'tr': 'Kritik bir güncelleme mevcut. En yeni özellikleri kullanmak ve devam etmek için lütfen uygulamayı şimdi güncelleyin.'
+        'ku': 'تکایە ئەپەکە نوێ بکەرەوە بۆ بەردەوامبوون.',
+        'kbd': 'هیڤیە ئەپێ نوێ بکەیەڤە بۆ بەردەوامبوونێ.',
+        'ar': 'يرجى تحديث التطبيق للمتابعة.',
+        'en': 'Please update the app to continue.',
+        'tr': 'Devam etmek için uygulamayı güncelleyin.'
       });
   String get updateNow => _t({
         'ku': 'نوێکردنەوەی ئێستا',

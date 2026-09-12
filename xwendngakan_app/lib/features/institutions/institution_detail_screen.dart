@@ -766,12 +766,11 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
   Widget _buildRatingHeaderBadge(
       InstitutionModel inst, bool isDark, AppLocalizations l) {
     final double rating = _reviewsData?.summary.averageRating ?? inst.ratingAvg;
-    final int count = _reviewsData?.summary.totalReviews ?? inst.reviewsCount;
 
     return GestureDetector(
       onTap: () => setState(() => _activeTab = 3),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           color: isDark
               ? Colors.amber.withValues(alpha: 0.12)
@@ -794,41 +793,17 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.star_rounded, color: Color(0xFFFFB300), size: 19),
+            const Icon(Icons.star_rounded, color: Color(0xFFFFB300), size: 20),
             const SizedBox(width: 5),
             Text(
               rating > 0 ? rating.toStringAsFixed(1) : '0.0',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w900,
-                color: isDark ? const Color(0xFFFFCA28) : const Color(0xFFB78103),
+                color:
+                    isDark ? const Color(0xFFFFCA28) : const Color(0xFFB78103),
                 fontFamily: 'Rabar',
               ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              width: 3,
-              height: 3,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white38 : Colors.black26,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              count > 0 ? '$count ${l.reviews}' : l.writeReview,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white70 : Colors.black87,
-                fontFamily: 'Rabar',
-              ),
-            ),
-            const SizedBox(width: 6),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 10,
-              color: isDark ? Colors.white54 : Colors.black38,
             ),
           ],
         ),

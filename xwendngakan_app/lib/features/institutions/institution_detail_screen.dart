@@ -1376,11 +1376,55 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
+    if (!auth.isAuthenticated) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            l.reviewsTab,
+            style: const TextStyle(
+                fontFamily: 'Rabar', fontWeight: FontWeight.w900),
+          ),
+          content: Text(
+            l.loginToReview,
+            style: const TextStyle(fontFamily: 'Rabar', fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                l.cancel,
+                style: const TextStyle(fontFamily: 'Rabar'),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                context.push('/login');
+              },
+              child: Text(
+                l.login,
+                style: const TextStyle(
+                    fontFamily: 'Rabar', fontWeight: FontWeight.w900),
+              ),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     int selectedRating = existing?.rating ?? 5;
     final commentController =
         TextEditingController(text: existing?.comment ?? '');
-    final nameController = TextEditingController(
-        text: existing?.userName ?? (auth.user?.name ?? ''));
     bool submitting = false;
 
     final impressions = [
@@ -1554,27 +1598,6 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
                     ),
                     const SizedBox(height: 18),
 
-                    // Name field if user is not authenticated
-                    if (!auth.isAuthenticated) ...[
-                      TextField(
-                        controller: nameController,
-                        style: const TextStyle(fontFamily: 'Rabar'),
-                        decoration: InputDecoration(
-                          hintText: 'ناوی تۆ (ئارەزوومەندانە)',
-                          prefixIcon: const Icon(Icons.person_outline_rounded),
-                          filled: true,
-                          fillColor: isDark
-                              ? Colors.white.withValues(alpha: 0.05)
-                              : const Color(0xFFF8FAFC),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-
                     // Comment Field
                     TextField(
                       controller: commentController,
@@ -1622,9 +1645,6 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
                                   inst.id,
                                   rating: selectedRating,
                                   comment: commentController.text.trim(),
-                                  userName: nameController.text.trim().isNotEmpty
-                                      ? nameController.text.trim()
-                                      : null,
                                 );
                                 if (!mounted) return;
                                 setModalState(() => submitting = false);

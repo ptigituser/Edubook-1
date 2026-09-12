@@ -59,43 +59,37 @@ class ReviewController extends Controller
     public function store(Request $request, int $institutionId)
     {
         $request->validate([
-            'rating'    => 'required|integer|min:1|max:5',
-            'comment'   => 'nullable|string|max:1000',
-            'user_name' => 'nullable|string|max:100',
+            'rating'  => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
         ]);
 
         $institution = Institution::findOrFail($institutionId);
         $user = $request->user('sanctum') ?? $request->user();
 
-        $userName = $user?->name ?? $request->input('user_name') ?? 'بەکارهێنەر';
-        $userAvatar = $user?->avatar ?? null;
-        $userId = $user?->id;
-
-        if ($userId) {
-            // Update or create review by this user
-            $review = Review::updateOrCreate(
-                [
-                    'institution_id' => $institutionId,
-                    'user_id'        => $userId,
-                ],
-                [
-                    'user_name'   => $userName,
-                    'user_avatar' => $userAvatar,
-                    'rating'      => $request->rating,
-                    'comment'     => $request->comment,
-                ]
-            );
-        } else {
-            // Guest review
-            $review = Review::create([
-                'institution_id' => $institutionId,
-                'user_id'        => null,
-                'user_name'      => $userName,
-                'user_avatar'    => null,
-                'rating'         => $request->rating,
-                'comment'        => $request->comment,
-            ]);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'تکایە سەرەتا بچۆ ژوورەوە بۆ ئەوەی هەڵسەنگاندن بنووسیت.',
+            ], 401);
         }
+
+        $userName = $user->name ?? 'بەکارهێنەر';
+        $userAvatar = $user->avatar ?? null;
+        $userId = $user->id;
+
+        // Update or create review by this user
+        $review = Review::updateOrCreate(
+            [
+                'institution_id' => $institutionId,
+                'user_id'        => $userId,
+            ],
+            [
+                'user_name'   => $userName,
+                'user_avatar' => $userAvatar,
+                'rating'      => $request->rating,
+                'comment'     => $request->comment,
+            ]
+        );
 
         // Fresh summary
         $allReviews = Review::where('institution_id', $institutionId)->get();

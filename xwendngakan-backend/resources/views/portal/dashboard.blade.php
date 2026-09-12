@@ -1331,6 +1331,11 @@
           <span class="db-nav-badge" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">{{ $avgRating }} ★</span>
         @endif
       </button>
+      <button class="db-nav-btn" onclick="showTab('messages', this)" data-tab="messages">
+        <span class="db-nav-icon">💬</span>
+        نامەکان
+        <span id="nav-unread-badge" class="db-nav-badge" style="{{ $unreadChatsCount > 0 ? '' : 'display:none;' }} background: #ef4444; color: #fff;">{{ $unreadChatsCount }}</span>
+      </button>
       <button class="db-nav-btn" onclick="showTab('settings', this)">
         <span class="db-nav-icon">⚙️</span>
         ڕێکخستنەکان
@@ -2018,6 +2023,91 @@
       @endif
     </div>
 
+    {{-- ══ TAB: MESSAGES / CHAT ══ --}}
+    <div class="db-tab" id="tab-messages">
+      <div class="pg-head">
+        <div class="pg-title">چات و نامەکان<span>ی قوتابیان</span></div>
+        <p class="pg-sub">پەیوەندی ڕاستەوخۆ و وەڵامدانەوەی پرسیاری بەکارهێنەرانی ئەپڵیکەیشن</p>
+      </div>
+
+      @if($institution)
+        <div class="chat-container">
+          {{-- Left: Conversation List --}}
+          <div class="chat-list-pane" id="chat-list-pane">
+            <div class="chat-list-head">
+              <input type="text" class="chat-search-input" id="chat-search" placeholder="گەڕان لە ناوی قوتابیان..." oninput="filterChatList(this.value)">
+            </div>
+            <div class="chat-convs-scroll" id="chat-convs-list">
+              @forelse($conversations as $conv)
+                <div class="chat-conv-item" id="conv-item-{{ $conv->id }}" onclick="selectConversation({{ $conv->id }}, '{{ addslashes($conv->user?->name ?? 'بەکارهێنەر') }}', '{{ addslashes($conv->user?->phone ?? $conv->user?->email ?? '') }}')">
+                  <div class="chat-conv-avatar">
+                    {{ mb_substr($conv->user?->name ?? 'ق', 0, 1) }}
+                  </div>
+                  <div class="chat-conv-info">
+                    <div class="chat-conv-name-row">
+                      <span class="chat-conv-name">{{ $conv->user?->name ?? 'بەکارهێنەر' }}</span>
+                      <span class="chat-conv-time">{{ $conv->last_message_at ? $conv->last_message_at->diffForHumans(null, true, true) : '' }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                      <span class="chat-conv-snippet" id="conv-snippet-{{ $conv->id }}">{{ $conv->last_message ?? 'نامەی نوێ' }}</span>
+                      <span class="chat-conv-badge" id="conv-badge-{{ $conv->id }}" style="{{ $conv->institution_unread_count > 0 ? '' : 'display:none;' }}">
+                        {{ $conv->institution_unread_count }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              @empty
+                <div style="text-align: center; padding: 2.5rem 1rem; color: var(--txt3); font-size: .84rem;">
+                  <div style="font-size: 2.2rem; margin-bottom: .5rem; opacity: .5;">💬</div>
+                  هێشتا هیچ نامەیەک لە ئەپەوە نەهاتووە.
+                </div>
+              @endforelse
+            </div>
+          </div>
+
+          {{-- Right: Chat Box --}}
+          <div class="chat-box-pane" id="chat-box-pane">
+            <div class="chat-box-head" id="chat-box-head" style="display: none;">
+              <div class="chat-box-head-user">
+                <button type="button" class="btn btn-ghost btn-xs" style="margin-left: 8px; font-weight: 800;" id="btn-back-convs" onclick="backToConvsList()">
+                  &rarr; گەڕانەوە
+                </button>
+                <div class="chat-conv-avatar" id="active-chat-avatar" style="width: 36px; height: 36px; font-size: .9rem;">ق</div>
+                <div>
+                  <div class="chat-box-head-name" id="active-chat-name">ناوی بەکارهێنەر</div>
+                  <div class="chat-box-head-meta" id="active-chat-meta">لە ئەپڵیکەیشنی مۆبایلەوە</div>
+                </div>
+              </div>
+              <span class="badge badge-success" style="font-size: .72rem; padding: 4px 10px; border-radius: 20px; background: rgba(16,185,129,0.15); color: #34d399;">چالاک</span>
+            </div>
+
+            <div class="chat-messages-scroll" id="chat-messages-scroll">
+              <div class="chat-empty-box" id="chat-loading-placeholder">
+                <div style="font-size: 2.8rem; margin-bottom: .75rem; opacity: .4;">💬</div>
+                <div style="font-size: 1rem; font-weight: 800; color: var(--txt2);">گفتوگۆیەک هەڵبژێرە بۆ بینینی نامەکان</div>
+                <p style="font-size: .82rem; margin-top: 4px; color: var(--txt3);">دەتوانیت لێرەوە وەڵامی پرسیارەکانی قوتابیان بدەیتەوە</p>
+              </div>
+            </div>
+
+            <form class="chat-input-area" id="chat-send-form" style="display: none;" onsubmit="sendChatReply(event)">
+              <input type="text" class="chat-input-field" id="chat-reply-input" placeholder="وەڵامەکەت لێرە بنووسە..." autocomplete="off">
+              <button type="submit" class="chat-send-btn" id="btn-chat-send" title="ناردن">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(180deg);">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      @else
+        <div class="db-card" style="text-align:center; padding: 3rem 1rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">🏫</div>
+          <p style="color: var(--txt2); font-weight: 600;">تکایە سەرەتا زانیارییەکانی دامەزراوەکەت تۆمار بکە.</p>
+        </div>
+      @endif
+    </div>
+
     {{-- ══ TAB: SETTINGS ══ --}}
     <div class="db-tab" id="tab-settings">
       <div class="pg-head">
@@ -2113,6 +2203,9 @@
     </button>
     <button class="db-mob-btn" id="mob-reviews" onclick="showTab('reviews',null);syncMobile('reviews')">
       <span class="mob-icon">⭐</span>هەڵسەنگاندن
+    </button>
+    <button class="db-mob-btn" id="mob-messages" onclick="showTab('messages',null);syncMobile('messages')">
+      <span class="mob-icon">💬</span>نامەکان
     </button>
     <button class="db-mob-btn" id="mob-new-post" onclick="showTab('new-post',null);syncMobile('new-post')">
       <span class="mob-icon">✏️</span>پۆستی نوێ

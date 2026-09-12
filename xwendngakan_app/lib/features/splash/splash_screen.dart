@@ -102,15 +102,11 @@ class _SplashScreenState extends State<SplashScreen>
       
       if (updateRes.success && updateRes.data != null) {
         final data = updateRes.data!;
-        if (data['force_update'] == true) {
+        if (data['force_update'] == true || data['update_available'] == true) {
           if (mounted) {
             AppUpdateDialog.show(context, updateData: data, force: true);
           }
           return;
-        } else if (data['update_available'] == true) {
-          if (mounted) {
-            await AppUpdateDialog.show(context, updateData: data, force: false);
-          }
         }
       }
     } catch (e) {

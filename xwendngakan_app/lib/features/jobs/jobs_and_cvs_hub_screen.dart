@@ -7,6 +7,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../data/models/job_vacancy_model.dart';
 import '../../providers/job_vacancies_provider.dart';
+import '../../providers/teachers_cv_provider.dart';
 import '../cv/cv_screen.dart';
 
 class JobsAndCvsHubScreen extends StatefulWidget {
@@ -20,6 +21,8 @@ class JobsAndCvsHubScreen extends StatefulWidget {
 class _JobsAndCvsHubScreenState extends State<JobsAndCvsHubScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final _jobsSearchCtrl = TextEditingController();
+  final _cvSearchCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -29,12 +32,425 @@ class _JobsAndCvsHubScreenState extends State<JobsAndCvsHubScreen>
       vsync: this,
       initialIndex: widget.initialTabIndex,
     );
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _jobsSearchCtrl.dispose();
+    _cvSearchCtrl.dispose();
     super.dispose();
+  }
+
+  void _showJobsFilterModal(
+    BuildContext context,
+    JobVacanciesProvider prov,
+    AppLocalizations l,
+    bool isDark,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l.filter,
+                      style: const TextStyle(
+                        fontFamily: 'Rabar',
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    if (prov.selectedCity != null || prov.selectedCategory != null)
+                      TextButton(
+                        onPressed: () {
+                          prov.setCity('all');
+                          prov.setCategory(null);
+                          Navigator.pop(ctx);
+                        },
+                        child: Text(
+                          l.clearFilters,
+                          style: const TextStyle(
+                            fontFamily: 'Rabar',
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  l.city,
+                  style: const TextStyle(
+                    fontFamily: 'Rabar',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final c in ['all', 'هەولێر', 'سلێمانی', 'دهۆک', 'کەرکووک', 'هەڵەبجە'])
+                      ChoiceChip(
+                        label: Text(c == 'all' ? l.allFilter : c),
+                        selected: (c == 'all' && prov.selectedCity == null) || prov.selectedCity == c,
+                        onSelected: (_) {
+                          prov.setCity(c);
+                          Navigator.pop(ctx);
+                        },
+                        labelStyle: TextStyle(
+                          fontFamily: 'Rabar',
+                          fontWeight: FontWeight.w700,
+                          color: ((c == 'all' && prov.selectedCity == null) || prov.selectedCity == c)
+                              ? Colors.white
+                              : (isDark ? Colors.white70 : Colors.black87),
+                        ),
+                        selectedColor: AppColors.primary,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildUnifiedSearchBar(
+    bool isDark,
+    AppLocalizations l,
+    bool isJobsTab,
+    JobVacanciesProvider jobsProv,
+    CvProvider cvProv,
+  ) {
+    final hasFilter = isJobsTab
+        ? (jobsProv.selectedCity != null || jobsProv.selectedCategory != null)
+        : (cvProv.selectedCity != null || cvProv.selectedEducation != null);
+
+    return Container(
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.search_rounded,
+            color: isDark ? Colors.white38 : Colors.black38,
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextField(
+              controller: isJobsTab ? _jobsSearchCtrl : _cvSearchCtrl,
+              onChanged: (v) {
+                if (isJobsTab) {
+                  jobsProv.setSearch(v);
+                } else {
+                  cvProv.setSearch(v);
+                }
+                setState(() {});
+              },
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Rabar',
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+              ),
+              decoration: InputDecoration(
+                hintText: isJobsTab
+                    ? 'گەڕان لە هەلی کارەکان (مامۆستا، باخچە)...'
+                    : l.searchCvHint,
+                hintStyle: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Rabar',
+                  color: isDark ? Colors.white24 : Colors.black26,
+                ),
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+                isDense: true,
+              ),
+            ),
+          ),
+          if ((isJobsTab ? _jobsSearchCtrl : _cvSearchCtrl).text.isNotEmpty)
+            GestureDetector(
+              onTap: () {
+                if (isJobsTab) {
+                  _jobsSearchCtrl.clear();
+                  jobsProv.setSearch('');
+                } else {
+                  _cvSearchCtrl.clear();
+                  cvProv.setSearch('');
+                }
+                setState(() {});
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+              ),
+            ),
+          Container(
+            height: 20,
+            width: 1,
+            margin: const EdgeInsets.symmetric(horizontal: 6),
+            color: isDark ? Colors.white12 : Colors.black12,
+          ),
+          GestureDetector(
+            onTap: () {
+              if (isJobsTab) {
+                _showJobsFilterModal(context, jobsProv, l, isDark);
+              } else {
+                showCvAdvancedFilter(context, cvProv);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: hasFilter ? AppColors.primary : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.tune_rounded,
+                size: 20,
+                color: hasFilter ? Colors.white : AppColors.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGoldHeader(bool isDark, AppLocalizations l) {
+    final isJobsTab = _tabController.index == 0;
+    final cvProv = Provider.of<CvProvider>(context);
+    final jobsProv = Provider.of<JobVacanciesProvider>(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(36),
+          bottomRight: Radius.circular(36),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.28),
+            blurRadius: 25,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Background Glowing Decorative Shapes
+          Positioned(
+            top: -40,
+            right: -30,
+            child: Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -50,
+            left: -40,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.06),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top Header Row
+                  Row(
+                    children: [
+                      if (Navigator.of(context).canPop()) ...[
+                        GestureDetector(
+                          onTap: () => Navigator.of(context).pop(),
+                          child: Container(
+                            padding: const EdgeInsets.all(9),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              size: 17,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: Icon(
+                            isJobsTab
+                                ? Icons.work_rounded
+                                : Icons.description_rounded,
+                            key: ValueKey(isJobsTab),
+                            size: 22,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l.jobsAndCvs,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                fontFamily: 'Rabar',
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              isJobsTab
+                                  ? 'هەلی کاری مامۆستایان و ستافی دامەزراوەکان'
+                                  : l.cvBankSubtitle,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70,
+                                fontFamily: 'Rabar',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+
+                  // ── TabBar INSIDE the Gold Card! ──
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: TabBar(
+                      controller: _tabController,
+                      indicator: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.12),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      labelColor: AppColors.primary,
+                      unselectedLabelColor: Colors.white.withValues(alpha: 0.88),
+                      labelStyle: const TextStyle(
+                        fontFamily: 'Rabar',
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                      unselectedLabelStyle: const TextStyle(
+                        fontFamily: 'Rabar',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      tabs: [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.work_rounded, size: 16),
+                              const SizedBox(width: 6),
+                              Text(l.jobVacancies),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.badge_rounded, size: 16),
+                              const SizedBox(width: 6),
+                              Text(l.cvBank),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── Floating Pill Search Bar (inside the gold card!) ──
+                  _buildUnifiedSearchBar(isDark, l, isJobsTab, jobsProv, cvProv),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -44,85 +460,22 @@ class _JobsAndCvsHubScreenState extends State<JobsAndCvsHubScreen>
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBg : const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
-        elevation: 0,
-        title: Text(
-          l.jobsAndCvs,
-          style: const TextStyle(
-            fontFamily: 'Rabar',
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Column(
+          children: [
+            _buildGoldHeader(isDark, l),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: const [
+                  _JobVacanciesTab(),
+                  CvScreen(showHeader: false),
                 ],
               ),
-              labelColor: Colors.white,
-              unselectedLabelColor: isDark ? Colors.white60 : AppColors.textMuted,
-              labelStyle: const TextStyle(
-                fontFamily: 'Rabar',
-                fontSize: 13.5,
-                fontWeight: FontWeight.w800,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontFamily: 'Rabar',
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              tabs: [
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.work_rounded, size: 16),
-                      const SizedBox(width: 6),
-                      Text(l.jobVacancies),
-                    ],
-                  ),
-                ),
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.badge_rounded, size: 16),
-                      const SizedBox(width: 6),
-                      Text(l.cvBank),
-                    ],
-                  ),
-                ),
-              ],
             ),
-          ),
+          ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: const [
-          _JobVacanciesTab(),
-          CvScreen(),
-        ],
       ),
     );
   }
@@ -136,7 +489,6 @@ class _JobVacanciesTab extends StatefulWidget {
 }
 
 class _JobVacanciesTabState extends State<_JobVacanciesTab> {
-  final _searchCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
 
   final List<String> _cities = [
@@ -163,7 +515,6 @@ class _JobVacanciesTabState extends State<_JobVacanciesTab> {
 
   @override
   void dispose() {
-    _searchCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
@@ -191,55 +542,7 @@ class _JobVacanciesTabState extends State<_JobVacanciesTab> {
           controller: _scrollCtrl,
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           slivers: [
-            // ── Search & Filter Bar ──
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
-                child: Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkCard : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.search_rounded, color: AppColors.primary, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: _searchCtrl,
-                          onSubmitted: (val) => prov.setSearch(val),
-                          textInputAction: TextInputAction.search,
-                          style: const TextStyle(fontFamily: 'Rabar', fontSize: 13.5),
-                          decoration: InputDecoration(
-                            hintText: 'گەڕان لە هەلی کارەکان (مامۆستا، باخچە، زانکۆ)...',
-                            hintStyle: TextStyle(
-                              fontFamily: 'Rabar',
-                              fontSize: 12.5,
-                              color: isDark ? Colors.white30 : AppColors.textMuted,
-                            ),
-                            border: InputBorder.none,
-                            isDense: true,
-                          ),
-                        ),
-                      ),
-                      if (_searchCtrl.text.isNotEmpty)
-                        GestureDetector(
-                          onTap: () {
-                            _searchCtrl.clear();
-                            prov.setSearch('');
-                          },
-                          child: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
             // ── City Filter Chips ──
             SliverToBoxAdapter(

@@ -3352,6 +3352,13 @@ class AppLocalizations {
         'en': 'Job Title (e.g. English Teacher)',
         'tr': 'İş Başlığı (Örn: İngilizce Öğretmeni)'
       });
+  String get clearFilters => _t({
+        'ku': 'پاککردنەوەی فلتەر',
+        'kbd': 'پاقژکرنا فلتەران',
+        'ar': 'مسح التصفية',
+        'en': 'Clear Filters',
+        'tr': 'Filtreleri Temizle'
+      });
 }
 
 class _AppLocalizationsDelegate

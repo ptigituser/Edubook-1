@@ -9,7 +9,8 @@ import '../../shared/widgets/cards.dart';
 import '../../shared/widgets/common_widgets.dart';
 
 class CvScreen extends StatefulWidget {
-  const CvScreen({super.key});
+  final bool showHeader;
+  const CvScreen({super.key, this.showHeader = true});
   @override
   State<CvScreen> createState() => _CvScreenState();
 }
@@ -95,8 +96,9 @@ class _CvScreenState extends State<CvScreen> with SingleTickerProviderStateMixin
                 slivers: [
                   // ── Premium Artistic App Bar ──
                   // ── BEHANCE-LEVEL ARTISTIC APP BAR ──
-                  SliverToBoxAdapter(
-                    child: Container(
+                  if (widget.showHeader)
+                    SliverToBoxAdapter(
+                      child: Container(
                       decoration: BoxDecoration(
                         gradient: AppColors.primaryGradient,
                         borderRadius: const BorderRadius.only(
@@ -203,7 +205,11 @@ class _CvScreenState extends State<CvScreen> with SingleTickerProviderStateMixin
                         ],
                       ),
                     ),
-                  ),
+                  )
+                  else
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: 12),
+                    ),
 
                   // ── Active Filters Row ──
                   if (prov.selectedCity != null || prov.selectedEducation != null)
@@ -408,15 +414,19 @@ class _CvScreenState extends State<CvScreen> with SingleTickerProviderStateMixin
   }
 
   void _showAdvancedFilter(BuildContext context, AppLocalizations l, CvProvider prov) {
-    FocusManager.instance.primaryFocus?.unfocus();
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => _AdvancedFilterSheet(prov: prov),
-    );
+    showCvAdvancedFilter(context, prov);
   }
+}
+
+void showCvAdvancedFilter(BuildContext context, CvProvider prov) {
+  FocusManager.instance.primaryFocus?.unfocus();
+  showModalBottomSheet(
+    context: context,
+    useRootNavigator: true,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (sheetContext) => _AdvancedFilterSheet(prov: prov),
+  );
 }
 
 class _AdvancedFilterSheet extends StatefulWidget {

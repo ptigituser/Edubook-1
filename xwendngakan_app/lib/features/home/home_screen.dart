@@ -326,6 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       delegate: SliverChildBuilderDelegate(
                         (_, i) {
                           final inst = displayList[i];
+                          // Bottom general institutions list (ratings hidden, only shown in top rated section)
                           return InstitutionCard(
                             institution: inst,
                             lang: lang,

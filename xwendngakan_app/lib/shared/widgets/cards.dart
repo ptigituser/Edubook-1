@@ -17,6 +17,7 @@ class InstitutionCard extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback? onTap;
   final VoidCallback? onFavorite;
+  final bool showRating;
 
   const InstitutionCard({
     super.key,
@@ -25,6 +26,7 @@ class InstitutionCard extends StatelessWidget {
     this.isFavorite = false,
     this.onTap,
     this.onFavorite,
+    this.showRating = false,
   });
 
   @override
@@ -32,6 +34,7 @@ class InstitutionCard extends StatelessWidget {
     final typeColor = AppColors.typeColor(institution.type);
     final institutionName = institution.name(lang);
     final rawType = institution.type ?? '';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final prov = Provider.of<InstitutionsProvider>(context, listen: false);
 
@@ -63,7 +66,7 @@ class InstitutionCard extends StatelessWidget {
       institution.wa
     ].any((s) => s != null && s.isNotEmpty);
 
-    final isTopRated = institution.ratingAvg >= 4.0;
+    final isTopRated = showRating && institution.ratingAvg >= 4.0;
 
     return GestureDetector(
       onTap: onTap,
@@ -73,12 +76,12 @@ class InstitutionCard extends StatelessWidget {
           border: Border.all(
             color: isTopRated
                 ? const Color(0xFFFFD54F).withValues(alpha: 0.5)
-                : Colors.white.withValues(alpha: 0.15),
-            width: isTopRated ? 1.0 : 0.8,
+                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+            width: isTopRated ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.14),
+              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.07),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -126,7 +129,7 @@ class InstitutionCard extends StatelessWidget {
                 child: Row(
                   children: [
                     _ViewsBadge(views: institution.views),
-                    if (institution.ratingAvg > 0) ...[
+                    if (showRating && institution.ratingAvg > 0) ...[
                       const SizedBox(width: 5),
                       _RatingBadge(rating: institution.ratingAvg, lang: lang),
                     ],

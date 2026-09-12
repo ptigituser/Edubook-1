@@ -158,7 +158,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     }
 
     final inst = _institution!;
-    final showDeptTab = _hasDepartments(inst, lang);
+    final showDeptTab = _hasDepartments(inst);
     if (!showDeptTab && _activeTab == _DetailTab.departments) {
       _activeTab = _DetailTab.about;
     }
@@ -516,15 +516,56 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     );
   }
 
-  bool _hasDepartments(InstitutionModel inst, String lang) {
+  bool _hasDepartments(InstitutionModel inst) {
     final t = (inst.type ?? '').toLowerCase().trim();
-    // Academic colleges and departments only apply to universities and institutes
-    if (t != 'university' && t != 'institute') {
+    final name = (inst.nku ?? inst.nen ?? inst.nar ?? '').toLowerCase();
+
+    // Explicitly exclude schools, kindergartens, daycares, language centers
+    if (t == 'school' ||
+        t == 'kg' ||
+        t == 'dc' ||
+        t == 'kindergarten' ||
+        t == 'daycare' ||
+        t == 'lang' ||
+        t == 'language_center' ||
+        t == 'edu') {
       return false;
     }
-    final colleges = _parseColleges(inst.colleges, lang);
-    final depts = _parseDepts(inst.depts, lang);
-    return colleges.isNotEmpty || depts.isNotEmpty;
+
+    // Explicitly include all types of universities and institutes (gov, priv, inst2, inst5, eve_inst, eve_uni, etc.)
+    if (t == 'inst2' ||
+        t == 'inst5' ||
+        t == 'eve_inst' ||
+        t == 'institute' ||
+        t == 'gov' ||
+        t == 'priv' ||
+        t == 'eve_uni' ||
+        t == 'university') {
+      return true;
+    }
+
+    // Name-based check for institutes and universities
+    if (name.contains('پەیمانگا') ||
+        name.contains('پەیمانگەی') ||
+        name.contains('زانکۆ') ||
+        name.contains('کۆلێژ') ||
+        name.contains('institute') ||
+        name.contains('university')) {
+      return true;
+    }
+
+    // Name-based check for daycares, kindergartens, schools
+    if (name.contains('دایەنگە') ||
+        name.contains('دایەنگەی') ||
+        name.contains('باخچە') ||
+        name.contains('مەکتەب') ||
+        name.contains('قوتابخانە')) {
+      return false;
+    }
+
+    // Fallback: check if department or college data exists
+    return (inst.colleges != null && inst.colleges!.trim().isNotEmpty) ||
+        (inst.depts != null && inst.depts!.trim().isNotEmpty);
   }
 
   Widget _buildLinksAndActions(

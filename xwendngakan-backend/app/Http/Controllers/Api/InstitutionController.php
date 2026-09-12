@@ -52,6 +52,7 @@ class InstitutionController extends Controller
         match ($sort) {
             'oldest' => $query->orderBy('created_at', 'asc'),
             'name'   => $query->orderBy('nku', 'asc'),
+            'top_rated' => $query->orderByDesc('reviews_avg_rating')->orderByDesc('reviews_count'),
             default  => $query->orderBy('created_at', 'desc'),
         };
 

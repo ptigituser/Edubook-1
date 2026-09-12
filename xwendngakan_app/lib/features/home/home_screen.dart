@@ -357,15 +357,10 @@ class _HomeScreenState extends State<HomeScreen> {
     bool isDark,
     AppLocalizations l,
   ) {
-    final topRated = prov.institutions.where((i) => i.ratingAvg > 0).toList();
+    final topRated = prov.topRated.isNotEmpty
+        ? prov.topRated
+        : prov.institutions.where((i) => i.ratingAvg > 0).toList();
     if (topRated.isEmpty) return [];
-
-    topRated.sort((a, b) {
-      if (b.ratingAvg != a.ratingAvg) {
-        return b.ratingAvg.compareTo(a.ratingAvg);
-      }
-      return b.reviewsCount.compareTo(a.reviewsCount);
-    });
 
     return [
       SliverToBoxAdapter(

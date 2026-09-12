@@ -10,6 +10,7 @@ class InstitutionsProvider extends ChangeNotifier {
   final ApiService _api = ApiService();
 
   List<InstitutionModel> _institutions = [];
+  List<InstitutionModel> _topRated = [];
   List<InstitutionModel> _featured = [];
   List<int> _favorites = [];
   bool _loading = false;
@@ -28,6 +29,7 @@ class InstitutionsProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _countries = [];
 
   List<InstitutionModel> get institutions => _institutions;
+  List<InstitutionModel> get topRated => _topRated;
   List<InstitutionModel> get featured => _featured;
   List<int> get favorites => _favorites;
   bool get loading => _loading;
@@ -58,7 +60,23 @@ class InstitutionsProvider extends ChangeNotifier {
     await _loadFavorites();
     fetchStats();
     fetchAppData();
+    fetchTopRated();
     fetchInstitutions(refresh: true);
+  }
+
+  Future<void> fetchTopRated() async {
+    final result = await _api.getInstitutions(page: 1);
+    if (result.success && result.data != null) {
+      final rated = result.data!.where((i) => i.ratingAvg > 0).toList();
+      rated.sort((a, b) {
+        if (b.ratingAvg != a.ratingAvg) {
+          return b.ratingAvg.compareTo(a.ratingAvg);
+        }
+        return b.reviewsCount.compareTo(a.reviewsCount);
+      });
+      _topRated = rated;
+      notifyListeners();
+    }
   }
 
   Future<void> fetchInstitutions({bool refresh = false}) async {
@@ -94,6 +112,25 @@ class InstitutionsProvider extends ChangeNotifier {
         final uniqueNewItems = newItems.where((i) => !existingIds.contains(i.id)).toList();
         _institutions.addAll(uniqueNewItems);
       }
+
+      // Keep accumulating any rated institutions in _topRated
+      for (final inst in newItems) {
+        if (inst.ratingAvg > 0) {
+          final idx = _topRated.indexWhere((t) => t.id == inst.id);
+          if (idx >= 0) {
+            _topRated[idx] = inst;
+          } else {
+            _topRated.add(inst);
+          }
+        }
+      }
+      _topRated.sort((a, b) {
+        if (b.ratingAvg != a.ratingAvg) {
+          return b.ratingAvg.compareTo(a.ratingAvg);
+        }
+        return b.reviewsCount.compareTo(a.reviewsCount);
+      });
+
       _hasMore = newItems.length >= AppConstants.pageSize;
       _page++;
     } else {

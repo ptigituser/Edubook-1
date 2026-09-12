@@ -5,8 +5,6 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/localization/app_localizations.dart';
-import '../../data/services/api_service.dart';
-import '../../shared/widgets/app_update_dialog.dart';
 import '../../shared/widgets/app_feedback_dialog.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';

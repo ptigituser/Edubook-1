@@ -86,7 +86,6 @@ class SettingsScreen extends StatelessWidget {
                   subtitle: info == null
                       ? null
                       : 'v${info.version} (${info.buildNumber})',
-                  onTap: () => _manualCheckForUpdate(context, l),
                 );
               },
             ),
@@ -120,44 +119,6 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _manualCheckForUpdate(BuildContext context, AppLocalizations l) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final platform = Theme.of(context).platform == TargetPlatform.iOS ? 'ios' : 'android';
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l.checkingForUpdates, style: const TextStyle(fontFamily: 'Rabar')),
-        duration: const Duration(milliseconds: 1500),
-      ),
-    );
-
-    try {
-      final info = await PackageInfo.fromPlatform();
-      final buildNumber = int.tryParse(info.buildNumber) ?? 0;
-
-      final res = await ApiService().checkUpdate(platform, buildNumber);
-
-      if (!context.mounted) return;
-
-      if (res.success && res.data != null) {
-        final data = res.data!;
-        if (data['update_available'] == true || data['force_update'] == true) {
-          AppUpdateDialog.show(context, updateData: data, force: data['force_update'] == true);
-          return;
-        }
-      }
-
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(l.appUpToDate, style: const TextStyle(fontFamily: 'Rabar', fontWeight: FontWeight.bold)),
-          backgroundColor: const Color(0xFF10B981),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-      );
-    } catch (e) {
-      debugPrint('Manual update check error: $e');
-    }
-  }
 
   Future<void> _confirmDeleteAccount(BuildContext context, AppLocalizations l) async {
     final confirmed = await showDialog<bool>(

@@ -21,6 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../shared/widgets/cards.dart';
 import '../../shared/widgets/common_widgets.dart';
 import '../../shared/widgets/app_feedback_dialog.dart';
+import '../../shared/widgets/institution_promo_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -59,11 +60,32 @@ class _HomeScreenState extends State<HomeScreen> {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       Provider.of<NotificationsProvider>(context, listen: false)
           .loadUnread(auth);
-      _checkAutoPopupFeedback();
+      _checkAutoPopups();
     });
   }
 
-  Future<void> _checkAutoPopupFeedback() async {
+  Future<void> _checkAutoPopups() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final launchCount = (prefs.getInt('app_launch_count') ?? 0) + 1;
+      await prefs.setInt('app_launch_count', launchCount);
+
+      if (!mounted) return;
+
+      // 1. Check & potentially show institution promotional popup
+      final promoShown = await InstitutionPromoDialog.checkAndShow(context);
+      if (promoShown) return; // Do not show multiple dialogs in one session
+
+      if (!mounted) return;
+
+      // 2. Otherwise check feedback dialog
+      await _checkAutoPopupFeedback(launchCount: launchCount);
+    } catch (e) {
+      debugPrint('Auto popups check error: $e');
+    }
+  }
+
+  Future<void> _checkAutoPopupFeedback({int? launchCount}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
@@ -72,9 +94,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (submitted) return;
 
       // 2. Track usage count: only show for users who have used the app for a while (>= 3 opens)
-      final launchCount = (prefs.getInt('app_launch_count') ?? 0) + 1;
-      await prefs.setInt('app_launch_count', launchCount);
-      if (launchCount < 3) return;
+      final count = launchCount ?? prefs.getInt('app_launch_count') ?? 0;
+      if (count < 3) return;
 
       // 3. If closed or dismissed previously, don't nag repeatedly (wait at least 14 days)
       final lastDismissed = prefs.getInt('app_feedback_last_dismissed_time');

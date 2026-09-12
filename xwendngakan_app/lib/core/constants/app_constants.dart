@@ -15,6 +15,10 @@ class AppConstants {
   static const String playStoreUrl = 'https://play.google.com/store/apps/details?id=com.khwenden.ibrahim';
   static const String appStoreUrl = 'https://apps.apple.com/iq/app/edubook-iq/id6783074135';
 
+  // === PORTAL URLS ===
+  static const String portalUrl = 'https://edubook-iq.com/portal';
+  static const String portalRegisterUrl = 'https://edubook-iq.com/portal/register';
+
   // === STORAGE KEYS ===
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';

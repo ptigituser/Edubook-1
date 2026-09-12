@@ -1136,29 +1136,63 @@ class ApiService {
   }
 
   Future<ApiResult<Map<String, dynamic>>> sendInstitutionMessage(
-    int institutionId,
-    String message,
-  ) async {
+    int institutionId, {
+    String? message,
+    String? imagePath,
+  }) async {
     try {
-      final headers = await _authHeaders();
-      final res = await http
-          .post(
-            Uri.parse('$_base/institutions/$institutionId/chat'),
-            headers: headers,
-            body: jsonEncode({'message': message.trim()}),
-          )
-          .timeout(AppConstants.connectTimeout);
+      final authHeaders = await _authHeaders();
 
-      final json = _safeJson(res);
-      if ((res.statusCode == 200 || res.statusCode == 201) &&
-          json != null &&
-          json['success'] == true) {
-        final data = json['data'] as Map<String, dynamic>? ?? {};
-        return ApiResult.success(data, statusCode: res.statusCode);
+      if (imagePath != null && imagePath.isNotEmpty) {
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse('$_base/institutions/$institutionId/chat'),
+        );
+        final Map<String, String> multipartHeaders = Map.from(authHeaders);
+        multipartHeaders.remove('Content-Type');
+        request.headers.addAll(multipartHeaders);
+
+        if (message != null && message.trim().isNotEmpty) {
+          request.fields['message'] = message.trim();
+        }
+
+        request.files
+            .add(await http.MultipartFile.fromPath('image', imagePath));
+
+        final streamedRes =
+            await request.send().timeout(AppConstants.connectTimeout);
+        final resData = await streamedRes.stream.bytesToString();
+        final json = jsonDecode(resData) as Map<String, dynamic>?;
+
+        if ((streamedRes.statusCode == 200 || streamedRes.statusCode == 201) &&
+            json != null &&
+            json['success'] == true) {
+          final data = json['data'] as Map<String, dynamic>? ?? {};
+          return ApiResult.success(data, statusCode: streamedRes.statusCode);
+        }
+        return ApiResult.failure(
+            json?['message'] ?? _serverMessage(streamedRes.statusCode),
+            statusCode: streamedRes.statusCode);
+      } else {
+        final res = await http
+            .post(
+              Uri.parse('$_base/institutions/$institutionId/chat'),
+              headers: authHeaders,
+              body: jsonEncode({'message': (message ?? '').trim()}),
+            )
+            .timeout(AppConstants.connectTimeout);
+
+        final json = _safeJson(res);
+        if ((res.statusCode == 200 || res.statusCode == 201) &&
+            json != null &&
+            json['success'] == true) {
+          final data = json['data'] as Map<String, dynamic>? ?? {};
+          return ApiResult.success(data, statusCode: res.statusCode);
+        }
+        return ApiResult.failure(
+            json?['message'] ?? _serverMessage(res.statusCode),
+            statusCode: res.statusCode);
       }
-      return ApiResult.failure(
-          json?['message'] ?? _serverMessage(res.statusCode),
-          statusCode: res.statusCode);
     } catch (e) {
       return ApiResult.failure(_connectionMessage);
     }

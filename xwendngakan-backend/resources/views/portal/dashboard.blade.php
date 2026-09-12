@@ -692,6 +692,36 @@
   transform: scale(1.05);
   box-shadow: 0 4px 16px rgba(226, 176, 66, 0.35);
 }
+.chat-attach-btn {
+  background: rgba(226, 176, 66, 0.12);
+  border: 1px solid rgba(226, 176, 66, 0.25);
+  border-radius: 12px;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold-lt);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all .2s;
+  font-size: 1.15rem;
+}
+.chat-attach-btn:hover {
+  background: rgba(226, 176, 66, 0.22);
+  transform: scale(1.05);
+}
+.chat-img-thumb {
+  max-width: 260px;
+  max-height: 260px;
+  border-radius: 12px;
+  display: block;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  margin-bottom: 4px;
+}
+.chat-img-thumb:hover {
+  transform: scale(1.02);
+}
 .chat-empty-box {
   display: flex;
   flex-direction: column;
@@ -2089,7 +2119,22 @@
               </div>
             </div>
 
+            <div id="chat-selected-img-preview" style="display: none; padding: 8px 14px; background: rgba(12, 18, 32, 0.9); border-top: 1px solid rgba(226, 176, 66, 0.15); align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <img id="chat-preview-img-tag" src="" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(226, 176, 66, 0.3);" />
+                <div>
+                  <div id="chat-preview-filename" style="font-size: .82rem; font-weight: 600; color: var(--txt); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+                  <div style="font-size: .72rem; color: var(--gold-lt);">ئامادەیە بۆ ناردن</div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-ghost btn-xs" onclick="clearSelectedChatImage()" title="لابردن" style="color: #ef4444; font-size: 1.1rem; font-weight: 800; padding: 4px 8px;">✕</button>
+            </div>
+
             <form class="chat-input-area" id="chat-send-form" style="display: none;" onsubmit="sendChatReply(event)">
+              <input type="file" id="chat-reply-image" accept="image/*" style="display: none;" onchange="handleChatImageSelect(this)">
+              <button type="button" class="chat-attach-btn" onclick="document.getElementById('chat-reply-image').click()" title="هاوپێچکردنی وێنە">
+                📷
+              </button>
               <input type="text" class="chat-input-field" id="chat-reply-input" placeholder="وەڵامەکەت لێرە بنووسە..." autocomplete="off">
               <button type="submit" class="chat-send-btn" id="btn-chat-send" title="ناردن">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(180deg);">
@@ -2996,10 +3041,18 @@ function renderMessages(messages, forceScroll = false) {
         const typeClass = isInst ? 'outgoing' : 'incoming';
         const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
+        let contentHtml = '';
+        if (m.image) {
+            contentHtml += `<a href="${m.image}" target="_blank" rel="noopener"><img src="${m.image}" class="chat-img-thumb" alt="وێنە" /></a>`;
+        }
+        if (m.message) {
+            contentHtml += `<div>${escapeHtml(m.message)}</div>`;
+        }
+
         html += `
             <div class="chat-bubble-wrap ${typeClass}">
                 <div class="chat-bubble ${typeClass}">
-                    ${escapeHtml(m.message)}
+                    ${contentHtml}
                 </div>
                 <div class="chat-bubble-time">${timeStr} ${isInst ? '✓' : ''}</div>
             </div>
@@ -3020,25 +3073,67 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+let selectedChatFile = null;
+
+function handleChatImageSelect(input) {
+    if (input.files && input.files[0]) {
+        selectedChatFile = input.files[0];
+        const previewWrap = document.getElementById('chat-selected-img-preview');
+        const imgTag = document.getElementById('chat-preview-img-tag');
+        const fname = document.getElementById('chat-preview-filename');
+        
+        imgTag.src = URL.createObjectURL(selectedChatFile);
+        fname.textContent = selectedChatFile.name;
+        previewWrap.style.display = 'flex';
+    }
+}
+
+function clearSelectedChatImage() {
+    selectedChatFile = null;
+    const input = document.getElementById('chat-reply-image');
+    if (input) input.value = '';
+    const previewWrap = document.getElementById('chat-selected-img-preview');
+    if (previewWrap) previewWrap.style.display = 'none';
+    const imgTag = document.getElementById('chat-preview-img-tag');
+    if (imgTag) imgTag.src = '';
+}
+
 function sendChatReply(e) {
     e.preventDefault();
     if (!currentActiveConvId) return;
 
     const input = document.getElementById('chat-reply-input');
     const msg = input.value.trim();
-    if (!msg) return;
+    const hasImage = !!selectedChatFile;
+    if (!msg && !hasImage) return;
 
     const btn = document.getElementById('btn-chat-send');
     btn.disabled = true;
+
+    const formData = new FormData();
+    if (msg) formData.append('message', msg);
+    if (hasImage) formData.append('image', selectedChatFile);
+
+    const imageObjUrl = hasImage ? URL.createObjectURL(selectedChatFile) : null;
     input.value = '';
+    clearSelectedChatImage();
 
     // Append visually right away
     const container = document.getElementById('chat-messages-scroll');
     const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const tempBubble = document.createElement('div');
     tempBubble.className = 'chat-bubble-wrap outgoing';
+
+    let tempContent = '';
+    if (imageObjUrl) {
+        tempContent += `<img src="${imageObjUrl}" class="chat-img-thumb" alt="وێنە" />`;
+    }
+    if (msg) {
+        tempContent += `<div>${escapeHtml(msg)}</div>`;
+    }
+
     tempBubble.innerHTML = `
-        <div class="chat-bubble outgoing">${escapeHtml(msg)}</div>
+        <div class="chat-bubble outgoing">${tempContent}</div>
         <div class="chat-bubble-time">${nowTime} ...</div>
     `;
     container.appendChild(tempBubble);
@@ -3046,23 +3141,23 @@ function sendChatReply(e) {
 
     // Update snippet in list
     const snippetEl = document.getElementById('conv-snippet-' + currentActiveConvId);
-    if (snippetEl) snippetEl.textContent = msg;
+    if (snippetEl) snippetEl.textContent = msg || '📷 وێنە';
 
     fetch(`/portal/chats/${currentActiveConvId}/reply`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'Accept': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({ message: msg })
+        body: formData
     })
     .then(r => r.json())
     .then(res => {
         btn.disabled = false;
         if (res.success) {
             tempBubble.querySelector('.chat-bubble-time').textContent = nowTime + ' ✓';
+            loadConversationMessages(currentActiveConvId, false);
         }
     })
     .catch(err => {

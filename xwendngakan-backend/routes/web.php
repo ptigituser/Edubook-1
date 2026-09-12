@@ -578,21 +578,40 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
                 ->firstOrFail();
 
             $request->validate([
-                'message' => 'required|string|max:3000',
+                'message' => 'nullable|string|max:3000',
+                'image'   => 'nullable|image|max:12288',
             ]);
 
-            $text = trim($request->input('message'));
+            $text = trim((string) $request->input('message', ''));
+            $hasImage = $request->hasFile('image');
+
+            if ($text === '' && !$hasImage) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'تکایە نامە یان وێنەیەک دیاری بکە.',
+                ], 422);
+            }
+
+            $imagePath = null;
+            if ($hasImage) {
+                $file = $request->file('image');
+                $filename = 'reply_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('chats', $filename, 'public');
+                $imagePath = '/storage/' . $path;
+            }
 
             $msg = Message::create([
                 'conversation_id' => $conversation->id,
                 'sender_type'     => 'institution',
                 'sender_id'       => $user->id,
-                'message'         => $text,
+                'message'         => $text !== '' ? $text : null,
+                'image'           => $imagePath,
                 'is_read'         => false,
             ]);
 
+            $snippet = $text !== '' ? $text : '📷 وێنە';
             $conversation->update([
-                'last_message'       => $text,
+                'last_message'       => $snippet,
                 'last_message_at'    => now(),
                 'user_unread_count'  => $conversation->user_unread_count + 1,
             ]);

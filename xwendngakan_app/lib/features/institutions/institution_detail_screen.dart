@@ -166,9 +166,9 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
           backgroundColor: AppColors.primary,
           elevation: 4,
           icon: const Icon(Icons.forum_rounded, color: Colors.white, size: 20),
-          label: const Text(
-            'چات لەگەڵ دامەزراوە',
-            style: TextStyle(
+          label: Text(
+            l.chatWithInstitution,
+            style: const TextStyle(
               fontFamily: 'Rabar',
               fontWeight: FontWeight.w800,
               fontSize: 13,
@@ -516,7 +516,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
           icon: icon, label: label, color: color, onTap: onTap));
     }
 
-    add(Icons.forum_rounded, 'چات', const Color(0xFFF59E0B),
+    add(Icons.forum_rounded, l.chat, const Color(0xFFF59E0B),
         () => _openChat(inst, l));
 
     if (inst.phone != null && inst.phone!.isNotEmpty) {

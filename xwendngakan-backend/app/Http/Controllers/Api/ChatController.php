@@ -59,8 +59,19 @@ class ChatController extends Controller
     public function sendMessage(Request $request, int $institutionId)
     {
         $request->validate([
-            'message' => 'required|string|max:3000',
+            'message' => 'nullable|string|max:3000',
+            'image'   => 'nullable|image|max:12288',
         ]);
+
+        $text = trim((string) $request->input('message', ''));
+        $hasImage = $request->hasFile('image');
+
+        if ($text === '' && !$hasImage) {
+            return response()->json([
+                'success' => false,
+                'message' => 'تکایە نامە یان وێنەیەک بنووسە.',
+            ], 422);
+        }
 
         $user = $request->user();
         $institution = Institution::findOrFail($institutionId);
@@ -72,18 +83,26 @@ class ChatController extends Controller
             ]
         );
 
-        $text = trim($request->input('message'));
+        $imagePath = null;
+        if ($hasImage) {
+            $file = $request->file('image');
+            $filename = 'chat_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('chats', $filename, 'public');
+            $imagePath = '/storage/' . $path;
+        }
 
         $msg = Message::create([
             'conversation_id' => $conversation->id,
             'sender_type'     => 'user',
             'sender_id'       => $user->id,
-            'message'         => $text,
+            'message'         => $text !== '' ? $text : null,
+            'image'           => $imagePath,
             'is_read'         => false,
         ]);
 
+        $snippet = $text !== '' ? $text : '📷 وێنە';
         $conversation->update([
-            'last_message'             => $text,
+            'last_message'             => $snippet,
             'last_message_at'          => now(),
             'institution_unread_count' => $conversation->institution_unread_count + 1,
         ]);

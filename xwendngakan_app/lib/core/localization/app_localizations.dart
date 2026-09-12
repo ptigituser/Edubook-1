@@ -2994,6 +2994,108 @@ class AppLocalizations {
         'en': 'Verified',
         'tr': 'Doğrulandı'
       });
+
+  // =====================
+  // CHAT & MESSAGING
+  // =====================
+  String get chat => _t({
+        'ku': 'چات',
+        'kbd': 'چات',
+        'ar': 'محادثة',
+        'en': 'Chat',
+        'tr': 'Sohbet'
+      });
+  String get chatWithInstitution => _t({
+        'ku': 'چات لەگەڵ دامەزراوە',
+        'kbd': 'چات ل گەل دەزگەهـ',
+        'ar': 'محادثة مع المؤسسة',
+        'en': 'Chat with Institution',
+        'tr': 'Kurum ile Sohbet'
+      });
+  String get writeMessageHint => _t({
+        'ku': 'نامەکەت لێرە بنووسە...',
+        'kbd': 'ناما خوە بنڤیسە...',
+        'ar': 'اكتب رسالتك هنا...',
+        'en': 'Type a message...',
+        'tr': 'Mesajınızı buraya yazın...'
+      });
+  String get startConversationTitle => _t({
+        'ku': 'دەستپێکردنی گفتوگۆ',
+        'kbd': 'دەستپێکرنا دانوستاندنێ',
+        'ar': 'بدء المحادثة',
+        'en': 'Start Conversation',
+        'tr': 'Sohbet Başlat'
+      });
+  String get startConversationDesc => _t({
+        'ku': 'پرسیارەکەت یان داواکارییەکەت بنووسە، دامەزراوەکە لە کاتێکی گونجاودا وەڵامت دەدەنەوە.',
+        'kbd': 'پرسیارا خوە بنڤیسە، دەزگەهـ د دەمەکێ گونجای دا دێ بەرسڤێ دەت.',
+        'ar': 'اطرح استفسارك أو طلبك، سترد عليك إدارة المؤسسة في أقرب وقت ممكن.',
+        'en': 'Send your question or inquiry, the institution will reply as soon as possible.',
+        'tr': 'Sorunuzu veya talebinizi yazın, kurum en kısa sürede size geri dönüş yapacaktır.'
+      });
+  String get loginToChat => _t({
+        'ku': 'بۆ ناردنی نامە، تکایە سەرەتا بچۆ ژوورەوە',
+        'kbd': 'بۆ فرێکرنا نامێ، هیڤیە پێشتر بچیە ژوورڤە',
+        'ar': 'لإرسال رسالة، يرجى تسجيل الدخول أولاً',
+        'en': 'Please log in first to send a message',
+        'tr': 'Mesaj göndermek için lütfen önce giriş yapın'
+      });
+  String get failedToSendMessage => _t({
+        'ku': 'ناردنی نامەکە سەرکەوتوو نەبوو',
+        'kbd': 'فرێکرنا نامێ سەرنەکەفت',
+        'ar': 'فشل إرسال الرسالة',
+        'en': 'Failed to send message',
+        'tr': 'Mesaj gönderilemedi'
+      });
+  String get sendPhoto => _t({
+        'ku': 'ناردنی وێنە',
+        'kbd': 'فرێکرنا وێنەی',
+        'ar': 'إرسال صورة',
+        'en': 'Send Photo',
+        'tr': 'Fotoğraf Gönder'
+      });
+  String get camera => _t({
+        'ku': 'کامێرا',
+        'kbd': 'کامێرا',
+        'ar': 'الكاميرا',
+        'en': 'Camera',
+        'tr': 'Kamera'
+      });
+  String get choosePhotoSource => _t({
+        'ku': 'هەڵبژاردنی وێنە لە',
+        'kbd': 'هەلبژارتنا وێنەی ژ',
+        'ar': 'اختيار الصورة من',
+        'en': 'Choose photo from',
+        'tr': 'Fotoğraf kaynağı seç'
+      });
+  String get photo => _t({
+        'ku': 'وێنە',
+        'kbd': 'وێنە',
+        'ar': 'صورة',
+        'en': 'Photo',
+        'tr': 'Fotoğraf'
+      });
+  String get sending => _t({
+        'ku': 'دەنێردرێت...',
+        'kbd': 'دهێتە فرێکرن...',
+        'ar': 'جاري الإرسال...',
+        'en': 'Sending...',
+        'tr': 'Gönderiliyor...'
+      });
+  String get institutionStatus => _t({
+        'ku': 'دۆخی دامەزراوە',
+        'kbd': 'ڕەوشا دەزگەهـ',
+        'ar': 'حالة المؤسسة',
+        'en': 'Institution Status',
+        'tr': 'Kurum Durumu'
+      });
+  String get averageRating => _t({
+        'ku': 'تێکڕای هەڵسەنگاندن',
+        'kbd': 'تێکڕایا هەلسەنگاندنێ',
+        'ar': 'متوسط التقييم',
+        'en': 'Average Rating',
+        'tr': 'Ortalama Değerlendirme'
+      });
 }
 
 class _AppLocalizationsDelegate

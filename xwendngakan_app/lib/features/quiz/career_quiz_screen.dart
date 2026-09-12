@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_localizations.dart';
 
@@ -481,25 +480,6 @@ class _CareerQuizScreenState extends State<CareerQuizScreen> {
     }
   }
 
-  void _shareResult(Map<String, dynamic> result) {
-    final badge = result['badge'];
-    final majors = result['majors'] as List<Map<String, String>>;
-    final text = '''
-🎯 من تاقیکردنەوەی دیاریکردنی بەشی زانکۆم لە ئەپی خوێندنگاکان ئەنجامدا!
-
-🏆 کەسایەتی من: $badge
-🎓 گونجاوترین بەشەکان بۆ من:
-١. ${majors[0]['name']}
-٢. ${majors[1]['name']}
-٣. ${majors[2]['name']}
-
-تۆش لە ٢ خولەکدا بەشە شیاوەکەت بدۆزەرەوە لە ڕێگەی ئەپی Edubook خوێندنگاکان:
-https://edubook-iq.com
-''';
-
-    SharePlus.instance.share(ShareParams(text: text));
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -876,73 +856,34 @@ https://edubook-iq.com
               ),
             );
           }),
-          const SizedBox(height: 20),
-
-          // Viral Share Button
-          GestureDetector(
-            onTap: () => _shareResult(result),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFE11D48), Color(0xFFF43F5E)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFE11D48).withValues(alpha: 0.35),
-                    blurRadius: 14,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.share_rounded, color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    l.shareMyResult,
-                    style: const TextStyle(
-                      fontFamily: 'Rabar',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
 
           // Explore Institutions Button
-          OutlinedButton(
+          ElevatedButton(
             onPressed: () {
               context.push('/institutions');
             },
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-              side: const BorderSide(color: AppColors.primary, width: 1.5),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 52),
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(18),
               ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.school_rounded, color: AppColors.primary, size: 18),
+                const Icon(Icons.school_rounded, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   l.exploreInstitutions,
                   style: const TextStyle(
                     fontFamily: 'Rabar',
-                    fontSize: 14,
+                    fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
+                    color: Colors.white,
                   ),
                 ),
               ],

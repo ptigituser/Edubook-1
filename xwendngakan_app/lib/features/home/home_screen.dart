@@ -1441,10 +1441,9 @@ class _AdsCarouselState extends State<AdsCarousel> {
   Widget _buildCarousel(int count, Widget Function(int) builder) {
     return Column(
       children: [
-        // Fixed 2.8:1 ratio so banner images (1344×480) display fully on every
-        // screen size without BoxFit.cover cropping the top/bottom.
+        // Aspect ratio 4.2:1 to fit the modern widescreen banners without cropping.
         AspectRatio(
-          aspectRatio: 2.8,
+          aspectRatio: 4.2,
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (idx) => setState(() => _currentPage = idx),

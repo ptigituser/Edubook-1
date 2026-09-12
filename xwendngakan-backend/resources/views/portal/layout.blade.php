@@ -198,10 +198,10 @@
     </script>
 
     @if(session('success'))
-    <script>document.addEventListener('DOMContentLoaded', () => showToast("{{ session('success') }}", 'success'));</script>
+    <script>document.addEventListener('DOMContentLoaded', () => showToast(@json(session('success')), 'success'));</script>
     @endif
     @if(session('error'))
-    <script>document.addEventListener('DOMContentLoaded', () => showToast("{{ session('error') }}", 'error'));</script>
+    <script>document.addEventListener('DOMContentLoaded', () => showToast(@json(session('error')), 'error'));</script>
     @endif
 
     @yield('scripts')

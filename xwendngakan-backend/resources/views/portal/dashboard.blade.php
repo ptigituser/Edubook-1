@@ -3355,6 +3355,9 @@ setInterval(() => {
             });
         }
     })
+    .catch(err => console.error('Error fetching chats:', err));
+}, 3500);
+
 // ── Jobs Management ──
 function toggleJobForm() {
     const card = document.getElementById('job-form-card');

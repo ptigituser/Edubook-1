@@ -1,4 +1,5 @@
 import '../../core/localization/app_localizations.dart';
+import '../../core/utils/image_utils.dart';
 
 class JobVacancyModel {
   final int id;
@@ -21,6 +22,8 @@ class JobVacancyModel {
   final String? contactEmail;
   final int viewsCount;
   final DateTime? createdAt;
+
+  String get logoUrl => ImageUtils.resolveUrl(institutionLogo);
 
   JobVacancyModel({
     required this.id,

@@ -47,7 +47,11 @@ class JobVacancy extends Model
     {
         $array = parent::toArray();
         if (!empty($array['institution_logo']) && !str_starts_with($array['institution_logo'], 'http')) {
-            $array['institution_logo'] = url($array['institution_logo']);
+            $path = ltrim($array['institution_logo'], '/');
+            if (!str_starts_with($path, 'storage/')) {
+                $path = 'storage/' . $path;
+            }
+            $array['institution_logo'] = url($path);
         }
         return $array;
     }

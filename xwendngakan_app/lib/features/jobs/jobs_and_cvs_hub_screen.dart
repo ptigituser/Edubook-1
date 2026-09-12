@@ -835,11 +835,11 @@ class _JobCard extends StatelessWidget {
                       color: AppColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: job.institutionLogo != null && job.institutionLogo!.isNotEmpty
+                    child: job.logoUrl.isNotEmpty
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: CachedNetworkImage(
-                              imageUrl: job.institutionLogo!,
+                              imageUrl: job.logoUrl,
                               fit: BoxFit.cover,
                               errorWidget: (_, __, ___) => const Center(
                                 child: Icon(Icons.school_rounded, color: AppColors.primary, size: 22),

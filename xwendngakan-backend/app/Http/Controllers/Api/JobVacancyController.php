@@ -90,7 +90,7 @@ class JobVacancyController extends Controller
             'institution_id'   => 'nullable|exists:institutions,id',
             'institution_name' => 'required|string|max:255',
             'title'            => 'required|string|max:255',
-            'category'         => 'required|string|in:teacher,admin,support,other',
+            'category'         => 'required|string|max:100',
             'subject'          => 'nullable|string|max:100',
             'education_level'  => 'nullable|string|max:100',
             'employment_type'  => 'required|string|max:50',
@@ -108,7 +108,7 @@ class JobVacancyController extends Controller
         if (!empty($validated['institution_id'])) {
             $inst = Institution::find($validated['institution_id']);
             if ($inst) {
-                $validated['institution_name'] = $inst->name;
+                $validated['institution_name'] = $inst->nku ?? $inst->nen ?? $validated['institution_name'];
                 $validated['institution_logo'] = $inst->logo;
             }
         }

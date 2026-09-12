@@ -186,7 +186,8 @@ class ProfileScreen extends StatelessWidget {
       final info = await PackageInfo.fromPlatform();
       final buildNumber = int.tryParse(info.buildNumber) ?? 0;
 
-      final res = await ApiService().checkUpdate(platform, buildNumber);
+      // Checking with buildNumber - 1 allows immediately previewing the Force Update dialog live from edubook-iq.com
+      final res = await ApiService().checkUpdate(platform, buildNumber > 1 ? buildNumber - 1 : 0);
 
       if (!context.mounted) return;
 
@@ -194,7 +195,7 @@ class ProfileScreen extends StatelessWidget {
         final data = res.data!;
         if (data['update_available'] == true || data['force_update'] == true) {
           AppUpdateDialog.show(context,
-              updateData: data, force: data['force_update'] == true);
+              updateData: data, force: true);
           return;
         }
       }

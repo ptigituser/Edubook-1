@@ -2221,13 +2221,14 @@
       <form id="portal-job-form" onsubmit="submitPortalJob(event)">
         <input type="hidden" id="job-edit-id" value="">
 
-        {{-- کارتی ١: ناونیشان و پۆلێنی کار --}}
-        <div class="db-card">
+        <div class="db-card" style="margin-bottom: 1.75rem;">
           <div class="db-card-head">
-            <div class="db-card-title">📋 ناونیشان و پۆلێنی کار</div>
+            <div class="db-card-title">📝 زانیاری و وردەکارییەکانی هەلی کار</div>
           </div>
-          <div class="f-row">
-            <div class="f-group">
+
+          {{-- ڕیزی ١: ناونیشان و پۆلێن و وانە و قۆناغ --}}
+          <div class="f-row" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label" style="display:flex; justify-content:space-between; align-items:center;">
                 <span>ناونیشانی کار <span class="f-req">*</span></span>
                 <button type="button" class="btn-tr" onclick="translateJobTitle(this)" title="وەرگێڕانی ئۆتۆماتیکی بۆ زمانەکانی تر">
@@ -2241,7 +2242,7 @@
               <input type="hidden" name="title_kbd" id="job-title-kbd">
             </div>
 
-            <div class="f-group" id="group-job-category">
+            <div class="f-group" id="group-job-category" style="margin-bottom: 0.75rem;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <label class="f-label" style="margin-bottom:0;">پۆلێنکردنی کار <span class="f-req">*</span></label>
                 <button type="button" id="btn-switch-cat-select" onclick="switchCategoryMode(false)" style="display:none; background:none; border:none; color:var(--gold); font-size:.78rem; font-weight:700; cursor:pointer; padding:0;">
@@ -2272,25 +2273,20 @@
               </datalist>
             </div>
 
-            <div class="f-group">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">وانە / پسپۆڕی</label>
               <input type="text" class="f-input" name="subject" id="job-subject" placeholder="وەک: ئینگلیزی، کیمیا، باخچە، مێژوو...">
             </div>
 
-            <div class="f-group">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">قۆناغی خوێندن</label>
-              <input type="text" class="f-input" name="education_level" id="job-edu-level" placeholder="وەک: باخچە، بنەڕەتی، ئامادەیی، پەیمانگا، زانکۆ">
+              <input type="text" class="f-input" name="education_level" id="job-edu-level" placeholder="وەک: باخچە، بنەڕەتی، ئامادەیی، زانکۆ">
             </div>
           </div>
-        </div>
 
-        {{-- کارتی ٢: شێواز و مەرجەکانی کار --}}
-        <div class="db-card">
-          <div class="db-card-head">
-            <div class="db-card-title">⚖️ شێواز و مەرجەکانی کار</div>
-          </div>
-          <div class="f-row">
-            <div class="f-group">
+          {{-- ڕیزی ٢: جۆری دەوام، ڕەگەز، ئەزموون، مووچە --}}
+          <div class="f-row" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">جۆری دەوام <span class="f-req">*</span></label>
               <select class="f-select" name="employment_type" id="job-emp-type" required>
                 <option value="full_time">تەواوکات (بەیانیان)</option>
@@ -2299,7 +2295,7 @@
               </select>
             </div>
 
-            <div class="f-group">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">ڕەگەزی داواکراو</label>
               <select class="f-select" name="gender" id="job-gender">
                 <option value="any">گرنگ نییە (نێر یان مێ)</option>
@@ -2308,73 +2304,65 @@
               </select>
             </div>
 
-            <div class="f-group">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">ئەزموونی پێویست</label>
               <input type="text" class="f-input" name="experience_years" id="job-exp" placeholder="وەک: بێ ئەزموون، ٢ ساڵ بەسەرەوە...">
             </div>
 
-            <div class="f-group">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">مووچە (ئارەزوومەندانە)</label>
-              <input type="text" class="f-input" name="salary_range" id="job-salary" placeholder="وەک: 700,000 - 900,000 د.ع یان بەپێی ڕێککەوتن">
+              <input type="text" class="f-input" name="salary_range" id="job-salary" placeholder="وەک: 700,000 - 900,000 د.ع">
             </div>
           </div>
-        </div>
 
-        {{-- کارتی ٣: وەسف و مەرجەکان --}}
-        <div class="db-card">
-          <div class="db-card-head">
-            <div class="db-card-title">📝 وەسف و وردەکارییەکانی کار</div>
+          {{-- ڕیزی ٣: وەسف و مەرجەکان (تەنیشت یەک بە دوو ستوون) --}}
+          <div class="f-row" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
+              <label class="f-label">وەسفی کار و ئەرکەکان <span class="f-req">*</span></label>
+              <textarea class="f-textarea" name="description" id="job-desc" required placeholder="وەسفی کارەکە بنووسە، ئەرکەکان، کاتەکانی وانەوتنەوە و بەرپرسیاریەتییەکان..." style="min-height: 80px; height: 80px; resize: vertical;"></textarea>
+            </div>
+            <div class="f-group" style="margin-bottom: 0.75rem;">
+              <label class="f-label">مەرجەکانی وەرگرتن (ئارەزوومەندانە)</label>
+              <textarea class="f-textarea" name="requirements" id="job-req" placeholder="مەرجەکان، بڕوانامەی داواکراو، شارەزایی زمان، مەرجە تایبەتەکان..." style="min-height: 80px; height: 80px; resize: vertical;"></textarea>
+            </div>
           </div>
-          <div class="f-group">
-            <label class="f-label">وەسفی کار و ئەرکەکان <span class="f-req">*</span></label>
-            <textarea class="f-textarea" name="description" id="job-desc" rows="4" required placeholder="وەسفی کارەکە بنووسە، ئەرکەکان، کاتەکانی وانەوتنەوە و بەرپرسیاریەتییەکان..."></textarea>
-          </div>
-          <div class="f-group" style="margin-bottom:0;">
-            <label class="f-label">مەرجەکانی وەرگرتن (ئارەزوومەندانە)</label>
-            <textarea class="f-textarea" name="requirements" id="job-req" rows="3" placeholder="مەرجەکان، بڕوانامەی داواکراو، شارەزایی زمان، مەرجە تایبەتەکان..."></textarea>
-          </div>
-        </div>
 
-        {{-- کارتی ٤: شوێن و پەیوەندی --}}
-        <div class="db-card">
-          <div class="db-card-head">
-            <div class="db-card-title">📍 شوێن و زانیاری پەیوەندی</div>
-          </div>
-          <div class="f-row">
-            <div class="f-group">
+          {{-- ڕیزی ٤: شار و پەیوەندی --}}
+          <div class="f-row" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">شار <span class="f-req">*</span></label>
-              <input type="text" name="city" id="job-city" class="f-input" list="cities_list" placeholder="شار هەڵبژێرە یان بنووسە..." value="{{ old('city', $institution?->city ?? 'هەولێر') }}" required>
+              <input type="text" name="city" id="job-city" class="f-input" list="cities_list" placeholder="شار هەڵبژێرە..." value="{{ old('city', $institution?->city ?? 'هەولێر') }}" required>
             </div>
 
-            <div class="f-group">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">ژمارەی پەیوەندی / مۆبایل <span class="f-req">*</span></label>
               <input type="text" class="f-input" name="contact_phone" id="job-phone" required placeholder="0750 000 0000" value="{{ $institution->phone ?? '' }}" dir="ltr" style="text-align: right; direction: ltr;">
             </div>
 
-            <div class="f-group">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">ژمارەی واتسئەپ</label>
               <input type="text" class="f-input" name="contact_whatsapp" id="job-wa" placeholder="0750 000 0000" value="{{ $institution->wa ?? '' }}" dir="ltr" style="text-align: right; direction: ltr;">
             </div>
 
-            <div class="f-group">
+            <div class="f-group" style="margin-bottom: 0.75rem;">
               <label class="f-label">ئیمەیڵ بۆ ناردنی CV</label>
               <input type="email" class="f-input" name="contact_email" id="job-email" placeholder="hr@institution.krd" value="{{ $institution->email ?? '' }}" dir="ltr" style="text-align: left;">
             </div>
           </div>
-        </div>
 
-        {{-- دوگمەی سەرەکی --}}
-        <div style="display:flex;align-items:center;gap:1rem;margin-top:.5rem;margin-bottom:2.25rem;padding-top:1.5rem;border-top:1px solid var(--border)">
-          <button type="submit" id="btn-save-job" class="btn-primary" style="padding:14px 42px;font-size:.95rem">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="btn-icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            <span id="btn-job-submit-text">بڵاوکردنەوەی هەلی کار</span>
-          </button>
+          {{-- دوگمەی سەرەکی پاشەکەوتکردن --}}
+          <div style="display:flex;align-items:center;gap:1rem;margin-top:1rem;padding-top:1.25rem;border-top:1px solid var(--border)">
+            <button type="submit" id="btn-save-job" class="btn-primary" style="padding:13px 40px;font-size:.95rem">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="btn-icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span id="btn-job-submit-text">بڵاوکردنەوەی هەلی کار</span>
+            </button>
 
-          <button type="button" id="btn-cancel-job-edit" onclick="resetJobForm()" style="display:none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 14px 22px; border-radius: 8px; font-size: .95rem; cursor: pointer; transition: all .2s;">
-            ✕ پاشگەزبوونەوە
-          </button>
+            <button type="button" id="btn-cancel-job-edit" onclick="resetJobForm()" style="display:none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 13px 20px; border-radius: 8px; font-size: .95rem; cursor: pointer; transition: all .2s;">
+              ✕ پاشگەزبوونەوە
+            </button>
 
-          <span style="font-size:.78rem;color:var(--txt3);font-weight:600" id="job-form-hint">هەلی کارەکە دەستبەجێ لە ئەپڵیکەیشن بڵاودەبێتەوە</span>
+            <span style="font-size:.78rem;color:var(--txt3);font-weight:600" id="job-form-hint">هەلی کارەکە دەستبەجێ لە ئەپڵیکەیشن بڵاودەبێتەوە</span>
+          </div>
         </div>
       </form>
 

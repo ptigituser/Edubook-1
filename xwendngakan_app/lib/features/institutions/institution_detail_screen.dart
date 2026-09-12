@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,7 +13,9 @@ import '../../core/utils/html_utils.dart';
 import '../../core/utils/tuition_utils.dart';
 import '../../data/models/institution_model.dart';
 import '../../data/models/post_model.dart';
+import '../../data/models/review_model.dart';
 import '../../data/services/api_service.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/institutions_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../shared/widgets/common_widgets.dart';
@@ -31,14 +34,19 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
   InstitutionModel? _institution;
   bool _loading = true;
   String? _error;
-  int _activeTab = 1; // 0: About, 1: Colleges, 2: Posts
+  int _activeTab = 1; // 0: About, 1: Colleges, 2: Posts, 3: Reviews
   final ScrollController _scrollController = ScrollController();
   bool _showTitle = false;
+
+  ReviewsData? _reviewsData;
+  bool _loadingReviews = false;
+  String? _reviewsError;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadReviews();
     _scrollController.addListener(() {
       if (_scrollController.offset > 200 && !_showTitle) {
         setState(() => _showTitle = true);
@@ -68,6 +76,32 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
         _loading = false;
       });
     }
+  }
+
+  Future<void> _loadReviews() async {
+    final instId = int.tryParse(widget.id) ?? 0;
+    if (instId == 0) return;
+    setState(() => _loadingReviews = true);
+    final r = await _api.getInstitutionReviews(instId);
+    if (!mounted) return;
+    if (r.success && r.data != null) {
+      setState(() {
+        _reviewsData = r.data;
+        _loadingReviews = false;
+      });
+    } else {
+      setState(() {
+        _reviewsError = r.error;
+        _loadingReviews = false;
+      });
+    }
+  }
+
+  Future<void> _refreshAll() async {
+    await Future.wait([
+      _load(),
+      _loadReviews(),
+    ]);
   }
 
   /// Returns the best available description for the current language.
@@ -127,7 +161,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     return Scaffold(
         backgroundColor: isDark ? AppColors.darkBg : const Color(0xFFFBFBFE),
         body: RefreshIndicator(
-          onRefresh: _load,
+          onRefresh: _refreshAll,
           child: CustomScrollView(
             controller: _scrollController,
             physics: const BouncingScrollPhysics(
@@ -297,6 +331,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 12),
+                          _buildRatingHeaderBadge(inst, isDark, l),
                         ],
                       ),
                     ),
@@ -347,6 +382,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
                           _buildTabItem(0, l.about, isDark),
                           _buildTabItem(1, l.departments, isDark),
                           _buildTabItem(2, l.news, isDark),
+                          _buildTabItem(3, l.reviewsTab, isDark),
                         ],
                       ),
                     ),
@@ -472,7 +508,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
         onTap: () => setState(() => _activeTab = index),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
           decoration: BoxDecoration(
             gradient: isActive ? AppColors.primaryGradient : null,
             borderRadius: BorderRadius.circular(20),
@@ -489,8 +525,10 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
           child: Text(
             label,
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
               fontFamily: 'Rabar',
               color: isActive
@@ -718,9 +756,1011 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
           itemBuilder: (context, index) =>
               _PostCard(post: inst.posts[index], isDark: isDark),
         );
+      case 3: // Reviews
+        return _buildReviewsTab(inst, isDark, lang, l);
       default:
         return const SizedBox();
     }
+  }
+
+  Widget _buildRatingHeaderBadge(
+      InstitutionModel inst, bool isDark, AppLocalizations l) {
+    final double rating = _reviewsData?.summary.averageRating ?? inst.ratingAvg;
+    final int count = _reviewsData?.summary.totalReviews ?? inst.reviewsCount;
+
+    return GestureDetector(
+      onTap: () => setState(() => _activeTab = 3),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.amber.withValues(alpha: 0.12)
+              : const Color(0xFFFFF9E6),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark
+                ? Colors.amber.withValues(alpha: 0.3)
+                : const Color(0xFFFFD54F),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.amber.withValues(alpha: isDark ? 0.1 : 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.star_rounded, color: Color(0xFFFFB300), size: 19),
+            const SizedBox(width: 5),
+            Text(
+              rating > 0 ? rating.toStringAsFixed(1) : '0.0',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+                color: isDark ? const Color(0xFFFFCA28) : const Color(0xFFB78103),
+                fontFamily: 'Rabar',
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 3,
+              height: 3,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white38 : Colors.black26,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              count > 0 ? '$count ${l.reviews}' : l.writeReview,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white70 : Colors.black87,
+                fontFamily: 'Rabar',
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 10,
+              color: isDark ? Colors.white54 : Colors.black38,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReviewsTab(
+      InstitutionModel inst, bool isDark, String lang, AppLocalizations l) {
+    if (_loadingReviews && _reviewsData == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child:
+              CircularProgressIndicator(color: AppColors.typeColor(inst.type)),
+        ),
+      );
+    }
+
+    if (_reviewsError != null && _reviewsData == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: EmptyState(
+          icon: Icons.error_outline_rounded,
+          message: _reviewsError!,
+          actionLabel: l.retry,
+          onAction: _loadReviews,
+        ),
+      );
+    }
+
+    final summary = _reviewsData?.summary ??
+        ReviewSummaryModel(
+          averageRating: inst.ratingAvg,
+          totalReviews: inst.reviewsCount,
+          distribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+        );
+    final userReview = _reviewsData?.userReview;
+    final reviews = _reviewsData?.reviews ?? [];
+    final accentColor = AppColors.typeColor(inst.type);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Rating Breakdown Summary Card ──
+        _buildRatingSummaryCard(summary, isDark, l),
+        const SizedBox(height: 20),
+
+        // ── User's Own Review (if exists) or "Write Review" button ──
+        _buildUserReviewActionSection(inst, userReview, isDark, l, accentColor),
+        const SizedBox(height: 28),
+
+        // ── Reviews List Header ──
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.rate_review_rounded, size: 20, color: accentColor),
+                const SizedBox(width: 8),
+                Text(
+                  l.reviews,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Rabar',
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${summary.totalReviews}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: accentColor,
+                  fontFamily: 'Rabar',
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // ── Reviews List / Empty State ──
+        if (reviews.isEmpty)
+          _buildEmptyReviewsState(inst, isDark, l)
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: reviews.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 14),
+            itemBuilder: (context, index) {
+              final rev = reviews[index];
+              final isMyReview = userReview?.id == rev.id;
+              return _buildReviewCard(rev, isMyReview, isDark, accentColor, l);
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildRatingSummaryCard(
+      ReviewSummaryModel summary, bool isDark, AppLocalizations l) {
+    final total = summary.totalReviews;
+    final rating = summary.averageRating;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.black.withValues(alpha: 0.04),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Left: Score & Stars
+          Expanded(
+            flex: 4,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  rating > 0 ? rating.toStringAsFixed(1) : '0.0',
+                  style: const TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Rabar',
+                    color: Color(0xFFFFB300),
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                RatingBarIndicator(
+                  rating: rating,
+                  itemBuilder: (context, index) => const Icon(
+                    Icons.star_rounded,
+                    color: Color(0xFFFFB300),
+                  ),
+                  itemCount: 5,
+                  itemSize: 18.0,
+                  unratedColor: Colors.amber.withValues(alpha: 0.2),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '$total ${l.reviews}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Rabar',
+                    color: isDark ? Colors.white54 : Colors.black45,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Middle Divider
+          Container(
+            height: 90,
+            width: 1,
+            margin: const EdgeInsets.symmetric(horizontal: 14),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.06),
+          ),
+
+          // Right: Star distribution bars
+          Expanded(
+            flex: 6,
+            child: Column(
+              children: [5, 4, 3, 2, 1].map((star) {
+                final count = summary.distribution[star] ?? 0;
+                final ratio = total > 0 ? (count / total) : 0.0;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2.5),
+                  child: Row(
+                    children: [
+                      Text(
+                        '$star',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Rabar',
+                          color: isDark ? Colors.white70 : Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(width: 3),
+                      const Icon(Icons.star_rounded,
+                          size: 12, color: Color(0xFFFFB300)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: ratio,
+                            minHeight: 6,
+                            backgroundColor: isDark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : Colors.black.withValues(alpha: 0.05),
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                                Color(0xFFFFB300)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 22,
+                        child: Text(
+                          '$count',
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Rabar',
+                            color: isDark ? Colors.white38 : Colors.black38,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserReviewActionSection(
+    InstitutionModel inst,
+    ReviewModel? userReview,
+    bool isDark,
+    AppLocalizations l,
+    Color accentColor,
+  ) {
+    if (userReview != null) {
+      // User has already submitted a review
+      return Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.amber.withValues(alpha: 0.08)
+              : const Color(0xFFFFFBEA),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: const Color(0xFFFFD54F).withValues(alpha: 0.5),
+            width: 1.2,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.verified_rounded,
+                    color: Color(0xFFFFB300), size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  l.yourRating,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Rabar',
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  color: AppColors.primary,
+                  tooltip: l.editReview,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () =>
+                      _showReviewBottomSheet(inst, existing: userReview),
+                ),
+                const SizedBox(width: 14),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                  color: Colors.redAccent,
+                  tooltip: l.deleteReview,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => _confirmDeleteReview(userReview.id),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            RatingBarIndicator(
+              rating: userReview.rating.toDouble(),
+              itemBuilder: (_, __) => const Icon(
+                Icons.star_rounded,
+                color: Color(0xFFFFB300),
+              ),
+              itemCount: 5,
+              itemSize: 18.0,
+            ),
+            if (userReview.comment != null &&
+                userReview.comment!.trim().isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                userReview.comment!,
+                style: TextStyle(
+                  fontSize: 13.5,
+                  height: 1.6,
+                  fontFamily: 'Rabar',
+                  color: isDark ? Colors.white70 : AppColors.textDark,
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    // User hasn't reviewed yet -> "Write a Review" button
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.35),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => _showReviewBottomSheet(inst),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.rate_review_rounded,
+                    color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Text(
+                  l.writeReview,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Rabar',
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReviewCard(ReviewModel rev, bool isMyReview, bool isDark,
+      Color accentColor, AppLocalizations l) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isMyReview
+              ? const Color(0xFFFFD54F).withValues(alpha: 0.6)
+              : (isDark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Colors.black.withValues(alpha: 0.03)),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Avatar
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: accentColor.withValues(alpha: 0.15),
+                backgroundImage: rev.userAvatar != null &&
+                        rev.userAvatar!.isNotEmpty
+                    ? CachedNetworkImageProvider(rev.userAvatar!)
+                    : null,
+                child: (rev.userAvatar == null || rev.userAvatar!.isEmpty)
+                    ? Text(
+                        rev.userName.isNotEmpty
+                            ? rev.userName.substring(0, 1).toUpperCase()
+                            : 'U',
+                        style: TextStyle(
+                          color: accentColor,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          fontFamily: 'Rabar',
+                        ),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            rev.userName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Rabar',
+                            ),
+                          ),
+                        ),
+                        if (isMyReview) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFB300)
+                                  .withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'تۆ',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFFFFB300),
+                                fontFamily: 'Rabar',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        RatingBarIndicator(
+                          rating: rev.rating.toDouble(),
+                          itemBuilder: (_, __) => const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFFFB300),
+                          ),
+                          itemCount: 5,
+                          itemSize: 13.0,
+                        ),
+                        if (rev.createdAt != null) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            rev.createdAt!.split('T').first,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark ? Colors.white38 : Colors.black38,
+                              fontFamily: 'Rabar',
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (rev.comment != null && rev.comment!.trim().isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              rev.comment!,
+              style: TextStyle(
+                fontSize: 13.5,
+                height: 1.6,
+                fontFamily: 'Rabar',
+                color: isDark ? Colors.white70 : AppColors.textDark,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyReviewsState(
+      InstitutionModel inst, bool isDark, AppLocalizations l) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.03),
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: Colors.amber.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.star_outline_rounded,
+                size: 38, color: Color(0xFFFFB300)),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l.noReviewsYet,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Rabar',
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l.beFirstToReview,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontFamily: 'Rabar',
+              color: isDark ? Colors.white54 : Colors.black45,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showReviewBottomSheet(InstitutionModel inst, {ReviewModel? existing}) {
+    final l = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+
+    int selectedRating = existing?.rating ?? 5;
+    final commentController =
+        TextEditingController(text: existing?.comment ?? '');
+    final nameController = TextEditingController(
+        text: existing?.userName ?? (auth.user?.name ?? ''));
+    bool submitting = false;
+
+    final impressions = [
+      'مامۆستای بەتوانا ⭐',
+      'ژینگەی لەبار 🏫',
+      'خزمەتگوزاری بەرز 👍',
+      'بەڕێوەبردنی ڕێک ✨',
+      'پاک و خاوێن 🌿',
+    ];
+
+    String ratingLabel(int r) {
+      switch (r) {
+        case 1:
+          return 'خراپە 😞';
+        case 2:
+          return 'مامناوەندە 😐';
+        case 3:
+          return 'باشە 🙂';
+        case 4:
+          return 'زۆر باشە 😊';
+        default:
+          return 'نایاب و بێوێنەیە 🤩';
+      }
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                top: 14,
+                left: 24,
+                right: 24,
+              ),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkCard : Colors.white,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(32)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 30,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Drag Handle
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white24 : Colors.black12,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    // Title
+                    Text(
+                      existing != null ? l.editReview : l.writeReview,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Rabar',
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      inst.name(
+                          Provider.of<LocaleProvider>(context, listen: false)
+                              .locale
+                              .languageCode),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontFamily: 'Rabar',
+                        color: isDark ? Colors.white54 : Colors.black45,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Interactive Rating Bar
+                    RatingBar.builder(
+                      initialRating: selectedRating.toDouble(),
+                      minRating: 1,
+                      direction: Axis.horizontal,
+                      allowHalfRating: false,
+                      itemCount: 5,
+                      itemSize: 42.0,
+                      unratedColor: Colors.amber.withValues(alpha: 0.2),
+                      itemPadding: const EdgeInsets.symmetric(horizontal: 5.0),
+                      itemBuilder: (context, _) => const Icon(
+                        Icons.star_rounded,
+                        color: Color(0xFFFFB300),
+                      ),
+                      onRatingUpdate: (rating) {
+                        setModalState(() {
+                          selectedRating = rating.toInt();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Rating mood label
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: Text(
+                        ratingLabel(selectedRating),
+                        key: ValueKey(selectedRating),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Rabar',
+                          color: Color(0xFFFFB300),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    // Quick Chips
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: impressions.map((tag) {
+                        return GestureDetector(
+                          onTap: () {
+                            setModalState(() {
+                              final current = commentController.text.trim();
+                              if (current.isEmpty) {
+                                commentController.text = tag;
+                              } else if (!current.contains(tag)) {
+                                commentController.text = '$current • $tag';
+                              }
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.06)
+                                  : Colors.black.withValues(alpha: 0.04),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : Colors.black.withValues(alpha: 0.06),
+                              ),
+                            ),
+                            child: Text(
+                              tag,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontFamily: 'Rabar',
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? Colors.white70 : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 18),
+
+                    // Name field if user is not authenticated
+                    if (!auth.isAuthenticated) ...[
+                      TextField(
+                        controller: nameController,
+                        style: const TextStyle(fontFamily: 'Rabar'),
+                        decoration: InputDecoration(
+                          hintText: 'ناوی تۆ (ئارەزوومەندانە)',
+                          prefixIcon: const Icon(Icons.person_outline_rounded),
+                          filled: true,
+                          fillColor: isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : const Color(0xFFF8FAFC),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // Comment Field
+                    TextField(
+                      controller: commentController,
+                      maxLines: 4,
+                      style: const TextStyle(fontFamily: 'Rabar', fontSize: 14),
+                      decoration: InputDecoration(
+                        hintText: l.shareYourExperience,
+                        hintStyle: TextStyle(
+                          fontFamily: 'Rabar',
+                          fontSize: 13,
+                          color: isDark ? Colors.white38 : Colors.black38,
+                        ),
+                        filled: true,
+                        fillColor: isDark
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.all(16),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Submit Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        onPressed: submitting
+                            ? null
+                            : () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                final nav = Navigator.of(ctx);
+                                setModalState(() => submitting = true);
+                                final r = await _api.submitInstitutionReview(
+                                  inst.id,
+                                  rating: selectedRating,
+                                  comment: commentController.text.trim(),
+                                  userName: nameController.text.trim().isNotEmpty
+                                      ? nameController.text.trim()
+                                      : null,
+                                );
+                                if (!mounted) return;
+                                setModalState(() => submitting = false);
+                                if (r.success) {
+                                  nav.pop();
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        l.reviewSubmittedSuccess,
+                                        style: const TextStyle(
+                                            fontFamily: 'Rabar'),
+                                      ),
+                                      backgroundColor: const Color(0xFF10B981),
+                                    ),
+                                  );
+                                  _loadReviews();
+                                } else {
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        r.error ?? 'Error',
+                                        style: const TextStyle(
+                                            fontFamily: 'Rabar'),
+                                      ),
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  );
+                                }
+                              },
+                        child: submitting
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : Text(
+                                l.submit,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  fontFamily: 'Rabar',
+                                  color: Colors.white,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _confirmDeleteReview(int reviewId) {
+    final l = AppLocalizations.of(context);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          l.deleteReview,
+          style: const TextStyle(fontFamily: 'Rabar', fontWeight: FontWeight.w900),
+        ),
+        content: Text(
+          l.deleteReviewConfirm,
+          style: const TextStyle(fontFamily: 'Rabar'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              l.cancel,
+              style: const TextStyle(fontFamily: 'Rabar'),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              Navigator.pop(ctx);
+              final r = await _api.deleteReview(reviewId);
+              if (!mounted) return;
+              if (r.success) {
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      l.reviewDeletedSuccess,
+                      style: const TextStyle(fontFamily: 'Rabar'),
+                    ),
+                    backgroundColor: const Color(0xFF10B981),
+                  ),
+                );
+                _loadReviews();
+              }
+            },
+            child: Text(
+              l.delete,
+              style: const TextStyle(fontFamily: 'Rabar'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   List<Map<String, dynamic>> _parseColleges(String? raw, String lang) {
@@ -801,15 +1841,17 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
             String translated = e['ku'] ?? e['name'] ?? '';
             if (lang == 'en' &&
                 e['en'] != null &&
-                e['en'].toString().isNotEmpty)
+                e['en'].toString().isNotEmpty) {
               translated = e['en'];
-            else if (lang == 'ar' &&
+            } else if (lang == 'ar' &&
                 e['ar'] != null &&
-                e['ar'].toString().isNotEmpty)
+                e['ar'].toString().isNotEmpty) {
               translated = e['ar'];
-            else if (lang == 'kbd' &&
+            } else if (lang == 'kbd' &&
                 e['kbd'] != null &&
-                e['kbd'].toString().isNotEmpty) translated = e['kbd'];
+                e['kbd'].toString().isNotEmpty) {
+              translated = e['kbd'];
+            }
             return {
               'original': e['ku'] ?? e['name'] ?? '',
               'translated': translated,
@@ -1091,6 +2133,12 @@ class _StatsRow extends StatelessWidget {
             label: l.studentsLabel,
             icon: Icons.groups_rounded,
             color: const Color(0xFF10B981)),
+      if (inst.ratingAvg > 0 || inst.reviewsCount > 0)
+        _StatItem(
+            value: inst.ratingAvg.toStringAsFixed(1),
+            label: l.rating,
+            icon: Icons.star_rounded,
+            color: const Color(0xFFFFB300)),
       _StatItem(
           value: inst.views >= 1000
               ? '${(inst.views / 1000).toStringAsFixed(1)}k'

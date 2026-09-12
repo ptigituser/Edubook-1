@@ -49,6 +49,8 @@ class InstitutionModel {
   final int? studentsCount;
   final int views;
   final bool approved;
+  final double ratingAvg;
+  final int reviewsCount;
   final List<PostModel> posts;
   final String? createdAt;
 
@@ -96,6 +98,8 @@ class InstitutionModel {
     this.studentsCount,
     this.views = 0,
     this.approved = false,
+    this.ratingAvg = 0.0,
+    this.reviewsCount = 0,
     this.createdAt,
     this.posts = const [],
   });
@@ -170,6 +174,12 @@ class InstitutionModel {
           : null,
       views: json['views'] != null ? (json['views'] as num).toInt() : 0,
       approved: json['approved'] ?? false,
+      ratingAvg: json['rating_avg'] != null
+          ? (json['rating_avg'] as num).toDouble()
+          : 0.0,
+      reviewsCount: json['reviews_count'] != null
+          ? (json['reviews_count'] as num).toInt()
+          : 0,
       createdAt: json['created_at'],
       posts: json['posts'] != null
           ? (json['posts'] as List).map((i) => PostModel.fromJson(i)).toList()
@@ -204,6 +214,8 @@ class InstitutionModel {
         'students_count': studentsCount,
         'views': views,
         'approved': approved,
+        'rating_avg': ratingAvg,
+        'reviews_count': reviewsCount,
         'posts': posts.map((v) => v.toJson()).toList(),
       };
 }

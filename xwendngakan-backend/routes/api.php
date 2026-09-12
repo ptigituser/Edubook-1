@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\AppDataController;
 use App\Http\Controllers\Api\UserRequestController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Models\InstitutionType;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +59,9 @@ Route::get('/report-types', [ReportController::class, 'types']);
 
 // Report institution (can be anonymous)
 Route::post('/institutions/{id}/report', [ReportController::class, 'store']);
+
+// Institution reviews (public)
+Route::get('/institutions/{id}/reviews', [ReviewController::class, 'index']);
 
 // Public posts for an institution
 Route::get('/institutions/{institutionId}/posts', [PostController::class, 'index']);
@@ -125,6 +129,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/favorites/{institutionId}', [FavoriteController::class, 'store']);
     Route::delete('/favorites/{institutionId}', [FavoriteController::class, 'destroy']);
     Route::post('/favorites/{institutionId}/toggle', [FavoriteController::class, 'toggle']);
+
+    // Reviews
+    Route::post('/institutions/{id}/reviews', [ReviewController::class, 'store']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 
     // Posts CRUD
     Route::post('/institutions/{institutionId}/posts', [PostController::class, 'store']);

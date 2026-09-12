@@ -8,6 +8,7 @@ import '../models/institution_model.dart';
 import '../models/teacher_model.dart';
 import '../models/cv_model.dart';
 import '../models/user_model.dart';
+import '../models/review_model.dart';
 import '../../core/constants/app_constants.dart';
 
 class ApiResult<T> {
@@ -1019,4 +1020,92 @@ class ApiService {
       return ApiResult.failure('$e');
     }
   }
+
+  // ==================
+  // REVIEWS & RATINGS
+  // ==================
+
+  Future<ApiResult<ReviewsData>> getInstitutionReviews(int institutionId) async {
+    try {
+      final headers = await _authHeaders();
+      final res = await http
+          .get(
+            Uri.parse('$_base/institutions/$institutionId/reviews'),
+            headers: headers,
+          )
+          .timeout(AppConstants.receiveTimeout);
+
+      final json = _safeJson(res);
+      if (res.statusCode == 200 && json != null && json['success'] == true) {
+        final data = json['data'] as Map<String, dynamic>? ?? {};
+        return ApiResult.success(ReviewsData.fromJson(data));
+      }
+      return ApiResult.failure(
+          json?['message'] ?? _serverMessage(res.statusCode),
+          statusCode: res.statusCode);
+    } catch (e) {
+      return ApiResult.failure(_connectionMessage);
+    }
+  }
+
+  Future<ApiResult<ReviewModel>> submitInstitutionReview(
+    int institutionId, {
+    required int rating,
+    String? comment,
+    String? userName,
+  }) async {
+    try {
+      final headers = await _authHeaders();
+      final res = await http
+          .post(
+            Uri.parse('$_base/institutions/$institutionId/reviews'),
+            headers: headers,
+            body: jsonEncode({
+              'rating': rating,
+              if (comment != null && comment.trim().isNotEmpty)
+                'comment': comment.trim(),
+              if (userName != null && userName.trim().isNotEmpty)
+                'user_name': userName.trim(),
+            }),
+          )
+          .timeout(AppConstants.connectTimeout);
+
+      final json = _safeJson(res);
+      if ((res.statusCode == 200 || res.statusCode == 201) &&
+          json != null &&
+          json['success'] == true) {
+        final revMap = json['data']?['review'] ?? json['data'];
+        return ApiResult.success(ReviewModel.fromJson(revMap),
+            statusCode: res.statusCode);
+      }
+      return ApiResult.failure(
+          json?['message'] ?? _serverMessage(res.statusCode),
+          statusCode: res.statusCode);
+    } catch (e) {
+      return ApiResult.failure(_connectionMessage);
+    }
+  }
+
+  Future<ApiResult<bool>> deleteReview(int reviewId) async {
+    try {
+      final headers = await _authHeaders();
+      final res = await http
+          .delete(
+            Uri.parse('$_base/reviews/$reviewId'),
+            headers: headers,
+          )
+          .timeout(AppConstants.connectTimeout);
+
+      final json = _safeJson(res);
+      if (res.statusCode == 200 && json != null && json['success'] == true) {
+        return ApiResult.success(true);
+      }
+      return ApiResult.failure(
+          json?['message'] ?? _serverMessage(res.statusCode),
+          statusCode: res.statusCode);
+    } catch (e) {
+      return ApiResult.failure(_connectionMessage);
+    }
+  }
 }
+

@@ -891,11 +891,102 @@ class AppLocalizations {
         'tr': 'Değerlendirme'
       });
   String get reviews => _t({
-        'ku': 'ڕێکردنەوەکان',
-        'kbd': 'پەیڤێن هەلسەنگاندنێ',
+        'ku': 'هەڵسەنگاندنەکان',
+        'kbd': 'هەلسەنگاندن',
         'ar': 'التقييمات',
         'en': 'Reviews',
         'tr': 'İncelemeler'
+      });
+  String get reviewsTab => _t({
+        'ku': 'هەڵسەنگاندن',
+        'kbd': 'هەلسەنگاندن',
+        'ar': 'التقييمات',
+        'en': 'Reviews',
+        'tr': 'Değerlendirmeler'
+      });
+  String get writeReview => _t({
+        'ku': 'هەڵسەنگاندن بنووسە',
+        'kbd': 'هەلسەنگاندنێ بنڤیسە',
+        'ar': 'أكتب تقييماً',
+        'en': 'Write a Review',
+        'tr': 'Değerlendirme Yaz'
+      });
+  String get editReview => _t({
+        'ku': 'دەستکاریکردنی هەڵسەنگاندن',
+        'kbd': 'دەستکاریکرنا هەلسەنگاندنێ',
+        'ar': 'تعديل التقييم',
+        'en': 'Edit Review',
+        'tr': 'Değerlendirmeyi Düzenle'
+      });
+  String get deleteReview => _t({
+        'ku': 'سڕینەوەی هەڵسەنگاندن',
+        'kbd': 'ژێبرنا هەلسەنگاندنێ',
+        'ar': 'حذف التقييم',
+        'en': 'Delete Review',
+        'tr': 'Değerlendirmeyi Sil'
+      });
+  String get deleteReviewConfirm => _t({
+        'ku': 'دڵنیایت لە سڕینەوەی ئەم هەڵسەنگاندنە؟',
+        'kbd': 'تە دڤێت ڤێ هەلسەنگاندنێ بژێبی؟',
+        'ar': 'هل أنت متأكد من حذف هذا التقييم؟',
+        'en': 'Are you sure you want to delete this review?',
+        'tr': 'Bu değerlendirmeyi silmek istediğinizden emin misiniz?'
+      });
+  String get delete => _t({
+        'ku': 'سڕینەوە',
+        'kbd': 'ژێبرن',
+        'ar': 'حذف',
+        'en': 'Delete',
+        'tr': 'Sil'
+      });
+  String get yourRating => _t({
+        'ku': 'هەڵسەنگاندنی تۆ',
+        'kbd': 'هەلسەنگاندنا تە',
+        'ar': 'تقييمك',
+        'en': 'Your Rating',
+        'tr': 'Puanınız'
+      });
+  String get shareYourExperience => _t({
+        'ku': 'ڕا و سەرنجی خۆت بنووسە لێرە...',
+        'kbd': 'ڕا و بۆچوونا خوە بنڤیسە ل ڤێرێ...',
+        'ar': 'شارك تجربتك وملاحظاتك هنا...',
+        'en': 'Share your experience and thoughts here...',
+        'tr': 'Deneyiminizi ve düşüncelerinizi buraya yazın...'
+      });
+  String get noReviewsYet => _t({
+        'ku': 'هیچ هەڵسەنگاندنێک تۆمار نەکراوە',
+        'kbd': 'چ هەلسەنگاندن نەهاتینە تۆمارکرن',
+        'ar': 'لا توجد تقييمات بعد',
+        'en': 'No reviews yet',
+        'tr': 'Henüz değerlendirme yok'
+      });
+  String get beFirstToReview => _t({
+        'ku': 'یەکەم کەس بە کە ڕا و بۆچوونی خۆت بنووسیت!',
+        'kbd': 'ئێکەمین کەس بە کو بۆچوونا خوە بنڤیسی!',
+        'ar': 'كن أول من يشارك تقييمه ورأيه!',
+        'en': 'Be the first to share your review!',
+        'tr': 'İlk değerlendirmeyi yapan siz olun!'
+      });
+  String get reviewSubmittedSuccess => _t({
+        'ku': 'هەڵسەنگاندنەکەت بە سەرکەوتوویی تۆمارکرا',
+        'kbd': 'هەلسەنگاندنا تە ب سەرکەفتی هاتە تۆمارکرن',
+        'ar': 'تم تسجيل تقييمك بنجاح',
+        'en': 'Your review was submitted successfully',
+        'tr': 'Değerlendirmeniz başarıyla kaydedildi'
+      });
+  String get reviewDeletedSuccess => _t({
+        'ku': 'هەڵسەنگاندنەکە سڕایەوە',
+        'kbd': 'هەلسەنگاندن هاتە ژێبرن',
+        'ar': 'تم حذف التقييم',
+        'en': 'Review deleted',
+        'tr': 'Değerlendirme silindi'
+      });
+  String get loginToReview => _t({
+        'ku': 'بۆ هەڵسەنگاندن، تکایە سەرەتا بچۆ ژوورەوە',
+        'kbd': 'بۆ هەلسەنگاندنێ، هیڤیە پێشتر بچیە ژوورڤە',
+        'ar': 'لإضافة تقييم، يرجى تسجيل الدخول أولاً',
+        'en': 'Please log in first to submit a review',
+        'tr': 'Değerlendirme yapmak için lütfen önce giriş yapın'
       });
   String get bookTeacher => _t({
         'ku': 'مامۆستا بووکبکە',

@@ -45,6 +45,19 @@ class Institution extends Model
             }
         }
 
+        // Rating stats
+        $array['rating_avg'] = isset($this->attributes['reviews_avg_rating'])
+            ? round((float) $this->attributes['reviews_avg_rating'], 1)
+            : ($this->relationLoaded('reviews') 
+                ? round((float) ($this->reviews->avg('rating') ?? 0), 1) 
+                : round((float) ($this->reviews()->avg('rating') ?? 0), 1));
+
+        $array['reviews_count'] = isset($this->attributes['reviews_count'])
+            ? (int) $this->attributes['reviews_count']
+            : ($this->relationLoaded('reviews') 
+                ? $this->reviews->count() 
+                : $this->reviews()->count());
+
         return $array;
     }
 
@@ -55,5 +68,13 @@ class Institution extends Model
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Get reviews for this institution.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->latest();
     }
 }

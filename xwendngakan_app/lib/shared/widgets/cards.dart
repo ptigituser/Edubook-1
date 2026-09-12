@@ -66,41 +66,60 @@ class InstitutionCard extends StatelessWidget {
     // Immersive full-image card: the whole tile is the photo, with a
     // frosted-glass info panel floating at the bottom.
 
+    final isTopRated = institution.ratingAvg >= 4.0;
+
     return GestureDetector(
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // ── Full-bleed background image ──
-            institution.imgUrl.isNotEmpty
-                ? CachedNetworkImage(
-                    imageUrl: institution.imgUrl,
-                    fit: BoxFit.cover,
-                    errorWidget: (_, __, ___) =>
-                        _InstCardFallback(typeColor: typeColor, emoji: emoji),
-                  )
-                : _InstCardFallback(typeColor: typeColor, emoji: emoji),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isTopRated
+                ? const Color(0xFFFFD54F).withValues(alpha: 0.5)
+                : Colors.white.withValues(alpha: 0.15),
+            width: isTopRated ? 1.0 : 0.8,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.14),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(17),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // ── Full-bleed background image ──
+              institution.imgUrl.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: institution.imgUrl,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, __, ___) =>
+                          _InstCardFallback(typeColor: typeColor, emoji: emoji),
+                    )
+                  : _InstCardFallback(typeColor: typeColor, emoji: emoji),
 
-            // ── Cinematic dark gradient for legibility ──
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: const [0.0, 0.3, 0.6, 1.0],
-                    colors: [
-                      Colors.black.withValues(alpha: 0.4),
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.2),
-                      Colors.black.withValues(alpha: 0.95),
-                    ],
+              // ── Cinematic dark gradient for legibility ──
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.0, 0.3, 0.6, 1.0],
+                      colors: [
+                        Colors.black.withValues(alpha: 0.4),
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.2),
+                        Colors.black.withValues(alpha: 0.95),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
             // ── Top bar: Views, Rating & Favorite ──
             Positioned(
@@ -232,6 +251,7 @@ class InstitutionCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

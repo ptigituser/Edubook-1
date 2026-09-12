@@ -112,20 +112,37 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    l.educationTypes,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      fontFamily: 'Rabar',
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.category_rounded,
+                          color: AppColors.primary,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        l.educationTypes,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Rabar',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
               ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              const SliverToBoxAdapter(child: SizedBox(height: 14)),
 
               // Ministries Row (Top Row)
               SliverToBoxAdapter(
@@ -164,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              const SliverToBoxAdapter(child: SizedBox(height: 14)),
 
               // Sub Categories Row (Bottom Row)
               if (_selectedParentFilter != 'all')
@@ -185,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
               // Institutions Section Header
               SliverToBoxAdapter(
@@ -194,26 +211,52 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Text(
-                          l.bestInstitutions,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            fontFamily: 'Rabar',
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.account_balance_rounded,
+                              color: AppColors.primary,
+                              size: 18,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          Text(
+                            l.bestInstitutions,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Rabar',
+                            ),
+                          ),
+                        ],
                       ),
                       GestureDetector(
                         onTap: () => context.go('/institutions'),
-                        child: Text(
-                          l.seeAllShort,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
-                            fontFamily: 'Rabar',
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l.seeAllShort,
+                              style: const TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
+                                fontFamily: 'Rabar',
+                              ),
+                            ),
+                            const SizedBox(width: 3),
+                            const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              size: 12,
+                              color: AppColors.primary,
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -986,22 +1029,23 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: AppConstants.medium,
         curve: Curves.fastOutSlowIn,
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
+          gradient: isActive ? AppColors.primaryGradient : null,
           color: isActive
-              ? AppColors.primary
-              : (isDark ? AppColors.darkCard : Colors.white),
-          borderRadius: BorderRadius.circular(12),
-          border: isActive
               ? null
-              : Border.all(
-                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                  width: 1,
-                ),
+              : (isDark ? AppColors.darkCard : Colors.white),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isActive
+                ? Colors.transparent
+                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+            width: 1,
+          ),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.25),
+                    color: AppColors.primary.withValues(alpha: 0.28),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   )
@@ -1014,18 +1058,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 ],
         ),
-        child: Center(
-          child: Text(
-            name,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 15,
               color: isActive
                   ? Colors.white
-                  : (isDark ? Colors.white70 : AppColors.textDark),
-              fontFamily: 'Rabar',
+                  : (isDark ? Colors.white70 : AppColors.textGrey),
             ),
-          ),
+            const SizedBox(width: 6),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
+                color: isActive
+                    ? Colors.white
+                    : (isDark ? Colors.white70 : AppColors.textDark),
+                fontFamily: 'Rabar',
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1052,21 +1107,19 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: AppConstants.medium,
         curve: Curves.fastOutSlowIn,
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           color: isActive
               ? (isDark
-                  ? AppColors.primary.withValues(alpha: 0.4)
-                  : AppColors.primary.withValues(alpha: 0.25))
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+                  ? AppColors.primary.withValues(alpha: 0.25)
+                  : AppColors.primary.withValues(alpha: 0.12))
+              : (isDark ? AppColors.darkCard.withValues(alpha: 0.5) : Colors.white),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isActive
-                ? (isDark
-                    ? AppColors.primary.withValues(alpha: 0.8)
-                    : AppColors.primary.withValues(alpha: 0.6))
-                : (isDark ? AppColors.darkBorder : Colors.grey.shade300),
-            width: 1,
+                ? AppColors.primary
+                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+            width: isActive ? 1.5 : 1,
           ),
         ),
         child: Center(
@@ -1113,12 +1166,13 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.12)
-              : (isDark ? AppColors.darkBg : Colors.grey.withValues(alpha: 0.1)),
-          borderRadius: BorderRadius.circular(16),
+              : (isDark ? AppColors.darkBg : Colors.grey.withValues(alpha: 0.08)),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
                 ? AppColors.primary
-                : (isDark ? AppColors.darkBorder : Colors.transparent),
+                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+            width: isSelected ? 1.5 : 1,
           ),
         ),
         child: Row(
@@ -1136,7 +1190,7 @@ class _FilterChip extends StatelessWidget {
               label,
               style: TextStyle(
                 fontFamily: 'Rabar',
-                fontWeight: FontWeight.w600,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 fontSize: 13,
                 color: isSelected
                     ? AppColors.primary
@@ -1243,25 +1297,36 @@ class _AdsCarouselState extends State<AdsCarousel> {
             itemCount: count,
             itemBuilder: (_, i) => Container(
               margin: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: widget.isDark ? 0.35 : 0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
                 child: builder(i),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         SmoothPageIndicator(
           controller: _pageController,
           count: count,
           effect: ExpandingDotsEffect(
-            dotHeight: 6,
+            dotHeight: 5,
             dotWidth: 6,
-            spacing: 6,
+            expansionFactor: 3.5,
+            spacing: 5,
             activeDotColor: AppColors.primary,
             dotColor: widget.isDark
                 ? Colors.white24
-                : AppColors.textGrey.withValues(alpha: 0.3),
+                : AppColors.textGrey.withValues(alpha: 0.25),
           ),
         ),
       ],
@@ -1272,7 +1337,7 @@ class _AdsCarouselState extends State<AdsCarousel> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: b.imageUrl != null
           ? _imageLayer(b)

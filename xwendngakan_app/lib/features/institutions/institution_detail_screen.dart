@@ -30,12 +30,14 @@ class InstitutionDetailScreen extends StatefulWidget {
       _InstitutionDetailScreenState();
 }
 
+enum _DetailTab { about, departments, news, reviews }
+
 class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
   final _api = ApiService();
   InstitutionModel? _institution;
   bool _loading = true;
   String? _error;
-  int _activeTab = 1; // 0: About, 1: Colleges, 2: Posts, 3: Reviews
+  _DetailTab _activeTab = _DetailTab.about;
   final ScrollController _scrollController = ScrollController();
   bool _showTitle = false;
 
@@ -156,6 +158,10 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     }
 
     final inst = _institution!;
+    final showDeptTab = _hasDepartments(inst, lang);
+    if (!showDeptTab && _activeTab == _DetailTab.departments) {
+      _activeTab = _DetailTab.about;
+    }
     final typeColor = AppColors.typeColor(inst.type);
     final isFav = prov.favorites.contains(inst.id);
 
@@ -395,10 +401,13 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
                       ),
                       child: Row(
                         children: [
-                          _buildTabItem(0, l.about, isDark),
-                          _buildTabItem(1, l.departments, isDark),
-                          _buildTabItem(2, l.news, isDark),
-                          _buildTabItem(3, l.reviewsTab, isDark),
+                          _buildTabItem(_DetailTab.about, l.about, isDark),
+                          if (showDeptTab)
+                            _buildTabItem(
+                                _DetailTab.departments, l.departments, isDark),
+                          _buildTabItem(_DetailTab.news, l.news, isDark),
+                          _buildTabItem(
+                              _DetailTab.reviews, l.reviewsTab, isDark),
                         ],
                       ),
                     ),
@@ -507,6 +516,17 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     );
   }
 
+  bool _hasDepartments(InstitutionModel inst, String lang) {
+    final t = (inst.type ?? '').toLowerCase().trim();
+    // Academic colleges and departments only apply to universities and institutes
+    if (t != 'university' && t != 'institute') {
+      return false;
+    }
+    final colleges = _parseColleges(inst.colleges, lang);
+    final depts = _parseDepts(inst.depts, lang);
+    return colleges.isNotEmpty || depts.isNotEmpty;
+  }
+
   Widget _buildLinksAndActions(
       InstitutionModel inst, AppLocalizations l, bool isDark) {
     final items = <Widget>[];
@@ -568,11 +588,11 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     );
   }
 
-  Widget _buildTabItem(int index, String label, bool isDark) {
-    final isActive = _activeTab == index;
+  Widget _buildTabItem(_DetailTab tab, String label, bool isDark) {
+    final isActive = _activeTab == tab;
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _activeTab = index),
+        onTap: () => setState(() => _activeTab = tab),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
@@ -704,7 +724,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
   Widget _buildTabContent(
       InstitutionModel inst, bool isDark, String lang, AppLocalizations l) {
     switch (_activeTab) {
-      case 0: // About
+      case _DetailTab.about:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -757,7 +777,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
             ),
           ],
         );
-      case 1: // Colleges & Departments
+      case _DetailTab.departments:
         final colleges = _parseColleges(inst.colleges, lang);
         final depts = _parseDepts(inst.depts, lang);
         // Build a dept-name → {fee,discount} lookup from tuition_plans
@@ -806,7 +826,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
             ],
           ],
         );
-      case 2: // Posts
+      case _DetailTab.news:
         if (inst.posts.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 60),
@@ -823,10 +843,8 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
           itemBuilder: (context, index) =>
               _PostCard(post: inst.posts[index], isDark: isDark),
         );
-      case 3: // Reviews
+      case _DetailTab.reviews:
         return _buildReviewsTab(inst, isDark, lang, l);
-      default:
-        return const SizedBox();
     }
   }
 
@@ -835,7 +853,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     final double rating = _reviewsData?.summary.averageRating ?? inst.ratingAvg;
 
     return GestureDetector(
-      onTap: () => setState(() => _activeTab = 3),
+      onTap: () => setState(() => _activeTab = _DetailTab.reviews),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(

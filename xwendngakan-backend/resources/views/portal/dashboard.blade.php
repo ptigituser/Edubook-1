@@ -2234,22 +2234,42 @@
                   🌐 وەرگێڕان
                 </button>
               </label>
-              <input type="text" class="f-input" name="title" id="job-title-ku" required placeholder="بۆ نموونە: مامۆستای بیرکاری بۆ پۆلی 12">
+              <input type="text" class="f-input" name="title" id="job-title-ku" required placeholder="ناونیشانی هەلی کار بنووسە...">
               <div id="job-title-tr-hint" style="display:none; margin-top:6px; padding:8px 12px; background:rgba(255,255,255,0.04); border-radius:8px; font-size:.8rem; color:var(--txt2); line-height:1.8;"></div>
               <input type="hidden" name="title_ar" id="job-title-ar">
               <input type="hidden" name="title_en" id="job-title-en">
               <input type="hidden" name="title_kbd" id="job-title-kbd">
             </div>
 
-            <div class="f-group">
-              <label class="f-label">پۆلێنکردنی کار <span class="f-req">*</span></label>
-              <select class="f-select" name="category" id="job-category-select" required onchange="toggleJobCategoryOther(this)">
+            <div class="f-group" id="group-job-category">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <label class="f-label" style="margin-bottom:0;">پۆلێنکردنی کار <span class="f-req">*</span></label>
+                <button type="button" id="btn-switch-cat-select" onclick="switchCategoryMode(false)" style="display:none; background:none; border:none; color:var(--gold); font-size:.78rem; font-weight:700; cursor:pointer; padding:0;">
+                  ↩ گەڕانەوە بۆ لیست
+                </button>
+              </div>
+              <select class="f-select" id="job-category-select" onchange="handleJobCategoryChange(this)">
                 <option value="teacher">👨‍🏫 مامۆستا</option>
                 <option value="admin">💼 کارگێڕی و ژمێریاری</option>
                 <option value="support">🤝 چاودێری و خزمەتگوزاری</option>
-                <option value="other">✏️ تر (دیاریکردنی تر)</option>
+                <option value="health">🩺 تەندروستی و پەرستاری</option>
+                <option value="it">💻 ئایتی و تەکنەلۆژیا</option>
+                <option value="driver">🚌 شۆفێری و گواستنەوە</option>
+                <option value="other">✏️ تر (خۆت ناوی بنووسە...)</option>
               </select>
-              <input type="text" class="f-input" name="category_custom" id="job-category-other" placeholder="ناوی پۆلێنەکەت بنووسە..." style="display:none; margin-top:8px;">
+              <input type="text" class="f-input" id="job-category-input" list="job-categories-suggestions" placeholder="ناوی پۆلێن لێرە بنووسە..." style="display:none;">
+              <datalist id="job-categories-suggestions">
+                <option value="مامۆستا">
+                <option value="کارگێڕی و ژمێریاری">
+                <option value="چاودێری و خزمەتگوزاری">
+                <option value="تەندروستی و پەرستاری">
+                <option value="ئایتی و تەکنەلۆژیا">
+                <option value="شۆفێری و گواستنەوە">
+                <option value="پاسەوانی و ئاسایش">
+                <option value="ڕاهێنەر و وەرزش">
+                <option value="هونەری و میوزیک">
+                <option value="کتێبخانەوان">
+              </datalist>
             </div>
 
             <div class="f-group">
@@ -2328,12 +2348,12 @@
 
             <div class="f-group">
               <label class="f-label">ژمارەی پەیوەندی / مۆبایل <span class="f-req">*</span></label>
-              <input type="text" class="f-input" name="contact_phone" id="job-phone" required placeholder="0750 000 0000" value="{{ $institution->phone ?? '' }}">
+              <input type="text" class="f-input" name="contact_phone" id="job-phone" required placeholder="0750 000 0000" value="{{ $institution->phone ?? '' }}" dir="ltr" style="text-align: right; direction: ltr;">
             </div>
 
             <div class="f-group">
               <label class="f-label">ژمارەی واتسئەپ</label>
-              <input type="text" class="f-input" name="contact_whatsapp" id="job-wa" placeholder="0750 000 0000" value="{{ $institution->wa ?? '' }}">
+              <input type="text" class="f-input" name="contact_whatsapp" id="job-wa" placeholder="0750 000 0000" value="{{ $institution->wa ?? '' }}" dir="ltr" style="text-align: right; direction: ltr;">
             </div>
 
             <div class="f-group">
@@ -2380,6 +2400,9 @@
                         @if($job->category == 'teacher') 👨‍🏫 مامۆستا
                         @elseif($job->category == 'admin') 💼 کارگێڕی
                         @elseif($job->category == 'support') 🤝 خزمەتگوزاری
+                        @elseif($job->category == 'health') 🩺 تەندروستی
+                        @elseif($job->category == 'it') 💻 ئایتی
+                        @elseif($job->category == 'driver') 🚌 شۆفێری
                         @else ✏️ {{ $job->category }}
                         @endif
                       </span>
@@ -2398,7 +2421,7 @@
                     @if($job->salary_range)
                       <span style="color: #34d399; font-weight: 700;">💰 {{ $job->salary_range }}</span>
                     @endif
-                    <span>📞 {{ $job->contact_phone }}</span>
+                    <span dir="ltr" style="unicode-bidi: isolate; display: inline-flex; align-items: center; gap: 4px;"><span style="direction: rtl;">📞</span><span>{{ $job->contact_phone }}</span></span>
                     <span style="color: #60a5fa;">👁️ {{ $job->views_count ?? 0 }} بینین</span>
                     <span style="color: var(--txt3);">📅 {{ $job->created_at ? $job->created_at->diffForHumans() : '' }}</span>
                   </div>
@@ -3552,21 +3575,50 @@ const defaultInstData = {
     city: @json($institution->city ?? 'هەولێر')
 };
 
+function handleJobCategoryChange(sel) {
+    if (sel.value === 'other') {
+        switchCategoryMode(true);
+    }
+}
+
+function switchCategoryMode(isCustom) {
+    const sel = document.getElementById('job-category-select');
+    const inp = document.getElementById('job-category-input');
+    const backBtn = document.getElementById('btn-switch-cat-select');
+
+    if (isCustom) {
+        if (sel) sel.style.display = 'none';
+        if (inp) {
+            inp.style.display = 'block';
+            inp.value = '';
+            inp.focus();
+        }
+        if (backBtn) backBtn.style.display = 'inline-block';
+    } else {
+        if (sel) {
+            sel.style.display = 'block';
+            sel.value = 'teacher';
+        }
+        if (inp) {
+            inp.style.display = 'none';
+            inp.value = '';
+        }
+        if (backBtn) backBtn.style.display = 'none';
+    }
+}
+
 function editPortalJob(job) {
     if (!job) return;
     document.getElementById('job-edit-id').value = job.id;
     document.getElementById('job-title-ku').value = job.title || '';
     
-    const catSelect = document.getElementById('job-category-select');
-    const catOther = document.getElementById('job-category-other');
-    if (['teacher', 'admin', 'support'].includes(job.category)) {
-        catSelect.value = job.category;
-        catOther.style.display = 'none';
-        catOther.value = '';
+    const knownCats = ['teacher', 'admin', 'support', 'health', 'it', 'driver'];
+    if (knownCats.includes(job.category)) {
+        switchCategoryMode(false);
+        document.getElementById('job-category-select').value = job.category;
     } else {
-        catSelect.value = 'other';
-        catOther.style.display = 'block';
-        catOther.value = job.category || '';
+        switchCategoryMode(true);
+        document.getElementById('job-category-input').value = job.category || '';
     }
 
     document.getElementById('job-subject').value = job.subject || '';
@@ -3599,8 +3651,7 @@ function resetJobForm() {
     if (form) form.reset();
 
     document.getElementById('job-edit-id').value = '';
-    const other = document.getElementById('job-category-other');
-    if (other) { other.style.display = 'none'; other.value = ''; }
+    switchCategoryMode(false);
 
     const trHint = document.getElementById('job-title-tr-hint');
     if (trHint) trHint.style.display = 'none';
@@ -3636,9 +3687,12 @@ async function submitPortalJob(e) {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
-    // Fix category if other
-    if (data.category === 'other' && data.category_custom) {
-        data.category = data.category_custom;
+    // Resolve category cleanly without extra fields
+    const isCustomCat = document.getElementById('job-category-input')?.style.display !== 'none';
+    if (isCustomCat) {
+        data.category = document.getElementById('job-category-input').value.trim() || 'تر';
+    } else {
+        data.category = document.getElementById('job-category-select').value;
     }
 
     const url = editId ? `/portal/jobs/${editId}` : '{{ route('portal.jobs.store') }}';

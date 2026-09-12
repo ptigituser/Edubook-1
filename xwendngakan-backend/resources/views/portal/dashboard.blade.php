@@ -2904,5 +2904,216 @@ function _updatePortalCoords(lat, lng) {
         })
         .catch(() => {});
 }
+
+// ════════════════════════════════════════════════
+//   PORTAL LIVE CHAT SYSTEM
+// ════════════════════════════════════════════════
+let currentActiveConvId = null;
+
+function filterChatList(query) {
+    const q = query.trim().toLowerCase();
+    document.querySelectorAll('#chat-convs-list .chat-conv-item').forEach(item => {
+        const name = item.querySelector('.chat-conv-name')?.textContent.toLowerCase() || '';
+        const snippet = item.querySelector('.chat-conv-snippet')?.textContent.toLowerCase() || '';
+        if (!q || name.includes(q) || snippet.includes(q)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function selectConversation(convId, userName, userMeta) {
+    currentActiveConvId = convId;
+
+    // Highlight item
+    document.querySelectorAll('.chat-conv-item').forEach(i => i.classList.remove('is-active'));
+    const activeItem = document.getElementById('conv-item-' + convId);
+    if (activeItem) activeItem.classList.add('is-active');
+
+    // Hide badge
+    const badge = document.getElementById('conv-badge-' + convId);
+    if (badge) badge.style.display = 'none';
+
+    // Show header & input
+    document.getElementById('chat-box-head').style.display = 'flex';
+    document.getElementById('chat-send-form').style.display = 'flex';
+    document.getElementById('active-chat-name').textContent = userName || 'بەکارهێنەر';
+    document.getElementById('active-chat-meta').textContent = userMeta ? `${userMeta} • لە ئەپڵیکەیشنەوە` : 'لە ئەپڵیکەیشنەوە';
+    document.getElementById('active-chat-avatar').textContent = (userName || 'ق').substring(0, 1);
+
+    // Mobile responsive switch
+    if (window.innerWidth <= 860) {
+        const listPane = document.getElementById('chat-list-pane');
+        const boxPane = document.getElementById('chat-box-pane');
+        if (listPane) listPane.classList.add('mob-hide');
+        if (boxPane) boxPane.classList.remove('mob-hide');
+    }
+
+    loadConversationMessages(convId, true);
+}
+
+function backToConvsList() {
+    if (window.innerWidth <= 860) {
+        const listPane = document.getElementById('chat-list-pane');
+        const boxPane = document.getElementById('chat-box-pane');
+        if (listPane) listPane.classList.remove('mob-hide');
+        if (boxPane) boxPane.classList.add('mob-hide');
+    }
+}
+
+function loadConversationMessages(convId, scrollToBottom = false) {
+    if (!convId) return;
+
+    fetch(`/portal/chats/${convId}/messages`, {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (!res.success) return;
+        renderMessages(res.messages, scrollToBottom);
+    })
+    .catch(err => console.error('Error loading chat messages:', err));
+}
+
+function renderMessages(messages, forceScroll = false) {
+    const container = document.getElementById('chat-messages-scroll');
+    if (!container) return;
+
+    if (!messages || messages.length === 0) {
+        container.innerHTML = `
+            <div class="chat-empty-box">
+                <div style="font-size: 2.2rem; margin-bottom: .5rem; opacity: .4;">💬</div>
+                <div>هێشتا هیچ نامەیەک ئاڵوگۆڕ نەکراوە. یەکەم نامە بنووسە.</div>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    messages.forEach(m => {
+        const isInst = m.sender_type === 'institution';
+        const typeClass = isInst ? 'outgoing' : 'incoming';
+        const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+        html += `
+            <div class="chat-bubble-wrap ${typeClass}">
+                <div class="chat-bubble ${typeClass}">
+                    ${escapeHtml(m.message)}
+                </div>
+                <div class="chat-bubble-time">${timeStr} ${isInst ? '✓' : ''}</div>
+            </div>
+        `;
+    });
+
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 120;
+    container.innerHTML = html;
+
+    if (forceScroll || isNearBottom) {
+        container.scrollTop = container.scrollHeight;
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function sendChatReply(e) {
+    e.preventDefault();
+    if (!currentActiveConvId) return;
+
+    const input = document.getElementById('chat-reply-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const btn = document.getElementById('btn-chat-send');
+    btn.disabled = true;
+    input.value = '';
+
+    // Append visually right away
+    const container = document.getElementById('chat-messages-scroll');
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const tempBubble = document.createElement('div');
+    tempBubble.className = 'chat-bubble-wrap outgoing';
+    tempBubble.innerHTML = `
+        <div class="chat-bubble outgoing">${escapeHtml(msg)}</div>
+        <div class="chat-bubble-time">${nowTime} ...</div>
+    `;
+    container.appendChild(tempBubble);
+    container.scrollTop = container.scrollHeight;
+
+    // Update snippet in list
+    const snippetEl = document.getElementById('conv-snippet-' + currentActiveConvId);
+    if (snippetEl) snippetEl.textContent = msg;
+
+    fetch(`/portal/chats/${currentActiveConvId}/reply`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ message: msg })
+    })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        if (res.success) {
+            tempBubble.querySelector('.chat-bubble-time').textContent = nowTime + ' ✓';
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        console.error('Error sending reply:', err);
+    });
+}
+
+// Background auto-refresh every 3.5s for live chat
+setInterval(() => {
+    const messagesTab = document.getElementById('tab-messages');
+    if (messagesTab && messagesTab.classList.contains('is-active')) {
+        if (currentActiveConvId) {
+            loadConversationMessages(currentActiveConvId, false);
+        }
+    }
+
+    // Refresh unread counter and conversation snippets
+    fetch('/portal/chats', {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (!res.success) return;
+        const navBadge = document.getElementById('nav-unread-badge');
+        if (navBadge) {
+            if (res.unread > 0) {
+                navBadge.textContent = res.unread;
+                navBadge.style.display = 'inline-block';
+            } else {
+                navBadge.style.display = 'none';
+            }
+        }
+        // Update conv list snippets & unread counts
+        if (res.conversations) {
+            res.conversations.forEach(c => {
+                const s = document.getElementById('conv-snippet-' + c.id);
+                if (s && c.last_message) s.textContent = c.last_message;
+                const b = document.getElementById('conv-badge-' + c.id);
+                if (b) {
+                    if (c.institution_unread_count > 0 && currentActiveConvId != c.id) {
+                        b.textContent = c.institution_unread_count;
+                        b.style.display = 'inline-block';
+                    } else {
+                        b.style.display = 'none';
+                    }
+                }
+            });
+        }
+    })
+    .catch(() => {});
+}, 3500);
 </script>
 @endsection

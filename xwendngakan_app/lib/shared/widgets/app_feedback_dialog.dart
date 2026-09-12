@@ -18,13 +18,27 @@ class AppFeedbackDialog extends StatefulWidget {
   });
 
   /// Displays the feedback dialog directly in the CENTER of the screen
-  static Future<void> show(BuildContext context, {int initialRating = 5}) {
-    return showDialog<void>(
+  static Future<bool?> show(BuildContext context, {int initialRating = 5}) async {
+    final result = await showDialog<bool>(
       context: context,
       useRootNavigator: true,
       barrierDismissible: true,
       builder: (ctx) => AppFeedbackDialog(initialRating: initialRating),
     );
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final submitted = prefs.getBool('app_feedback_submitted') ?? false;
+      if (!submitted) {
+        // User closed or dismissed without submitting, don't nag them again immediately
+        await prefs.setInt(
+          'app_feedback_last_dismissed_time',
+          DateTime.now().millisecondsSinceEpoch,
+        );
+      }
+    } catch (_) {}
+
+    return result;
   }
 
   @override

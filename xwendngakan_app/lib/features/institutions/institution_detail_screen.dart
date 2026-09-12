@@ -14,6 +14,7 @@ import '../../core/utils/tuition_utils.dart';
 import '../../data/models/institution_model.dart';
 import '../../data/models/post_model.dart';
 import '../../data/models/review_model.dart';
+import '../../data/models/job_vacancy_model.dart';
 import '../../data/services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/institutions_provider.dart';
@@ -45,11 +46,14 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
   bool _loadingReviews = false;
   String? _reviewsError;
 
+  List<JobVacancyModel> _institutionJobs = [];
+
   @override
   void initState() {
     super.initState();
     _load();
     _loadReviews();
+    _loadJobs();
     _scrollController.addListener(() {
       if (_scrollController.offset > 200 && !_showTitle) {
         setState(() => _showTitle = true);
@@ -63,6 +67,18 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadJobs() async {
+    final instId = int.tryParse(widget.id) ?? 0;
+    if (instId == 0) return;
+    final r = await _api.getJobVacancies(institutionId: widget.id);
+    if (!mounted) return;
+    if (r.success && r.data != null) {
+      setState(() {
+        _institutionJobs = r.data!;
+      });
+    }
   }
 
   Future<void> _load() async {
@@ -104,6 +120,7 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     await Future.wait([
       _load(),
       _loadReviews(),
+      _loadJobs(),
     ]);
   }
 
@@ -762,6 +779,115 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
     );
   }
 
+  /// Active job vacancies posted by this institution
+  Widget _buildInstitutionJobsSection(bool isDark, AppLocalizations l) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: Column(
+        children: [
+          for (var i = 0; i < _institutionJobs.length; i++) ...[
+            Builder(builder: (context) {
+              final job = _institutionJobs[i];
+              return InkWell(
+                onTap: () => context.push(
+                  '/jobs/${job.id}',
+                  extra: job,
+                ),
+                borderRadius: BorderRadius.circular(14),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.work_outline_rounded,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              job.title,
+                              style: const TextStyle(
+                                fontFamily: 'Rabar',
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: [
+                                if (job.subject != null &&
+                                    job.subject!.isNotEmpty)
+                                  Text(
+                                    job.subject!,
+                                    style: TextStyle(
+                                      fontFamily: 'Rabar',
+                                      fontSize: 12,
+                                      color: isDark
+                                          ? Colors.white60
+                                          : AppColors.textMuted,
+                                    ),
+                                  ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary
+                                        .withValues(alpha: 0.08),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    job.getEmploymentTypeLabel(l),
+                                    style: const TextStyle(
+                                      fontFamily: 'Rabar',
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 13,
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+            if (i < _institutionJobs.length - 1)
+              Divider(
+                height: 1,
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.black.withValues(alpha: 0.05),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildTabContent(
       InstitutionModel inst, bool isDark, String lang, AppLocalizations l) {
     switch (_activeTab) {
@@ -806,6 +932,18 @@ class _InstitutionDetailScreenState extends State<InstitutionDetailScreen> {
             _buildServicesSection(inst, isDark),
             // Kindergarten-specific info
             _buildKindergartenSection(inst, isDark),
+
+            // Open Job Vacancies posted by this institution
+            if (_institutionJobs.isNotEmpty) ...[
+              _AcademicSection(
+                icon: Icons.work_rounded,
+                title: '${l.jobVacancies} (${_institutionJobs.length})',
+                accentColor: AppColors.typeColor(inst.type),
+                isDark: isDark,
+                child: _buildInstitutionJobsSection(isDark, l),
+              ),
+              const SizedBox(height: 20),
+            ],
 
             // Contact & Social
             _AcademicSection(

@@ -1209,6 +1209,7 @@ class ApiService {
     String? category,
     String? subject,
     String? employmentType,
+    dynamic institutionId,
     int page = 1,
   }) async {
     try {
@@ -1219,6 +1220,7 @@ class ApiService {
         if (category != null && category != 'all') 'category': category,
         if (subject != null && subject != 'all') 'subject': subject,
         if (employmentType != null && employmentType != 'all') 'employment_type': employmentType,
+        if (institutionId != null) 'institution_id': '$institutionId',
       };
 
       final uri = Uri.parse('$_base/jobs').replace(queryParameters: query);

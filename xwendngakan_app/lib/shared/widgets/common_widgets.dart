@@ -388,6 +388,8 @@ class AppSearchBar extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onFilterTap;
   final TextEditingController? controller;
+  final bool hasActiveFilter;
+  final VoidCallback? onClear;
 
   const AppSearchBar({
     super.key,
@@ -395,39 +397,49 @@ class AppSearchBar extends StatelessWidget {
     this.onChanged,
     this.onFilterTap,
     this.controller,
+    this.hasActiveFilter = false,
+    this.onClear,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      height: 58,
-      padding: const EdgeInsets.fromLTRB(16, 6, 6, 6),
+      height: 52,
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 5, 5, 5),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : const Color(0xFFF6F7F9),
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : Colors.transparent,
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.search_rounded,
-            color: isDark ? Colors.white54 : const Color(0xFF9CA3AF),
+            color: AppColors.primary,
             size: 22,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: TextField(
               controller: controller,
               onChanged: onChanged,
+              textAlignVertical: TextAlignVertical.center,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 14.5,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Rabar',
-                color: isDark ? Colors.white : const Color(0xFF1F2937),
+                color: isDark ? Colors.white : AppColors.textDark,
               ),
               decoration: InputDecoration(
                 hintText: hint,
@@ -435,35 +447,46 @@ class AppSearchBar extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Rabar',
-                  color: isDark ? Colors.white54 : const Color(0xFF9CA3AF),
+                  color: isDark ? Colors.white38 : AppColors.textMuted,
                 ),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.only(bottom: 2),
-                isDense: true,
+                isCollapsed: true,
               ),
             ),
           ),
+          if (controller != null && controller!.text.isNotEmpty)
+            GestureDetector(
+              onTap: () {
+                controller!.clear();
+                onChanged?.call('');
+                onClear?.call();
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 18,
+                  color: isDark ? Colors.white38 : AppColors.textMuted,
+                ),
+              ),
+            ),
           if (onFilterTap != null) ...[
+            const SizedBox(width: 4),
             GestureDetector(
               onTap: onFilterTap,
               child: Container(
-                width: 46,
-                height: 46,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  color: hasActiveFilter
+                      ? AppColors.primary
+                      : AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.tune_rounded,
-                    color: Colors.white,
+                    color: hasActiveFilter ? Colors.white : AppColors.primary,
                     size: 20,
                   ),
                 ),

@@ -63,9 +63,6 @@ class InstitutionCard extends StatelessWidget {
       institution.wa
     ].any((s) => s != null && s.isNotEmpty);
 
-    // Immersive full-image card: the whole tile is the photo, with a
-    // frosted-glass info panel floating at the bottom.
-
     final isTopRated = institution.ratingAvg >= 4.0;
 
     return GestureDetector(
@@ -121,137 +118,145 @@ class InstitutionCard extends StatelessWidget {
                 ),
               ),
 
-            // ── Top bar: Views, Rating & Favorite ──
-            Positioned(
-              top: 10,
-              left: 10,
-              right: 10,
-              child: Row(
-                children: [
-                  _ViewsBadge(views: institution.views),
-                  if (institution.ratingAvg > 0) ...[
-                    const SizedBox(width: 5),
-                    _RatingBadge(rating: institution.ratingAvg, lang: lang),
-                  ],
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: onFavorite,
-                    child: Container(
-                      width: 26,
-                      height: 26,
-                      decoration: BoxDecoration(
-                        color: isFavorite
-                            ? const Color(0xFFFF4757).withValues(alpha: 0.95)
-                            : Colors.black.withValues(alpha: 0.3),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Icon(
-                        isFavorite
-                            ? Icons.favorite_rounded
-                            : Icons.favorite_border_rounded,
-                        color: Colors.white,
-                        size: 13,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Bottom Info Overlay ──
-            Positioned(
-              left: 12,
-              right: 12,
-              bottom: 12,
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+              // ── Top bar: Views, Rating & Favorite ──
+              Positioned(
+                top: 10,
+                left: 10,
+                right: 10,
+                child: Row(
                   children: [
-                    // Type Chip
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: typeColor.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        '$emoji $typeLabel',
-                        style: const TextStyle(
-                          fontSize: 9.0,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          fontFamily: 'Rabar',
+                    _ViewsBadge(views: institution.views),
+                    if (institution.ratingAvg > 0) ...[
+                      const SizedBox(width: 5),
+                      _RatingBadge(rating: institution.ratingAvg, lang: lang),
+                    ],
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: onFavorite,
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          color: isFavorite
+                              ? const Color(0xFFFF4757).withValues(alpha: 0.95)
+                              : Colors.black.withValues(alpha: 0.3),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    // Name — always reserves two lines so the chip above and the
-                    // meta row below sit at the same height on every card, even
-                    // when one name wraps and its neighbour doesn't.
-                    SizedBox(
-                      height: 33,
-                      child: Text(
-                        institutionName,
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w900,
+                        child: Icon(
+                          isFavorite
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
                           color: Colors.white,
-                          fontFamily: 'Rabar',
-                          height: 1.2,
-                          shadows: [
-                            Shadow(blurRadius: 4, color: Colors.black87),
-                          ],
+                          size: 13,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    // City & contact row — fixed height for the same reason.
-                    const SizedBox(height: 6),
-                    SizedBox(
-                      height: 24,
-                      child: Row(
-                        children: [
-                          if (institution.city != null && institution.city!.isNotEmpty) ...[
-                            const Icon(Icons.location_on_rounded, size: 10, color: Colors.white70),
-                            const SizedBox(width: 3),
-                            Expanded(
-                              child: Text(
-                                institution.city!,
-                                style: const TextStyle(
-                                  fontSize: 10.5,
-                                  color: Colors.white70,
-                                  fontFamily: 'Rabar',
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ] else
-                            const Spacer(),
-                          if (hasPhone)
-                            const _InfoBadge(icon: Icons.phone_rounded, color: AppColors.success),
-                          if (hasWeb)
-                            const _InfoBadge(icon: Icons.language_rounded, color: AppColors.accentGold),
-                          if (hasSocial)
-                            const _InfoBadge(icon: Icons.share_rounded, color: Color(0xFFE05C8A)),
-                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+
+              // ── Bottom Info Overlay ──
+              Positioned(
+                left: 12,
+                right: 12,
+                bottom: 12,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Type Chip
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: typeColor.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '$emoji $typeLabel',
+                          style: const TextStyle(
+                            fontSize: 9.0,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            fontFamily: 'Rabar',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Name — always reserves two lines so the chip above and the
+                      // meta row below sit at the same height on every card, even
+                      // when one name wraps and its neighbour doesn't.
+                      SizedBox(
+                        height: 33,
+                        child: Text(
+                          institutionName,
+                          style: const TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            fontFamily: 'Rabar',
+                            height: 1.2,
+                            shadows: [
+                              Shadow(blurRadius: 4, color: Colors.black87),
+                            ],
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      // City & contact row — fixed height for the same reason.
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        height: 24,
+                        child: Row(
+                          children: [
+                            if (institution.city != null &&
+                                institution.city!.isNotEmpty) ...[
+                              const Icon(Icons.location_on_rounded,
+                                  size: 10, color: Colors.white70),
+                              const SizedBox(width: 3),
+                              Expanded(
+                                child: Text(
+                                  institution.city!,
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    color: Colors.white70,
+                                    fontFamily: 'Rabar',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ] else
+                              const Spacer(),
+                            if (hasPhone)
+                              const _InfoBadge(
+                                  icon: Icons.phone_rounded,
+                                  color: AppColors.success),
+                            if (hasWeb)
+                              const _InfoBadge(
+                                  icon: Icons.language_rounded,
+                                  color: AppColors.accentGold),
+                            if (hasSocial)
+                              const _InfoBadge(
+                                  icon: Icons.share_rounded,
+                                  color: Color(0xFFE05C8A)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

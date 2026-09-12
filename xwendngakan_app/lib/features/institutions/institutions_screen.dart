@@ -77,6 +77,7 @@ class _InstitutionsScreenState extends State<InstitutionsScreen> {
                   AppSearchBar(
                     controller: _searchCtrl,
                     hint: l.searchHint,
+                    hasActiveFilter: _selectedCity != null || _selectedType != null,
                     onChanged: (v) => Provider.of<InstitutionsProvider>(context, listen: false).setSearch(v),
                     onFilterTap: () => _showAdvancedFilter(context, l, prov),
                   ),

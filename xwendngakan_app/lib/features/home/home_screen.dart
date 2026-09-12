@@ -77,277 +77,275 @@ class _HomeScreenState extends State<HomeScreen> {
     final lang = locale.locale.languageCode;
 
     return Scaffold(
-        backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
-        body: RefreshIndicator(
-          onRefresh: () async {
-            await prov.fetchStats();
-            await prov.fetchAppData();
-            await prov.fetchInstitutions(refresh: true);
-          },
-          color: AppColors.primary,
-          backgroundColor: Colors.white,
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
+      backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await prov.fetchStats();
+          await prov.fetchAppData();
+          await prov.fetchInstitutions(refresh: true);
+        },
+        color: AppColors.primary,
+        backgroundColor: Colors.white,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
+          slivers: [
+            // Enhanced App Bar Header
+            SliverToBoxAdapter(
+              child: _buildHeader(context, l, auth, theme, isDark),
             ),
-            slivers: [
-              // Enhanced App Bar Header
-              SliverToBoxAdapter(
-                child: _buildHeader(context, l, auth, theme, isDark),
-              ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-              // Ads Carousel
-              SliverToBoxAdapter(
-                child: AdsCarousel(isDark: isDark),
-              ),
+            // Ads Carousel
+            SliverToBoxAdapter(
+              child: AdsCarousel(isDark: isDark),
+            ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-              // Top Rated Institutions Section (Only if rated institutions exist)
-              ..._buildTopRatedSection(context, prov, lang, isDark, l),
+            // Top Rated Institutions Section (Only if rated institutions exist)
+            ..._buildTopRatedSection(context, prov, lang, isDark, l),
 
-              // Categories / Filters Header
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.category_rounded,
-                          color: AppColors.primary,
-                          size: 18,
-                        ),
+            // Categories / Filters Header
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        l.educationTypes,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'Rabar',
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      child: const Icon(
+                        Icons.category_rounded,
+                        color: AppColors.primary,
+                        size: 18,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      l.educationTypes,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Rabar',
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
+            ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
 
-              // Ministries Row (Top Row)
+            // Ministries Row (Top Row)
+            SliverToBoxAdapter(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    _buildParentFilterItem(
+                      key: 'all',
+                      name: l.allFilter,
+                      icon: Icons.grid_view_rounded,
+                      isDark: isDark,
+                    ),
+                    _buildParentFilterItem(
+                      key: 'mhe',
+                      name: l.higherEducation,
+                      icon: Icons.account_balance_rounded,
+                      isDark: isDark,
+                    ),
+                    _buildParentFilterItem(
+                      key: 'moe',
+                      name: l.ministryOfEducation,
+                      icon: Icons.school_rounded,
+                      isDark: isDark,
+                    ),
+                    _buildParentFilterItem(
+                      key: 'others',
+                      name: l.otherInstitutions,
+                      icon: Icons.domain_rounded,
+                      isDark: isDark,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Sub Categories Row (Bottom Row)
+            if (_selectedParentFilter != 'all') ...[
+              const SliverToBoxAdapter(child: SizedBox(height: 8)),
               SliverToBoxAdapter(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
-                    children: [
-                      _buildParentFilterItem(
-                        key: 'all',
-                        name: l.allFilter,
-                        icon: Icons.grid_view_rounded,
+                    children: _getSubFilters(prov.institutionTypes).map((item) {
+                      return _buildSubFilterItem(
+                        item: item,
                         isDark: isDark,
-                      ),
-                      _buildParentFilterItem(
-                        key: 'mhe',
-                        name: l.higherEducation,
-                        icon: Icons.account_balance_rounded,
-                        isDark: isDark,
-                      ),
-                      _buildParentFilterItem(
-                        key: 'moe',
-                        name: l.ministryOfEducation,
-                        icon: Icons.school_rounded,
-                        isDark: isDark,
-                      ),
-                      _buildParentFilterItem(
-                        key: 'others',
-                        name: l.otherInstitutions,
-                        icon: Icons.domain_rounded,
-                        isDark: isDark,
-                      ),
-                    ],
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
+            ],
 
-              // Sub Categories Row (Bottom Row)
-              if (_selectedParentFilter != 'all') ...[
-                const SliverToBoxAdapter(child: SizedBox(height: 8)),
-                SliverToBoxAdapter(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children:
-                          _getSubFilters(prov.institutionTypes).map((item) {
-                        return _buildSubFilterItem(
-                          item: item,
-                          isDark: isDark,
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-              // Institutions Section Header
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.account_balance_rounded,
-                              color: AppColors.primary,
-                              size: 18,
-                            ),
+            // Institutions Section Header
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          const SizedBox(width: 8),
+                          child: const Icon(
+                            Icons.account_balance_rounded,
+                            color: AppColors.primary,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          l.bestInstitutions,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Rabar',
+                          ),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () => context.go('/institutions'),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
                           Text(
-                            l.bestInstitutions,
+                            l.seeAllShort,
                             style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
                               fontFamily: 'Rabar',
                             ),
                           ),
+                          const SizedBox(width: 3),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 12,
+                            color: AppColors.primary,
+                          ),
                         ],
                       ),
-                      GestureDetector(
-                        onTap: () => context.go('/institutions'),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              l.seeAllShort,
-                              style: const TextStyle(
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
-                                fontFamily: 'Rabar',
-                              ),
-                            ),
-                            const SizedBox(width: 3),
-                            const Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              size: 12,
-                              color: AppColors.primary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
+            ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-              // Institutions List
-              if (prov.loading && prov.institutions.isEmpty)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.82,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (_, __) => const ShimmerBox(
-                        width: double.infinity,
-                        height: double.infinity,
-                        borderRadius: AppConstants.radiusLg,
-                      ),
-                      childCount: 4,
-                    ),
+            // Institutions List
+            if (prov.loading && prov.institutions.isEmpty)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 0.82,
                   ),
-                )
-              else if (prov.institutions.isEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(40),
-                    child: Center(
-                      child: Text(
-                        l.noInstitutionsFound,
-                        style: TextStyle(
-                          color:
-                              isDark ? AppColors.textGrey : AppColors.textMuted,
-                          fontFamily: 'Rabar',
-                        ),
-                      ),
+                  delegate: SliverChildBuilderDelegate(
+                    (_, __) => const ShimmerBox(
+                      width: double.infinity,
+                      height: double.infinity,
+                      borderRadius: AppConstants.radiusLg,
                     ),
+                    childCount: 4,
                   ),
-                )
-              else
-                Builder(
-                  builder: (context) {
-                    final displayList =
-                        List<InstitutionModel>.from(prov.institutions);
-                    displayList.sort((a, b) {
-                      if (b.ratingAvg != a.ratingAvg) {
-                        return b.ratingAvg.compareTo(a.ratingAvg);
-                      }
-                      return b.reviewsCount.compareTo(a.reviewsCount);
-                    });
-                    return SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      sliver: SliverGrid(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          childAspectRatio: 0.82,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (_, i) {
-                            final inst = displayList[i];
-                            return InstitutionCard(
-                              institution: inst,
-                              lang: lang,
-                              isFavorite: prov.favorites.contains(inst.id),
-                              onFavorite: () => prov.toggleFavorite(inst.id),
-                              onTap: () =>
-                                  context.push('/institutions/${inst.id}'),
-                            );
-                          },
-                          childCount: displayList.length,
-                        ),
-                      ),
-                    );
-                  },
                 ),
+              )
+            else if (prov.institutions.isEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(40),
+                  child: Center(
+                    child: Text(
+                      l.noInstitutionsFound,
+                      style: TextStyle(
+                        color:
+                            isDark ? AppColors.textGrey : AppColors.textMuted,
+                        fontFamily: 'Rabar',
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Builder(
+                builder: (context) {
+                  final displayList =
+                      List<InstitutionModel>.from(prov.institutions);
+                  displayList.sort((a, b) {
+                    if (b.ratingAvg != a.ratingAvg) {
+                      return b.ratingAvg.compareTo(a.ratingAvg);
+                    }
+                    return b.reviewsCount.compareTo(a.reviewsCount);
+                  });
+                  return SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 0.82,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (_, i) {
+                          final inst = displayList[i];
+                          return InstitutionCard(
+                            institution: inst,
+                            lang: lang,
+                            isFavorite: prov.favorites.contains(inst.id),
+                            onFavorite: () => prov.toggleFavorite(inst.id),
+                            onTap: () =>
+                                context.push('/institutions/${inst.id}'),
+                          );
+                        },
+                        childCount: displayList.length,
+                      ),
+                    ),
+                  );
+                },
+              ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
-            ],
-          ),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
         ),
+      ),
     );
   }
 
@@ -358,8 +356,7 @@ class _HomeScreenState extends State<HomeScreen> {
     bool isDark,
     AppLocalizations l,
   ) {
-    final topRated =
-        prov.institutions.where((i) => i.ratingAvg > 0).toList();
+    final topRated = prov.institutions.where((i) => i.ratingAvg > 0).toList();
     if (topRated.isEmpty) return [];
 
     topRated.sort((a, b) {
@@ -402,8 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFB300).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
@@ -601,7 +597,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.1),
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(Icons.tune_rounded,
@@ -633,13 +630,15 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (ctx) {
         // selectedCity stores the Kurdish DB value (e.g. 'هەولێر')
         String selectedCity = prov.selectedCity;
-        String selectedSector = prov.selectedSector == '' ? 'all' : prov.selectedSector;
+        String selectedSector =
+            prov.selectedSector == '' ? 'all' : prov.selectedSector;
         String selectedType = prov.selectedType;
 
         // Map: localized display name → Kurdish API value
         final cityEntries = List.generate(
           l.filterCities.length,
-          (i) => MapEntry(l.filterCities[i], AppConstants.filterCityApiValues[i]),
+          (i) =>
+              MapEntry(l.filterCities[i], AppConstants.filterCityApiValues[i]),
         );
 
         return StatefulBuilder(
@@ -685,14 +684,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w900,
-                                color: isDark ? Colors.white : AppColors.textDark,
+                                color:
+                                    isDark ? Colors.white : AppColors.textDark,
                                 fontFamily: 'Rabar',
                               ),
                             ),
                             IconButton(
                               onPressed: () => Navigator.pop(ctx),
                               icon: Icon(Icons.close_rounded,
-                                  color: isDark ? Colors.white70 : Colors.black54),
+                                  color:
+                                      isDark ? Colors.white70 : Colors.black54),
                             ),
                           ],
                         ),
@@ -757,7 +758,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 isDark: isDark,
                                 icon: Icons.account_balance_rounded,
                                 onTap: () => setState(() {
-                                  selectedSector = selectedSector == 'public' ? 'all' : 'public';
+                                  selectedSector = selectedSector == 'public'
+                                      ? 'all'
+                                      : 'public';
                                 }),
                               ),
                               _FilterChip(
@@ -766,7 +769,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 isDark: isDark,
                                 icon: Icons.business_rounded,
                                 onTap: () => setState(() {
-                                  selectedSector = selectedSector == 'private' ? 'all' : 'private';
+                                  selectedSector = selectedSector == 'private'
+                                      ? 'all'
+                                      : 'private';
                                 }),
                               ),
                             ],
@@ -781,7 +786,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white : AppColors.textDark,
+                                color:
+                                    isDark ? Colors.white : AppColors.textDark,
                                 fontFamily: 'Rabar',
                               ),
                             ),
@@ -791,9 +797,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               runSpacing: 10,
                               children: prov.institutionTypes.map((t) {
                                 final isSelected = selectedType == t.key;
-                                final lang = Localizations.localeOf(context).languageCode;
+                                final lang = Localizations.localeOf(context)
+                                    .languageCode;
                                 return _FilterChip(
-                                  label: '${t.emoji ?? ''} ${t.localizedName(lang)}'.trim(),
+                                  label:
+                                      '${t.emoji ?? ''} ${t.localizedName(lang)}'
+                                          .trim(),
                                   isSelected: isSelected,
                                   isDark: isDark,
                                   onTap: () => setState(() {
@@ -846,7 +855,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               prov.setFilter(
                                 city: selectedCity,
                                 sector: selectedSector,
-                                type: selectedType.isEmpty ? 'all' : selectedType,
+                                type:
+                                    selectedType.isEmpty ? 'all' : selectedType,
                               );
                               Navigator.pop(ctx);
                             },
@@ -896,8 +906,8 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(14),
-              border:
-                  Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.2), width: 1),
             ),
             child: const Icon(Icons.notifications_none_rounded,
                 color: Colors.white, size: 22),
@@ -946,7 +956,8 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
+          border:
+              Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
         ),
         child: Icon(icon, color: Colors.white, size: iconSize),
       ),
@@ -965,14 +976,20 @@ class _HomeScreenState extends State<HomeScreen> {
       final mheTypes = allTypes.where((t) => mheKeys.contains(t.key));
       for (var t in mheTypes) {
         items.add(_SubFilterItem(
-            id: t.key, name: t.localizedName(lang), type: t.key, emoji: t.emoji));
+            id: t.key,
+            name: t.localizedName(lang),
+            type: t.key,
+            emoji: t.emoji));
       }
     } else if (_selectedParentFilter == 'moe') {
       final moeKeys = ['school', 'kg', 'inst5'];
       final moeTypes = allTypes.where((t) => moeKeys.contains(t.key));
       for (var t in moeTypes) {
         items.add(_SubFilterItem(
-            id: t.key, name: t.localizedName(lang), type: t.key, emoji: t.emoji));
+            id: t.key,
+            name: t.localizedName(lang),
+            type: t.key,
+            emoji: t.emoji));
       }
     } else if (_selectedParentFilter == 'others') {
       final knownKeys = [
@@ -988,16 +1005,16 @@ class _HomeScreenState extends State<HomeScreen> {
       final otherTypes = allTypes.where((t) => !knownKeys.contains(t.key));
       for (var t in otherTypes) {
         items.add(_SubFilterItem(
-            id: t.key, name: t.localizedName(lang), type: t.key, emoji: t.emoji));
+            id: t.key,
+            name: t.localizedName(lang),
+            type: t.key,
+            emoji: t.emoji));
       }
     }
 
     return items;
   }
 
-  /// The concrete type keys that make up the selected parent category — what
-  /// "All" means inside that category. Empty for the top-level "All", where no
-  /// group filter should be applied at all.
   List<String> _parentTypeKeys(List<InstitutionTypeModel> allTypes) {
     if (_selectedParentFilter == 'all') return const [];
     return _getSubFilters(allTypes)
@@ -1032,9 +1049,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           gradient: isActive ? AppColors.primaryGradient : null,
-          color: isActive
-              ? null
-              : (isDark ? AppColors.darkCard : Colors.white),
+          color: isActive ? null : (isDark ? AppColors.darkCard : Colors.white),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isActive
@@ -1100,7 +1115,9 @@ class _HomeScreenState extends State<HomeScreen> {
         // "All" inside a parent falls back to that parent's own types.
         p.setFilter(
           type: item.type ?? 'all',
-          types: item.type == null ? _parentTypeKeys(p.institutionTypes) : const [],
+          types: item.type == null
+              ? _parentTypeKeys(p.institutionTypes)
+              : const [],
         );
       },
       child: AnimatedContainer(
@@ -1113,7 +1130,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ? (isDark
                   ? AppColors.primary.withValues(alpha: 0.25)
                   : AppColors.primary.withValues(alpha: 0.12))
-              : (isDark ? AppColors.darkCard.withValues(alpha: 0.5) : Colors.white),
+              : (isDark
+                  ? AppColors.darkCard.withValues(alpha: 0.5)
+                  : Colors.white),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isActive
@@ -1166,7 +1185,9 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.12)
-              : (isDark ? AppColors.darkBg : Colors.grey.withValues(alpha: 0.08)),
+              : (isDark
+                  ? AppColors.darkBg
+                  : Colors.grey.withValues(alpha: 0.08)),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
@@ -1246,8 +1267,7 @@ class _AdsCarouselState extends State<AdsCarousel> {
             curve: Curves.fastOutSlowIn);
       } else {
         _pageController.nextPage(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeIn);
+            duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
       }
     });
   }
@@ -1301,7 +1321,8 @@ class _AdsCarouselState extends State<AdsCarousel> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: widget.isDark ? 0.35 : 0.08),
+                    color: Colors.black
+                        .withValues(alpha: widget.isDark ? 0.35 : 0.08),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -1342,7 +1363,8 @@ class _AdsCarouselState extends State<AdsCarousel> {
       child: b.imageUrl != null
           ? _imageLayer(b)
           : const Center(
-              child: Icon(Icons.campaign_rounded, size: 40, color: Colors.white54),
+              child:
+                  Icon(Icons.campaign_rounded, size: 40, color: Colors.white54),
             ),
     );
   }

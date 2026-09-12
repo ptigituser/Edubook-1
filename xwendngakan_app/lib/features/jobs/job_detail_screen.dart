@@ -64,7 +64,12 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     }
   }
 
-  Future<void> _openWhatsApp(String phone, String jobTitle, String institutionName) async {
+  Future<void> _openWhatsApp(
+    String phone,
+    String jobTitle,
+    String institutionName,
+    AppLocalizations l,
+  ) async {
     String cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
     if (cleanPhone.startsWith('07')) {
       cleanPhone = '+964${cleanPhone.substring(1)}';
@@ -73,7 +78,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     }
 
     final message = Uri.encodeComponent(
-      'سڵاو، پەیوەندیدار بە هەلی کاری ($jobTitle) لە ($institutionName) لە ڕێگەی ئەپی خوێندنگاکان پەیوەندیتان پێوە دەکەم.',
+      l.whatsappJobMessage(jobTitle, institutionName),
     );
     final uri = Uri.parse('https://wa.me/$cleanPhone?text=$message');
     if (await canLaunchUrl(uri)) {
@@ -81,16 +86,15 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     }
   }
 
-  void _shareJob(JobVacancyModel job) {
+  void _shareJob(JobVacancyModel job, AppLocalizations l) {
     final text = '''
-📢 هەلی کاری نوێ: ${job.title}
-🏛️ دامەزراوە: ${job.institutionName}
-📍 شار: ${job.city}
-💼 جۆری دەوام: ${job.employmentType}
-📞 پەیوەندی: ${job.contactPhone}
+📢 ${l.shareJobTitle}: ${job.title}
+🏛️ ${l.institutionNameLabel}: ${job.institutionName}
+📍 ${l.city}: ${job.city}
+💼 ${l.employmentType}: ${job.getEmploymentTypeLabel(l)}
+📞 ${l.phoneNumber}: ${job.contactPhone}
 
-بینینی تەواوی وردەکاری لە ڕێگەی ئەپی Edubook خوێندنگاکان:
-https://edubook-iq.com
+Edubook: https://edubook-iq.com
 ''';
     SharePlus.instance.share(ShareParams(text: text));
   }
@@ -173,7 +177,7 @@ https://edubook-iq.com
         actions: [
           IconButton(
             icon: const Icon(Icons.share_rounded, size: 22),
-            onPressed: () => _shareJob(job),
+            onPressed: () => _shareJob(job, l),
           ),
           const SizedBox(width: 8),
         ],
@@ -533,6 +537,7 @@ https://edubook-iq.com
                               : job.contactPhone,
                           job.title,
                           job.institutionName,
+                          l,
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF25D366),

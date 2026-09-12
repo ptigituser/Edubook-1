@@ -4,6 +4,30 @@ import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../providers/job_vacancies_provider.dart';
 
+String _localizeCity(String city, AppLocalizations l) {
+  switch (city) {
+    case 'هەولێر':
+      return l.cityErbil;
+    case 'سلێمانی':
+      return l.citySulaymaniyah;
+    case 'دهۆک':
+      return l.cityDuhok;
+    case 'کەرکووک':
+    case 'کەرکوک':
+      return l.cityKirkuk;
+    case 'هەڵەبجە':
+      return l.cityHalabja;
+    case 'زاخۆ':
+      return l.cityZakho;
+    case 'سۆران':
+      return l.citySoran;
+    case 'کۆیە':
+      return l.cityKoya;
+    default:
+      return city;
+  }
+}
+
 class JobFormScreen extends StatefulWidget {
   const JobFormScreen({super.key});
 
@@ -42,8 +66,6 @@ class _JobFormScreenState extends State<JobFormScreen> {
     'زاخۆ',
     'سۆران',
     'کۆیە',
-    'ڕانیە',
-    'گەرمیان',
   ];
 
   @override
@@ -92,25 +114,26 @@ class _JobFormScreenState extends State<JobFormScreen> {
     final success = await prov.postJob(form);
 
     if (!mounted) return;
+    final l = AppLocalizations.of(context);
     setState(() => _submitting = false);
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'هەلی کارەکە بە سەرکەوتوویی بڵاوکرایەوە ✅',
-            style: TextStyle(fontFamily: 'Rabar'),
+            '${l.jobPostedSuccess} ✅',
+            style: const TextStyle(fontFamily: 'Rabar'),
           ),
-          backgroundColor: Color(0xFF10B981),
+          backgroundColor: const Color(0xFF10B981),
         ),
       );
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'هەڵەیەک ڕوویدا لە بڵاوکردنەوەی هەلی کارەکە',
-            style: TextStyle(fontFamily: 'Rabar'),
+            l.somethingWentWrong,
+            style: const TextStyle(fontFamily: 'Rabar'),
           ),
           backgroundColor: Colors.red,
         ),
@@ -150,24 +173,24 @@ class _JobFormScreenState extends State<JobFormScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Section 1: Institution & Title ──
-              _buildSectionTitle('زانیاری سەرەکی دامەزراوە و کار', isDark),
+              _buildSectionTitle(l.basicJobInfo, isDark),
               const SizedBox(height: 12),
               _buildTextField(
                 controller: _institutionNameCtrl,
                 label: l.institutionNameLabel,
-                hint: 'بۆ نموونە: قوتابخانەی نیلۆفەری نموونەیی',
+                hint: '...',
                 icon: Icons.school_rounded,
                 isDark: isDark,
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'تکایە ناوی دامەزراوە بنووسە' : null,
+                validator: (val) => (val == null || val.trim().isEmpty) ? l.requiredField : null,
               ),
               const SizedBox(height: 14),
               _buildTextField(
                 controller: _titleCtrl,
                 label: l.jobTitleLabel,
-                hint: 'بۆ نموونە: مامۆستای بیرکاری بۆ پۆلی دوانزە',
+                hint: '...',
                 icon: Icons.badge_rounded,
                 isDark: isDark,
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'تکایە ناونیشانی کار بنووسە' : null,
+                validator: (val) => (val == null || val.trim().isEmpty) ? l.requiredField : null,
               ),
               const SizedBox(height: 14),
 
@@ -176,13 +199,13 @@ class _JobFormScreenState extends State<JobFormScreen> {
                 children: [
                   Expanded(
                     child: _buildDropdown(
-                      label: 'پۆلێن',
+                      label: l.categoryLabel,
                       value: _category,
                       items: [
                         DropdownMenuItem(value: 'teacher', child: Text(l.teacherJob)),
                         DropdownMenuItem(value: 'admin', child: Text(l.adminJob)),
                         DropdownMenuItem(value: 'support', child: Text(l.supportJob)),
-                        const DropdownMenuItem(value: 'other', child: Text('تر')),
+                        DropdownMenuItem(value: 'other', child: Text(l.otherCategory)),
                       ],
                       onChanged: (val) => setState(() => _category = val!),
                       isDark: isDark,
@@ -212,10 +235,10 @@ class _JobFormScreenState extends State<JobFormScreen> {
                 children: [
                   Expanded(
                     child: _buildDropdown(
-                      label: 'شار',
+                      label: l.city,
                       value: _city,
                       items: _cities
-                          .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                          .map((c) => DropdownMenuItem(value: c, child: Text(_localizeCity(c, l))))
                           .toList(),
                       onChanged: (val) => setState(() => _city = val!),
                       isDark: isDark,
@@ -241,7 +264,7 @@ class _JobFormScreenState extends State<JobFormScreen> {
               const SizedBox(height: 24),
 
               // ── Section 2: Details & Salary ──
-              _buildSectionTitle('وردەکاری و مەرجەکان', isDark),
+              _buildSectionTitle(l.jobDetailsAndRequirements, isDark),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -249,7 +272,7 @@ class _JobFormScreenState extends State<JobFormScreen> {
                     child: _buildTextField(
                       controller: _subjectCtrl,
                       label: l.subjectOrSpecialty,
-                      hint: 'وەک: ئینگلیزی، کیمیا',
+                      hint: '...',
                       icon: Icons.book_rounded,
                       isDark: isDark,
                     ),
@@ -259,7 +282,7 @@ class _JobFormScreenState extends State<JobFormScreen> {
                     child: _buildTextField(
                       controller: _educationLevelCtrl,
                       label: l.educationStage,
-                      hint: 'وەک: ئامادەیی، بنەڕەتی',
+                      hint: '...',
                       icon: Icons.auto_stories_rounded,
                       isDark: isDark,
                     ),
@@ -273,7 +296,7 @@ class _JobFormScreenState extends State<JobFormScreen> {
                     child: _buildTextField(
                       controller: _salaryRangeCtrl,
                       label: l.salary,
-                      hint: 'وەک: ٧٠٠،٠٠٠ د.ع',
+                      hint: '...',
                       icon: Icons.payments_rounded,
                       isDark: isDark,
                     ),
@@ -283,7 +306,7 @@ class _JobFormScreenState extends State<JobFormScreen> {
                     child: _buildTextField(
                       controller: _experienceCtrl,
                       label: l.experienceYears,
-                      hint: 'وەک: ٢ ساڵ',
+                      hint: '...',
                       icon: Icons.history_edu_rounded,
                       isDark: isDark,
                     ),
@@ -294,17 +317,17 @@ class _JobFormScreenState extends State<JobFormScreen> {
               _buildTextField(
                 controller: _descriptionCtrl,
                 label: l.jobDescription,
-                hint: 'وەسفی تەواوی کارەکە و ئەرکەکانی بنووسە...',
+                hint: '...',
                 icon: Icons.description_rounded,
                 maxLines: 4,
                 isDark: isDark,
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'تکایە وەسفی کار بنووسە' : null,
+                validator: (val) => (val == null || val.trim().isEmpty) ? l.requiredField : null,
               ),
               const SizedBox(height: 14),
               _buildTextField(
                 controller: _requirementsCtrl,
                 label: l.requirements,
-                hint: 'مەرجەکان (بڕوانامە، زمان، خول، تەمەن...)',
+                hint: '...',
                 icon: Icons.checklist_rounded,
                 maxLines: 3,
                 isDark: isDark,
@@ -313,21 +336,21 @@ class _JobFormScreenState extends State<JobFormScreen> {
               const SizedBox(height: 24),
 
               // ── Section 3: Contact Info ──
-              _buildSectionTitle('زانیاری پەیوەندیکردن', isDark),
+              _buildSectionTitle(l.contactInfo, isDark),
               const SizedBox(height: 12),
               _buildTextField(
                 controller: _phoneCtrl,
-                label: 'ژمارەی مۆبایل / پەیوەندی (پێویستە)',
+                label: '${l.contactPhone} (${l.required})',
                 hint: '0750 000 0000',
                 icon: Icons.call_rounded,
                 keyboardType: TextInputType.phone,
                 isDark: isDark,
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'تکایە ژمارەی مۆبایل بنووسە' : null,
+                validator: (val) => (val == null || val.trim().isEmpty) ? l.requiredField : null,
               ),
               const SizedBox(height: 14),
               _buildTextField(
                 controller: _whatsappCtrl,
-                label: 'ژمارەی واتسئەپ (ئارەزوومەندانە)',
+                label: '${l.whatsApp} (${l.optional})',
                 hint: '0750 000 0000',
                 icon: Icons.chat_bubble_rounded,
                 keyboardType: TextInputType.phone,
@@ -336,8 +359,8 @@ class _JobFormScreenState extends State<JobFormScreen> {
               const SizedBox(height: 14),
               _buildTextField(
                 controller: _emailCtrl,
-                label: 'ئیمەیڵ (ئارەزوومەندانە)',
-                hint: 'example@school.krd',
+                label: '${l.email} (${l.optional})',
+                hint: 'example@domain.com',
                 icon: Icons.email_rounded,
                 keyboardType: TextInputType.emailAddress,
                 isDark: isDark,

@@ -54,6 +54,13 @@ class AppLocalizations {
       });
   String get error => _t(
       {'ku': 'هەڵە', 'kbd': 'شاشی', 'ar': 'خطأ', 'en': 'Error', 'tr': 'Hata'});
+  String get somethingWentWrong => _t({
+        'ku': 'هەڵەیەک ڕوویدا، تکایە دووبارە هەوڵ بدەرەوە',
+        'kbd': 'شاشیەک رویدا، هیڤیە دووبارە هەول بدە',
+        'ar': 'حدث خطأ ما، يرجى المحاولة مرة أخرى',
+        'en': 'Something went wrong, please try again',
+        'tr': 'Bir hata oluştu, lütfen tekrar deneyin'
+      });
   String get retry => _t({
         'ku': 'دووبارە هەوڵ بدەرەوە',
         'kbd': 'دووبارە هەول بدە',
@@ -3415,6 +3422,49 @@ class AppLocalizations {
         'en': 'Koya',
         'tr': 'Koya'
       });
+  String get basicJobInfo => _t({
+        'ku': 'زانیاری سەرەکی کار و دامەزراوە',
+        'kbd': 'پێزانینێن سەرەکی یێن کاری و دەزگەهی',
+        'ar': 'المعلومات الأساسية للوظيفة والمؤسسة',
+        'en': 'Basic Job & Institution Information',
+        'tr': 'Temel İş ve Kurum Bilgileri'
+      });
+  String get jobDetailsAndRequirements => _t({
+        'ku': 'وردەکاری و مەرجەکان',
+        'kbd': 'هویرکاتی و مەرج',
+        'ar': 'التفاصيل والمتطلبات',
+        'en': 'Details & Requirements',
+        'tr': 'Detaylar ve Gereksinimler'
+      });
+  String get categoryLabel => _t({
+        'ku': 'پۆلێن',
+        'kbd': 'پۆلێن',
+        'ar': 'التصنيف',
+        'en': 'Category',
+        'tr': 'Kategori'
+      });
+  String get otherCategory => _t({
+        'ku': 'تر',
+        'kbd': 'دیتر',
+        'ar': 'أخرى',
+        'en': 'Other',
+        'tr': 'Diğer'
+      });
+  String whatsappJobMessage(String jobTitle, String institutionName) {
+    switch (locale.languageCode) {
+      case 'kbd':
+        return 'سلاڤ، دەربارەی دەلیڤا کاری ($jobTitle) ل ($institutionName) ب رێکا ئەپا Edubook پەیوەندیێ ب هەوە دکەم.';
+      case 'ar':
+        return 'مرحباً، أتواصل معكم بخصوص فرصة عمل ($jobTitle) في ($institutionName) عبر تطبيق Edubook.';
+      case 'en':
+        return 'Hello, I am contacting you regarding the job vacancy ($jobTitle) at ($institutionName) via Edubook app.';
+      case 'tr':
+        return 'Merhaba, Edubook uygulaması üzerinden ($institutionName) bünyesindeki ($jobTitle) açık iş pozisyonu hakkında iletişime geçiyorum.';
+      case 'ku':
+      default:
+        return 'سڵاو، دەربارەی هەلی کاری ($jobTitle) لە ($institutionName) لە ڕێگەی ئەپی Edubook پەیوەندیتان پێوە دەکەم.';
+    }
+  }
 }
 
 class _AppLocalizationsDelegate

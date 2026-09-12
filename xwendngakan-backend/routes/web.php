@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\User;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\JobVacancy;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Admin\AdminAuthController;
@@ -621,5 +622,54 @@ Route::prefix('portal')->name('portal.')->middleware('no-cache')->group(function
                 'message' => $msg,
             ]);
         })->name('chats.reply');
+
+        // Portal Job Vacancies
+        Route::get('/jobs', function () {
+            $user = auth()->user();
+            $institution = Institution::where('user_id', $user->id)->orderByDesc('approved')->first();
+            if (!$institution) abort(403);
+            $jobs = JobVacancy::where('institution_id', $institution->id)->orderByDesc('id')->get();
+            return response()->json(['success' => true, 'jobs' => $jobs]);
+        })->name('jobs.index');
+
+        Route::post('/jobs', function (Request $request) {
+            $user = auth()->user();
+            $institution = Institution::where('user_id', $user->id)->orderByDesc('approved')->first();
+            if (!$institution) abort(403);
+
+            $validated = $request->validate([
+                'title'            => 'required|string|max:255',
+                'category'         => 'required|string',
+                'subject'          => 'nullable|string|max:100',
+                'education_level'  => 'nullable|string|max:100',
+                'employment_type'  => 'required|string|max:50',
+                'salary_range'     => 'nullable|string|max:100',
+                'gender'           => 'nullable|string|max:20',
+                'experience_years' => 'nullable|string|max:50',
+                'description'      => 'required|string',
+                'requirements'     => 'nullable|string',
+                'contact_phone'    => 'required|string|max:50',
+                'contact_whatsapp' => 'nullable|string|max:50',
+                'contact_email'    => 'nullable|email|max:100',
+            ]);
+
+            $validated['institution_id']   = $institution->id;
+            $validated['institution_name'] = $institution->nku ?? $institution->name ?? 'دامەزراوە';
+            $validated['institution_logo'] = $institution->logo;
+            $validated['city']             = $institution->city ?? 'هەولێر';
+
+            $job = JobVacancy::create($validated);
+            return response()->json(['success' => true, 'job' => $job]);
+        })->name('jobs.store');
+
+        Route::delete('/jobs/{id}', function ($id) {
+            $user = auth()->user();
+            $institution = Institution::where('user_id', $user->id)->orderByDesc('approved')->first();
+            if (!$institution) abort(403);
+
+            $job = JobVacancy::where('id', $id)->where('institution_id', $institution->id)->firstOrFail();
+            $job->delete();
+            return response()->json(['success' => true]);
+        })->name('jobs.destroy');
     });
 });

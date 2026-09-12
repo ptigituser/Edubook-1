@@ -21,7 +21,7 @@
         <!-- Sidebar -->
         <aside class="admin-sidebar" id="admin-sidebar">
             <div class="sidebar-logo">
-                <img src="/images/logo.svg" alt="EduBook - IQ">
+                <img src="{{ asset('images/app_logo.png') }}" alt="EduBook - IQ" style="width:38px; height:38px; object-fit:contain; border-radius:8px;">
                 <div class="sidebar-logo-text">
                     <span class="logo-name">ئێدوو بووک</span>
                     <span class="logo-sub">پانێڵی ئەدمین</span>

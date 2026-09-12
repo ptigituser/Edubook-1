@@ -10,7 +10,7 @@
     <div class="login-page">
         <div class="login-card">
             <div class="login-logo">
-                <img src="/images/logo.svg" alt="EduBook - IQ">
+                <img src="{{ asset('images/app_logo.png') }}" alt="EduBook - IQ" style="width:64px; height:64px; object-fit:contain; border-radius:14px; margin-bottom:12px;">
                 <h1>ئێدوو بووک</h1>
                 <p>چوونە ژوورەوە بۆ پانێڵی بەڕێوەبردن</p>
             </div>

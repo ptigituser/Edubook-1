@@ -114,9 +114,9 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: SvgPicture.asset(
-                        'assets/images/logo.svg',
+                      padding: const EdgeInsets.all(10),
+                      child: Image.asset(
+                        'assets/images/app_logo.png',
                         fit: BoxFit.contain,
                       ),
                     ),

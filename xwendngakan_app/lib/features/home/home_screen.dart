@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -699,10 +698,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             SizedBox(
-                              width: 44,
-                              height: 44,
-                              child: SvgPicture.asset(
-                                'assets/images/logo.svg',
+                              width: 38,
+                              height: 38,
+                              child: Image.asset(
+                                'assets/images/app_logo.png',
                                 fit: BoxFit.contain,
                               ),
                             ),

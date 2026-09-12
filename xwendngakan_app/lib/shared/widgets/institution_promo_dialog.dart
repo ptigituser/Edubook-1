@@ -137,23 +137,12 @@ class InstitutionPromoDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Sleek Brand Icon
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.domain_add_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                  SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: Image.asset(
+                      'assets/images/app_logo.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
                   const SizedBox(width: 10),

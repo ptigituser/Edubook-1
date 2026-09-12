@@ -15,7 +15,7 @@ class MainShell extends StatelessWidget {
   int _locationToIndex(String location) {
     if (location.startsWith('/news')) return 0;
     if (location.startsWith('/teachers')) return 1;
-    if (location.startsWith('/cvs')) return 3;
+    if (location.startsWith('/cvs') || location.startsWith('/jobs')) return 3;
     if (location.startsWith('/profile')) return 4;
     return 2; // home is default center
   }
@@ -32,7 +32,7 @@ class MainShell extends StatelessWidget {
         context.go('/home');
         break;
       case 3:
-        context.go('/cvs');
+        context.go('/jobs');
         break;
       case 4:
         context.go('/profile');
@@ -64,7 +64,7 @@ class MainShell extends StatelessWidget {
       _NavItem(
           icon: Icons.work_outline_rounded,
           activeIcon: Icons.work_rounded,
-          label: l.cvBank),
+          label: l.jobs),
       _NavItem(
           icon: Icons.person_outline_rounded,
           activeIcon: Icons.person_rounded,

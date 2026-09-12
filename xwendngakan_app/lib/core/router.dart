@@ -17,7 +17,6 @@ import '../features/teachers/teachers_screen.dart';
 import '../features/teachers/teacher_profile_screen.dart';
 import '../features/saved/saved_screen.dart';
 import '../features/teachers/teacher_register_screen.dart';
-import '../features/cv/cv_screen.dart';
 import '../features/cv/cv_detail_screen.dart';
 import '../features/news/news_screen.dart';
 import '../features/events/events_screen.dart';
@@ -36,6 +35,10 @@ import '../features/lost_and_found/lost_and_found_screen.dart';
 import '../features/lost_and_found/add_item_screen.dart';
 import '../features/language/language_selection_screen.dart';
 import '../features/quiz/career_quiz_screen.dart';
+import '../features/jobs/jobs_and_cvs_hub_screen.dart';
+import '../features/jobs/job_detail_screen.dart';
+import '../features/jobs/job_form_screen.dart';
+import '../data/models/job_vacancy_model.dart';
 
 /// Root navigator key — lets services outside the widget tree (e.g. push
 /// notification taps) navigate via [GoRouter].
@@ -148,7 +151,11 @@ GoRouter createRouter(BuildContext context) {
           ),
           GoRoute(
             path: '/cvs',
-            builder: (context, state) => const CvScreen(),
+            builder: (context, state) => const JobsAndCvsHubScreen(initialTabIndex: 1),
+          ),
+          GoRoute(
+            path: '/jobs',
+            builder: (context, state) => const JobsAndCvsHubScreen(initialTabIndex: 0),
           ),
           GoRoute(
             path: '/profile',
@@ -242,6 +249,18 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
         path: '/career-quiz',
         builder: (context, state) => const CareerQuizScreen(),
+      ),
+      GoRoute(
+        path: '/jobs/create',
+        builder: (context, state) => const JobFormScreen(),
+      ),
+      GoRoute(
+        path: '/jobs/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;
+          final extra = state.extra is JobVacancyModel ? state.extra as JobVacancyModel : null;
+          return JobDetailScreen(jobId: id, initialJob: extra);
+        },
       ),
     ],
   );

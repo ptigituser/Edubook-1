@@ -98,6 +98,18 @@ class HomeDrawer extends StatelessWidget {
                 ),
                 _buildDrawerItem(
                   context,
+                  icon: Icons.work_rounded,
+                  title: l.jobVacancies,
+                  subtitle: 'هەلی کاری مامۆستایان و ستاف لە قوتابخانە و زانکۆکان',
+                  color: const Color(0xFF0284C7),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.push('/jobs');
+                  },
+                  isDark: isDark,
+                ),
+                _buildDrawerItem(
+                  context,
                   icon: Icons.description_rounded,
                   title: l.drawerCv,
                   subtitle: l.drawerCvSub,

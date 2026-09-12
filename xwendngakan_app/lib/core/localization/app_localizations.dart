@@ -3163,6 +3163,195 @@ class AppLocalizations {
         'en': 'Explore Institutions',
         'tr': 'Kurumları Keşfet'
       });
+  String get jobs => _t({
+        'ku': 'هەلی کار',
+        'kbd': 'دەلیڤێن کاری',
+        'ar': 'الوظائف',
+        'en': 'Jobs',
+        'tr': 'İş İlanları'
+      });
+  String get jobsAndCvs => _t({
+        'ku': 'هەلی کار و سیڤی',
+        'kbd': 'دەلیڤێن کاری و سیڤی',
+        'ar': 'الوظائف والسير الذاتية',
+        'en': 'Jobs & CVs',
+        'tr': 'İşler ve CV\'ler'
+      });
+  String get jobVacancies => _t({
+        'ku': 'هەلی کارەکان',
+        'kbd': 'دەلیڤێن کاری',
+        'ar': 'فرص العمل',
+        'en': 'Job Vacancies',
+        'tr': 'Açık Pozisyonlar'
+      });
+  String get postJob => _t({
+        'ku': 'بڵاوکردنەوەی هەلی کار',
+        'kbd': 'بەلاڤکرنا دەلیڤا کاری',
+        'ar': 'نشر فرصة عمل',
+        'en': 'Post a Job',
+        'tr': 'İş İlanı Ver'
+      });
+  String get jobDetails => _t({
+        'ku': 'وردەکاری هەلی کار',
+        'kbd': 'هویرکاتیێن دەلیڤا کاری',
+        'ar': 'تفاصيل الوظيفة',
+        'en': 'Job Details',
+        'tr': 'İş Detayları'
+      });
+  String get requirements => _t({
+        'ku': 'مەرجەکان',
+        'kbd': 'مەرج',
+        'ar': 'المتطلبات والشروط',
+        'en': 'Requirements',
+        'tr': 'Gereksinimler'
+      });
+  String get jobDescription => _t({
+        'ku': 'وەسفی کار',
+        'kbd': 'وەسفێ کاری',
+        'ar': 'الوصف الوظيفي',
+        'en': 'Job Description',
+        'tr': 'İş Tanımı'
+      });
+  String get salary => _t({
+        'ku': 'مووچە',
+        'kbd': 'مووچە',
+        'ar': 'الراتب',
+        'en': 'Salary',
+        'tr': 'Maaş'
+      });
+  String get employmentType => _t({
+        'ku': 'جۆری دەوام',
+        'kbd': 'جۆرێ دەوامی',
+        'ar': 'نوع الدوام',
+        'en': 'Employment Type',
+        'tr': 'Çalışma Türü'
+      });
+  String get fullTime => _t({
+        'ku': 'تەواوکات',
+        'kbd': 'تەمام وەخت',
+        'ar': 'دوام كامل',
+        'en': 'Full-time',
+        'tr': 'Tam Zamanlı'
+      });
+  String get partTime => _t({
+        'ku': 'نیوەکات',
+        'kbd': 'نیڤ وەخت',
+        'ar': 'دوام جزئي',
+        'en': 'Part-time',
+        'tr': 'Yarı Zamanlı'
+      });
+  String get temporary => _t({
+        'ku': 'کاتی / وانەبێژ',
+        'kbd': 'دەمی / وانەبێژ',
+        'ar': 'مؤقت / محاضر',
+        'en': 'Temporary / Lecturer',
+        'tr': 'Geçici / Ücretli'
+      });
+  String get teacherJob => _t({
+        'ku': 'مامۆستا',
+        'kbd': 'مامۆستا',
+        'ar': 'معلم / مدرس',
+        'en': 'Teacher',
+        'tr': 'Öğretmen'
+      });
+  String get adminJob => _t({
+        'ku': 'کارگێڕی و ژمێریاری',
+        'kbd': 'کارگێڕی و ژمێریاری',
+        'ar': 'إدارة ومحاسبة',
+        'en': 'Administration & Accounting',
+        'tr': 'Yönetim ve Muhasebe'
+      });
+  String get supportJob => _t({
+        'ku': 'چاودێری و خزمەتگوزاری',
+        'kbd': 'چاڤدێری و خزمەتگوزاری',
+        'ar': 'إشراف وخدمات',
+        'en': 'Support & Supervision',
+        'tr': 'Destek ve Hizmet'
+      });
+  String get callNow => _t({
+        'ku': 'پەیوەندیکردن',
+        'kbd': 'پەیوەندی کرن',
+        'ar': 'اتصال هاتفياً',
+        'en': 'Call Now',
+        'tr': 'Şimdi Ara'
+      });
+  String get sendWhatsapp => _t({
+        'ku': 'نامە لە واتسئەپ',
+        'kbd': 'نامە ل سەر واتسئەپێ',
+        'ar': 'مراسلة عبر واتساب',
+        'en': 'Message on WhatsApp',
+        'tr': 'WhatsApp ile Yaz'
+      });
+  String get noJobsFound => _t({
+        'ku': 'هیچ هەلی کارێک نەدۆزرایەوە',
+        'kbd': 'چ دەلیڤێن کاری نەهاتنە دیتن',
+        'ar': 'لم يتم العثور على فرص عمل',
+        'en': 'No job vacancies found',
+        'tr': 'İş ilanı bulunamadı'
+      });
+  String get jobPostedSuccess => _t({
+        'ku': 'هەلی کارەکە بە سەرکەوتوویی بڵاوکرایەوە',
+        'kbd': 'دەلیڤا کاری ب سەرکەفتیانە هاتە بەلاڤکرن',
+        'ar': 'تم نشر فرصة العمل بنجاح',
+        'en': 'Job vacancy posted successfully',
+        'tr': 'İş ilanı başarıyla yayınlandı'
+      });
+  String get genderPreference => _t({
+        'ku': 'ڕەگەز',
+        'kbd': 'رەگەز',
+        'ar': 'الجنس المطلوب',
+        'en': 'Gender',
+        'tr': 'Cinsiyet'
+      });
+  String get anyGender => _t({
+        'ku': 'نێر یان مێ (گرنگ نییە)',
+        'kbd': 'نێر یان مێ (نە یا گرنگە)',
+        'ar': 'ذكور أو إناث',
+        'en': 'Any Gender',
+        'tr': 'Fark Etmez'
+      });
+  String get femaleOnly => _t({
+        'ku': 'تەنها مێ',
+        'kbd': 'ب تنێ مێ',
+        'ar': 'إناث فقط',
+        'en': 'Female Only',
+        'tr': 'Sadece Kadın'
+      });
+  String get maleOnly => _t({
+        'ku': 'تەنها نێر',
+        'kbd': 'ب تنێ نێر',
+        'ar': 'ذكور فقط',
+        'en': 'Male Only',
+        'tr': 'Sadece Erkek'
+      });
+  String get subjectOrSpecialty => _t({
+        'ku': 'وانە / پسپۆڕی',
+        'kbd': 'وانە / تایبەتمەندی',
+        'ar': 'المادة / التخصص',
+        'en': 'Subject / Specialty',
+        'tr': 'Ders / Uzmanlık'
+      });
+  String get educationStage => _t({
+        'ku': 'قۆناغی خوێندن',
+        'kbd': 'قۆناغا خاندنێ',
+        'ar': 'المرحلة الدراسية',
+        'en': 'Education Stage',
+        'tr': 'Eğitim Kademesi'
+      });
+  String get institutionNameLabel => _t({
+        'ku': 'ناوی قوتابخانە / دامەزراوە',
+        'kbd': 'ناڤێ قوتابخانێ / دەزگەهی',
+        'ar': 'اسم المدرسة / المؤسسة',
+        'en': 'School / Institution Name',
+        'tr': 'Okul / Kurum Adı'
+      });
+  String get jobTitleLabel => _t({
+        'ku': 'ناونیشانی کار (بۆ نموونە: مامۆستای ئینگلیزی)',
+        'kbd': 'ناڤونیشانێ کاری (بۆ نموونە: مامۆستایێ ئینگلیزی)',
+        'ar': 'المسمى الوظيفي (مثال: مدرس لغة إنجليزية)',
+        'en': 'Job Title (e.g. English Teacher)',
+        'tr': 'İş Başlığı (Örn: İngilizce Öğretmeni)'
+      });
 }
 
 class _AppLocalizationsDelegate

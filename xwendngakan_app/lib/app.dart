@@ -15,6 +15,7 @@ import 'providers/notifications_provider.dart';
 import 'providers/news_provider.dart';
 import 'providers/events_provider.dart';
 import 'providers/connectivity_provider.dart';
+import 'providers/job_vacancies_provider.dart';
 
 /// Fallback delegate that provides English [MaterialLocalizations] for any
 /// locale not covered by [GlobalMaterialLocalizations] (e.g. Kurdish "ku").
@@ -70,6 +71,7 @@ class XwendngakanApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NewsProvider()),
         ChangeNotifierProvider(create: (_) => EventsProvider()),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
+        ChangeNotifierProvider(create: (_) => JobVacanciesProvider()),
       ],
       child: const _MaterialAppShell(),
     );

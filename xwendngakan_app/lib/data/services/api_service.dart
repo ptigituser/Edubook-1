@@ -9,6 +9,7 @@ import '../models/teacher_model.dart';
 import '../models/cv_model.dart';
 import '../models/user_model.dart';
 import '../models/review_model.dart';
+import '../models/job_vacancy_model.dart';
 import '../../core/constants/app_constants.dart';
 
 class ApiResult<T> {
@@ -1193,6 +1194,92 @@ class ApiService {
             json?['message'] ?? _serverMessage(res.statusCode),
             statusCode: res.statusCode);
       }
+    } catch (e) {
+      return ApiResult.failure(_connectionMessage);
+    }
+  }
+
+  // ==================
+  // JOB VACANCIES
+  // ==================
+
+  Future<ApiResult<List<JobVacancyModel>>> getJobVacancies({
+    String? search,
+    String? city,
+    String? category,
+    String? subject,
+    String? employmentType,
+    int page = 1,
+  }) async {
+    try {
+      final query = <String, String>{
+        'page': '$page',
+        if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+        if (city != null && city != 'all') 'city': city,
+        if (category != null && category != 'all') 'category': category,
+        if (subject != null && subject != 'all') 'subject': subject,
+        if (employmentType != null && employmentType != 'all') 'employment_type': employmentType,
+      };
+
+      final uri = Uri.parse('$_base/jobs').replace(queryParameters: query);
+      final res = await http.get(uri).timeout(AppConstants.receiveTimeout);
+
+      final json = _safeJson(res);
+      if (res.statusCode == 200 && json != null && json['success'] == true) {
+        final list = (json['data'] as List? ?? [])
+            .map((e) => JobVacancyModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return ApiResult.success(list);
+      }
+      return ApiResult.failure(
+          json?['message'] ?? _serverMessage(res.statusCode),
+          statusCode: res.statusCode);
+    } catch (e) {
+      return ApiResult.failure(_connectionMessage);
+    }
+  }
+
+  Future<ApiResult<JobVacancyModel>> getJobVacancyDetail(int id) async {
+    try {
+      final res = await http
+          .get(Uri.parse('$_base/jobs/$id'))
+          .timeout(AppConstants.receiveTimeout);
+
+      final json = _safeJson(res);
+      if (res.statusCode == 200 && json != null && json['success'] == true) {
+        final data = json['data'] as Map<String, dynamic>? ?? {};
+        return ApiResult.success(JobVacancyModel.fromJson(data));
+      }
+      return ApiResult.failure(
+          json?['message'] ?? _serverMessage(res.statusCode),
+          statusCode: res.statusCode);
+    } catch (e) {
+      return ApiResult.failure(_connectionMessage);
+    }
+  }
+
+  Future<ApiResult<JobVacancyModel>> postJobVacancy(Map<String, dynamic> form) async {
+    try {
+      final headers = await _authHeaders();
+      final res = await http
+          .post(
+            Uri.parse('$_base/jobs'),
+            headers: headers,
+            body: jsonEncode(form),
+          )
+          .timeout(AppConstants.connectTimeout);
+
+      final json = _safeJson(res);
+      if ((res.statusCode == 200 || res.statusCode == 201) &&
+          json != null &&
+          json['success'] == true) {
+        final data = json['data'] as Map<String, dynamic>? ?? {};
+        return ApiResult.success(JobVacancyModel.fromJson(data),
+            statusCode: res.statusCode);
+      }
+      return ApiResult.failure(
+          json?['message'] ?? _serverMessage(res.statusCode),
+          statusCode: res.statusCode);
     } catch (e) {
       return ApiResult.failure(_connectionMessage);
     }

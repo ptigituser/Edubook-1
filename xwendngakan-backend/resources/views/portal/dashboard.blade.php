@@ -2377,8 +2377,11 @@
 
       {{-- Published Jobs List --}}
       <div class="db-card">
-        <div class="db-card-head">
+        <div class="db-card-head" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div class="db-card-title">💼 هەلی کارە بڵاوکراوەکانی دامەزراوەکەت (<span id="portal-jobs-count">{{ isset($jobs) ? $jobs->count() : 0 }}</span>)</div>
+          <button type="button" onclick="startNewJobForm()" class="btn-primary" style="padding: 9px 20px; font-size: .84rem;">
+            ➕ بڵاوکردنەوەی هەلی کاری نوێ
+          </button>
         </div>
 
         <div id="portal-jobs-list">
@@ -3668,6 +3671,18 @@ function resetJobForm() {
     if (hint) hint.textContent = 'هەلی کارەکە دەستبەجێ لە ئەپڵیکەیشن بڵاودەبێتەوە';
 }
 
+function startNewJobForm() {
+    resetJobForm();
+    const formCard = document.getElementById('portal-job-form');
+    if (formCard) {
+        formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setTimeout(() => {
+        const titleInput = document.getElementById('job-title-ku');
+        if (titleInput) titleInput.focus();
+    }, 450);
+}
+
 async function submitPortalJob(e) {
     e.preventDefault();
     const btn = document.getElementById('btn-save-job');
@@ -3707,7 +3722,7 @@ async function submitPortalJob(e) {
         });
         const json = await res.json();
         if (json.success && json.job) {
-            showToast(editId ? 'هەلی کارەکە نوێکرایەوە' : 'هەلی کارەکە بە سەرکەوتوویی بڵاوکرایەوە', 'success');
+            showToast(editId ? 'هەلی کارەکە نوێکرایەوە' : 'هەلی کارەکە بڵاوکرایەوە! دەتوانیت یەکێکی تریش بڵاوبکەیتەوە', 'success');
             localStorage.setItem('db_active_tab', 'jobs');
             setTimeout(() => window.location.reload(), 900);
         } else {

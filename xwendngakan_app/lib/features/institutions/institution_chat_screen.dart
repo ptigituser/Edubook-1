@@ -93,11 +93,7 @@ class _InstitutionChatScreenState extends State<InstitutionChatScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent + 80,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
-        );
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
     });
   }
@@ -461,6 +457,7 @@ class _InstitutionChatScreenState extends State<InstitutionChatScreen> {
                       ? _buildEmptyState(isDark, instName, l)
                       : ListView.builder(
                           controller: _scrollController,
+                          physics: const ClampingScrollPhysics(),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 16,

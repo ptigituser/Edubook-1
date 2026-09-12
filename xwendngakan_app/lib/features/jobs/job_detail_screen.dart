@@ -143,7 +143,7 @@ https://edubook-iq.com
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('دووبارە هەوڵبدەرەوە', style: TextStyle(fontFamily: 'Rabar')),
+                child: Text(l.retry, style: const TextStyle(fontFamily: 'Rabar')),
               )
             ],
           ),
@@ -333,7 +333,7 @@ https://edubook-iq.com
                         title: l.salary,
                         value: (job.salaryRange != null && job.salaryRange!.isNotEmpty)
                             ? job.salaryRange!
-                            : 'دوای چاوپێکەوتن دیاری دەکرێت',
+                            : l.salaryNegotiable,
                         iconColor: const Color(0xFF10B981),
                         isDark: isDark,
                       ),
@@ -452,7 +452,7 @@ https://edubook-iq.com
                         const Icon(Icons.storefront_rounded, color: AppColors.primary, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          'پڕۆفایلی تەواوی دامەزراوە (${job.institutionName})',
+                          '${l.viewInstitutionProfile} (${job.institutionName})',
                           style: const TextStyle(
                             fontFamily: 'Rabar',
                             fontSize: 13.5,

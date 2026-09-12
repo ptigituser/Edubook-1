@@ -3359,6 +3359,62 @@ class AppLocalizations {
         'en': 'Clear Filters',
         'tr': 'Filtreleri Temizle'
       });
+  String get searchJobHint => _t({
+        'ku': 'گەڕان لە هەلی کارەکان (مامۆستا، باخچە، زانکۆ)...',
+        'kbd': 'لێگەڕیان ل دەلیڤێن کاری (مامۆستا، باخچە، زانکۆ)...',
+        'ar': 'بحث في فرص العمل (معلم، روضة، جامعة)...',
+        'en': 'Search job vacancies (teacher, kindergarten, university)...',
+        'tr': 'İş ilanlarında ara (öğretmen, anaokulu, üniversite)...'
+      });
+  String get jobVacanciesSubtitle => _t({
+        'ku': 'هەلی کاری مامۆستایان و ستافی دامەزراوەکان',
+        'kbd': 'دەلیڤێن کاری یێن مامۆستایان و ستافێ دەزگەهان',
+        'ar': 'فرص عمل المعلمين والكوادر التعليمية',
+        'en': 'Job opportunities for teachers and educational staff',
+        'tr': 'Öğretmenler ve eğitim personeli için iş fırsatları'
+      });
+  String get noJobsSubtitle => _t({
+        'ku': 'لەم کاتەدا هیچ هەلی کارێکی نوێ لەلایەن دامەزراوەکانەوە ڕانەگەیەندراوە',
+        'kbd': 'د ڤی دەمی دا چ دەلیڤێن کاری یێن نوی ژ لایێ دەزگەهان ڤە نەهاتینە راگەهاندن',
+        'ar': 'لا توجد فرص عمل جديدة معلنة من قبل المؤسسات في الوقت الحالي',
+        'en': 'No new job vacancies have been announced by institutions at this time',
+        'tr': 'Şu anda kurumlar tarafından yayınlanmış yeni iş ilanı bulunmamaktadır'
+      });
+  String get salaryNegotiable => _t({
+        'ku': 'دوای چاوپێکەوتن دیاری دەکرێت',
+        'kbd': 'پشتی چاڤپێکەفتنێ دێ هێتە دیارکرن',
+        'ar': 'يحدد بعد المقابلة',
+        'en': 'Negotiable after interview',
+        'tr': 'Mülakattan sonra belirlenecektir'
+      });
+  String get shareJobTitle => _t({
+        'ku': 'هەلی کاری نوێ',
+        'kbd': 'دەلیڤا کاری یا نوی',
+        'ar': 'فرصة عمل جديدة',
+        'en': 'New Job Vacancy',
+        'tr': 'Yeni İş İlanı'
+      });
+  String get cityZakho => _t({
+        'ku': 'زاخۆ',
+        'kbd': 'زاخۆ',
+        'ar': 'زاخو',
+        'en': 'Zakho',
+        'tr': 'Zaho'
+      });
+  String get citySoran => _t({
+        'ku': 'سۆران',
+        'kbd': 'سۆران',
+        'ar': 'سوران',
+        'en': 'Soran',
+        'tr': 'Soran'
+      });
+  String get cityKoya => _t({
+        'ku': 'کۆیە',
+        'kbd': 'کۆیە',
+        'ar': 'كويسنجق',
+        'en': 'Koya',
+        'tr': 'Koya'
+      });
 }
 
 class _AppLocalizationsDelegate

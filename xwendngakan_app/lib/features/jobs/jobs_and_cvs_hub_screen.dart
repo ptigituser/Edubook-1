@@ -10,6 +10,32 @@ import '../../providers/job_vacancies_provider.dart';
 import '../../providers/teachers_cv_provider.dart';
 import '../cv/cv_screen.dart';
 
+String _localizeCity(String city, AppLocalizations l) {
+  switch (city) {
+    case 'all':
+      return l.allFilter;
+    case 'هەولێر':
+      return l.cityErbil;
+    case 'سلێمانی':
+      return l.citySulaymaniyah;
+    case 'دهۆک':
+      return l.cityDuhok;
+    case 'کەرکووک':
+    case 'کەرکوک':
+      return l.cityKirkuk;
+    case 'هەڵەبجە':
+      return l.cityHalabja;
+    case 'زاخۆ':
+      return l.cityZakho;
+    case 'سۆران':
+      return l.citySoran;
+    case 'کۆیە':
+      return l.cityKoya;
+    default:
+      return city;
+  }
+}
+
 class JobsAndCvsHubScreen extends StatefulWidget {
   final int initialTabIndex;
   const JobsAndCvsHubScreen({super.key, this.initialTabIndex = 0});
@@ -108,9 +134,9 @@ class _JobsAndCvsHubScreenState extends State<JobsAndCvsHubScreen>
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    for (final c in ['all', 'هەولێر', 'سلێمانی', 'دهۆک', 'کەرکووک', 'هەڵەبجە'])
+                    for (final c in ['all', 'هەولێر', 'سلێمانی', 'دهۆک', 'کەرکووک', 'هەڵەبجە', 'زاخۆ', 'سۆران', 'کۆیە'])
                       ChoiceChip(
-                        label: Text(c == 'all' ? l.allFilter : c),
+                        label: Text(_localizeCity(c, l)),
                         selected: (c == 'all' && prov.selectedCity == null) || prov.selectedCity == c,
                         onSelected: (_) {
                           prov.setCity(c);
@@ -187,7 +213,7 @@ class _JobsAndCvsHubScreenState extends State<JobsAndCvsHubScreen>
               ),
               decoration: InputDecoration(
                 hintText: isJobsTab
-                    ? 'گەڕان لە هەلی کارەکان (مامۆستا، باخچە)...'
+                    ? l.searchJobHint
                     : l.searchCvHint,
                 hintStyle: TextStyle(
                   fontSize: 13,
@@ -364,7 +390,7 @@ class _JobsAndCvsHubScreenState extends State<JobsAndCvsHubScreen>
                             const SizedBox(height: 2),
                             Text(
                               isJobsTab
-                                  ? 'هەلی کاری مامۆستایان و ستافی دامەزراوەکان'
+                                  ? l.jobVacanciesSubtitle
                                   : l.cvBankSubtitle,
                               style: const TextStyle(
                                 fontSize: 12,
@@ -575,7 +601,7 @@ class _JobVacanciesTabState extends State<_JobVacanciesTab> {
                         ),
                         child: Center(
                           child: Text(
-                            city == 'all' ? l.allFilter : city,
+                            _localizeCity(city, l),
                             style: TextStyle(
                               fontFamily: 'Rabar',
                               fontSize: 12,
@@ -684,7 +710,8 @@ class _JobVacanciesTabState extends State<_JobVacanciesTab> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'لەم کاتەدا هیچ هەلی کارێکی نوێ لەلایەن دامەزراوەکانەوە ڕانەگەیەندراوە',
+                          l.noJobsSubtitle,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: 'Rabar',
                             fontSize: 12.5,

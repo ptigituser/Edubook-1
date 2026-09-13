@@ -40,7 +40,7 @@ class AppVersion extends Model
      */
     public function requiresUpdate(int $currentBuild): bool
     {
-        return $this->build_number > $currentBuild;
+        return false;
     }
 
     /**
@@ -48,6 +48,6 @@ class AppVersion extends Model
      */
     public function requiresForceUpdate(int $currentBuild): bool
     {
-        return $this->force_update && ($this->build_number > $currentBuild);
+        return false;
     }
 }

@@ -6,9 +6,6 @@ import '../../providers/auth_provider.dart';
 import 'dart:math' as math;
 import '../../core/constants/app_constants.dart';
 import '../../core/localization/app_localizations.dart';
-import '../../data/services/api_service.dart';
-import '../../shared/widgets/app_update_dialog.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -90,31 +87,6 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(milliseconds: 2800));
     if (!mounted) return;
 
-    // Check for updates (Production ready)
-    try {
-      final info = await PackageInfo.fromPlatform();
-      if (!mounted) return;
-      final platform = Theme.of(context).platform == TargetPlatform.iOS ? 'ios' : 'android';
-      final buildNumber = int.tryParse(info.buildNumber) ?? 0;
-
-      final updateRes = await ApiService().checkUpdate(platform, buildNumber);
-      
-      if (updateRes.success && updateRes.data != null) {
-        final data = updateRes.data!;
-        if (data['force_update'] == true) {
-          if (mounted) {
-            AppUpdateDialog.show(context, updateData: data, force: true);
-          }
-          return;
-        } else if (data['update_available'] == true) {
-          if (mounted) {
-            await AppUpdateDialog.show(context, updateData: data, force: false);
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('Update check error: $e');
-    }
 
     if (!mounted) return;
     final prefs = await SharedPreferences.getInstance();

@@ -45,10 +45,9 @@ class AppVersion extends Model
 
     /**
      * Check if a force update is required for the given build number.
-     * Automatically forces update whenever the server has a newer build.
      */
     public function requiresForceUpdate(int $currentBuild): bool
     {
-        return $this->build_number > $currentBuild;
+        return $this->force_update && ($this->build_number > $currentBuild);
     }
 }
